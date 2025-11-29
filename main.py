@@ -37,7 +37,7 @@ class Tile(Entity):
 
 
 class Player(Entity): # TODO make this inherit the physics entity
-    def __init__(self, x, y, width, height):
+    def __init__(self, x, y, width, height, tiles):
         super().__init__(x, y, width, height, pygame.Color("white"))
         self.velocity = pygame.math.Vector2(0, 0) # To be moved to Physics entity
         self.acceleration = pygame.math.Vector2(0, 0)
@@ -51,6 +51,7 @@ class Player(Entity): # TODO make this inherit the physics entity
         self.left_held = False
         self.jump_held = False
         self.last_jump_counter = 0
+        self.tiles = tiles
 
         # for detecting single touch of land:
         self.last_on_ground = False
@@ -102,6 +103,16 @@ class Player(Entity): # TODO make this inherit the physics entity
                 self.position.y + self.height > physics_entity.position.y and
                 self.position.y < physics_entity.position.y + physics_entity.height)
 
+    def gravity_collision_check(self, physics_entity):
+        """
+        Check the collision with :param physics_entity: but one pixel below the player
+        :return: bool if collided
+        """
+        return (self.position.x + self.width > physics_entity.position.x and
+                self.position.x < physics_entity.position.x + physics_entity.width and
+                self.position.y + self.height+1 > physics_entity.position.y and
+                self.position.y < physics_entity.position.y + physics_entity.height)
+
     def update(self):
         # Why do I split the two axis'? It helps with determining from which side did the player
         # hit an obstacle and at the same time does not affect physics accuracy.
@@ -151,7 +162,7 @@ class Player(Entity): # TODO make this inherit the physics entity
         self.position.x += self.velocity.x * core.dt
 
         # Temporary Collision check for X-Axis
-        for tile in tiles:
+        for tile in self.tiles:
             if self.collision_check(tile):
                 if self.velocity.x > 0:
                     self.position.x = tile.position.x - self.width
@@ -190,81 +201,95 @@ class Player(Entity): # TODO make this inherit the physics entity
 
         self.on_ground = False
         # Temporary Collision check
-        if self.position.y >= core.VIEWPORT_HEIGHT-48:
+        if self.position.y > core.VIEWPORT_HEIGHT-48:
             self.position.y = core.VIEWPORT_HEIGHT - 48
             # if abs(self.velocity.y) < 0.1: self.velocity.y = 0
             # else: self.velocity.y = -self.velocity.y *0.3
             self.on_ground = True
+            self.hit_the_floor()
             self.velocity.y = 0
+        if self.position.y+1 > core.VIEWPORT_HEIGHT-48:
+            self.on_ground = True
 
-        # Temporary Collision check for X-Axis
-        for tile in tiles:
+        # Temporary Collision check for Y-Axis
+        for tile in self.tiles:
             if self.collision_check(tile):
                 if self.velocity.y > 0:
                     self.position.y = tile.position.y - self.height
                     self.on_ground = True
+                    self.hit_the_floor()
                     self.velocity.y = 0
                 elif self.velocity.y < 0:
                     self.position.y = tile.position.y + tile.height
                     self.velocity.y = 0
+            if self.gravity_collision_check(tile):
+                if self.velocity.y >= 0 and not self.jumping:
+                    self.on_ground = True
 
-        self.last_on_ground = self.on_ground
+    def hit_the_floor(self):
+        print("Hit the floor")
+        core.camera.shake((self.velocity.y / self.max_fall_speed) * 3, (self.velocity.y / self.max_fall_speed) * 0.25)
+        # do some particle effects
+        # or call some event
 
+def main():
+    # init
+    pygame.init()
+    # , pygame.FULLSCREEN | pygame.SCALED
+    screen = pygame.display.set_mode((core.WINDOW_WIDTH, core.WINDOW_HEIGHT), vsync=core.VSYNC)
+    # screen = pygame.display.set_mode((pygame.display.get_desktop_sizes()[0][0], pygame.display.get_desktop_sizes()[0][1]), vsync=VSYNC)
+    # print(pygame.display.get_desktop_sizes()[0][0], pygame.display.get_desktop_sizes()[0][1])
+    # SCREEN_WIDTH = pygame.display.get_desktop_sizes()[0][0]
+    # SCREEN_HEIGHT = pygame.display.get_desktop_sizes()[0][1]
+    pygame.display.set_caption(core.TITLE)
+    clock = pygame.time.Clock()
+    running = True
 
+    world_surface = pygame.Surface((core.VIEWPORT_WIDTH, core.VIEWPORT_HEIGHT))
+    scaled_surface = pygame.Surface((core.WINDOW_WIDTH, core.WINDOW_HEIGHT))
 
-# init
-pygame.init()
-# , pygame.FULLSCREEN | pygame.SCALED
-screen = pygame.display.set_mode((core.WINDOW_WIDTH, core.WINDOW_HEIGHT), vsync=core.VSYNC)
-# screen = pygame.display.set_mode((pygame.display.get_desktop_sizes()[0][0], pygame.display.get_desktop_sizes()[0][1]), vsync=VSYNC)
-# print(pygame.display.get_desktop_sizes()[0][0], pygame.display.get_desktop_sizes()[0][1])
-# SCREEN_WIDTH = pygame.display.get_desktop_sizes()[0][0]
-# SCREEN_HEIGHT = pygame.display.get_desktop_sizes()[0][1]
-pygame.display.set_caption(core.TITLE)
-clock = pygame.time.Clock()
-running = True
+    tiles = [Tile(64, core.VIEWPORT_HEIGHT - 72, 128, 16),
+             Tile(core.VIEWPORT_WIDTH / 2, core.VIEWPORT_HEIGHT / 2, 128, 16)]
 
-world_surface = pygame.Surface((core.VIEWPORT_WIDTH, core.VIEWPORT_HEIGHT))
-scaled_surface = pygame.Surface((core.WINDOW_WIDTH, core.WINDOW_HEIGHT))
+    player = Player(0, 0, 32, 48, tiles)
 
-player = Player(0, 0, 32, 48)
+    core.initialize()
+    commands.initialize(player)
+    input_handler = InputHandler()
 
-tiles = [Tile(64, core.VIEWPORT_HEIGHT - 72, 128, 16), Tile(core.VIEWPORT_WIDTH / 2, core.VIEWPORT_HEIGHT / 2, 128, 16)]
+    while running:
+        core.dt = clock.tick(core.FPS) / 1000.0
+        min(core.dt, 0.2)
 
-core.initialize()
-commands.initialize(player)
-input_handler = InputHandler()
+        keys = pygame.key.get_pressed()
 
-while running:
-    core.dt = clock.tick(core.FPS) / 1000.0
-    min(core.dt, 0.2)
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+            input_handler.handle_input_event(event)
 
-    keys = pygame.key.get_pressed()
+        # Logic:
+        player.update()
 
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
-        input_handler.handle_input_event(event)
+        core.camera.update(player)
 
-    # Logic:
-    player.update()
+        # draw everything to the main surface
+        screen.fill(core.BLACK)
+        world_surface.fill(core.BACKGROUND_COLOR)
+        scaled_surface.fill(core.BACKGROUND_COLOR)
 
-    core.camera.update(player)
+        player.render(world_surface)
 
-    # draw everything to the main surface
-    screen.fill(core.BLACK)
-    world_surface.fill(core.BACKGROUND_COLOR)
-    scaled_surface.fill(core.BACKGROUND_COLOR)
+        for tile in tiles:
+            tile.render(world_surface)
 
-    player.render(world_surface)
+        # Update display and render scaled world
+        pygame.transform.scale(world_surface, (core.WINDOW_WIDTH, core.WINDOW_HEIGHT), scaled_surface)
+        screen.blit(scaled_surface, (0, 0))
+        pygame.display.flip()
 
-    for tile in tiles:
-        tile.render(world_surface)
+    pygame.quit()
+    sys.exit()
 
-    # Update display and render scaled world
-    pygame.transform.scale(world_surface, (core.WINDOW_WIDTH, core.WINDOW_HEIGHT), scaled_surface)
-    screen.blit(scaled_surface, (0, 0))
-    pygame.display.flip()
-
-pygame.quit()
-sys.exit()
+if __name__ == '__main__':
+    main()

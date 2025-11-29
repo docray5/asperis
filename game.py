@@ -1,4 +1,9 @@
 import core
 
-def test():
-    print(core.dt)
+class GameState:
+    def update(self, dt):
+        pass
+
+    def render(self, surface):
+        pass
+
