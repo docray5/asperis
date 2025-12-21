@@ -1,20 +1,15 @@
 class Event:
     """
-    Abstract class for storing data about and event
+    Abstract data class for storing data about and event
     that then gets handled by listener
     """
     pass
 
 
-class PlayerMovedEvent(Event):
-    """
-    Event data class for player movement.
-    Inherits Event abstract class
-    """
-
-    def __init__(self, rect, color):
-        self.rect = rect
-        self.color = color
+class ShakeCameraEvent(Event):
+    def __init__(self, strength, duration):
+        self.strength = strength
+        self.duration = duration
 
 
 class EventListener:
@@ -36,14 +31,14 @@ class EventManager:
     """
 
     def __init__(self):
-        self.listeners = []
+        self.listeners: list[EventListener] = list()
 
-    def subscribe(self, event_listener):
+    def subscribe(self, event_listener: EventListener):
         self.listeners.append(event_listener)
 
-    def unsubscribe(self, event_listener):
+    def unsubscribe(self, event_listener: EventListener):
         self.listeners.remove(event_listener)
 
-    def notify(self, event):
+    def notify(self, event: Event):
         for listener in self.listeners:
             listener.on_notify(event)

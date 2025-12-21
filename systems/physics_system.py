@@ -1,6 +1,7 @@
 import core
 from ecs.components import TransformComp, PlayerComp, TileComp
 from ecs.system import System
+from events import ShakeCameraEvent
 
 
 class PhysicsSystem(System):
@@ -105,8 +106,8 @@ class PhysicsSystem(System):
             player_cmp.on_ground = True
 
     def player_hit_the_floor(self, player_cmp):
-        core.camera.shake((player_cmp.velocity.y / player_cmp.max_fall_speed) * 3,
-                          (player_cmp.velocity.y / player_cmp.max_fall_speed) * 0.25)
+        core.event_manager.notify(ShakeCameraEvent((player_cmp.velocity.y / player_cmp.max_fall_speed) * 3,
+                          (player_cmp.velocity.y / player_cmp.max_fall_speed) * 0.25))
         # do some particle effects
         # or call some event
 

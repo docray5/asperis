@@ -1,6 +1,8 @@
 from camera import Camera
 import pygame
 
+from events import EventManager
+
 # === Config ===
 VIEWPORT_WIDTH = 1280 // 2 # size of the surface to which everything is drawn
 VIEWPORT_HEIGHT = 720 // 2
@@ -18,7 +20,9 @@ MOVE_RIGHT_KEY = pygame.K_d
 QUIT_KEY = pygame.K_ESCAPE
 
 # === Global variables ===
-camera = None
+camera = None  # it's global only because it has to be accessed by render and camera systems. So
+# It's only accessed there
+event_manager = None
 
 # Custom Colors:
 BLACK = (0, 0, 0)
@@ -26,5 +30,6 @@ BACKGROUND_COLOR = (33, 33, 33)
 
 
 def initialize(): # Initialize global Objects
-    global camera
+    global camera, event_manager
     camera = Camera()
+    event_manager = EventManager()
