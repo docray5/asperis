@@ -4,7 +4,15 @@ import ctypes
 
 import commands
 import core
-from input_handler import InputHandler
+from ecs import entity_manger
+from ecs.components import PhysicsComp, RectToDrawComp, RenderableComp, TileComp, TransformComp, PlayerComp
+from ecs.entity_manger import EntityManager
+from ecs.system_manager import SystemManager
+from systems.camera_system import CameraSystem
+from systems.input_system import InputSystem
+from systems.physics_system import PhysicsSystem
+from systems.player_system import PlayerSystem
+from systems.render_system import RenderSystem
 
 # Additional line because windows scaling is broken and affects my game
 # thanks to this the window displays independently to scaling
@@ -19,7 +27,7 @@ class Entity: # actually it's a drawable entity
         self.width = width
         self.height = height
 
-    def update(self):
+    def update(self, dt):
         pass
 
     def render(self, surface):
@@ -46,15 +54,11 @@ class Player(Entity): # TODO make this inherit the physics entity
         self.coyote_counter = 0
         self.jump_buffer_counter = 0
         self.input_x_dir = 0
-        self.drawing_rect = pygame.Rect(x, y, width, height)
         self.right_held = False
         self.left_held = False
         self.jump_held = False
         self.last_jump_counter = 0
         self.tiles = tiles
-
-        # for detecting single touch of land:
-        self.last_on_ground = False
 
         # config
         self.coyote_time = 0.125
@@ -67,13 +71,13 @@ class Player(Entity): # TODO make this inherit the physics entity
         self.gravity = 1400
         self.jump_release_time = 0.2
 
-    def jump_down(self):
+    def jump_key_down(self):
         self.jump_held = True
         if not self.on_ground and self.coyote_counter < self.coyote_time:
             self.jump()
 
 
-    def jump_up(self):
+    def jump_key_up(self):
         self.jump_held = False
         self.jumping = False
         if self.last_jump_counter > self.jump_release_time:
@@ -113,7 +117,7 @@ class Player(Entity): # TODO make this inherit the physics entity
                 self.position.y + self.height+1 > physics_entity.position.y and
                 self.position.y < physics_entity.position.y + physics_entity.height)
 
-    def update(self):
+    def update(self, dt):
         # Why do I split the two axis'? It helps with determining from which side did the player
         # hit an obstacle and at the same time does not affect physics accuracy.
 
@@ -145,11 +149,11 @@ class Player(Entity): # TODO make this inherit the physics entity
                 self.acceleration.x = self.air_accel_rate * self.input_x_dir
 
         # Apply forces
-        self.velocity.x += self.acceleration.x * core.dt
+        self.velocity.x += self.acceleration.x * dt
 
         # Apply friction
         if self.input_x_dir == 0:
-            self.velocity.x *= 0.8 ** (core.dt * 60)
+            self.velocity.x *= 0.8 ** (dt * 60)
             if abs(self.velocity.x) < 0.1:
                 self.velocity.x = 0
 
@@ -159,7 +163,7 @@ class Player(Entity): # TODO make this inherit the physics entity
             else: self.velocity.x = self.max_speed
 
         # Update Position
-        self.position.x += self.velocity.x * core.dt
+        self.position.x += self.velocity.x * dt
 
         # Temporary Collision check for X-Axis
         for tile in self.tiles:
@@ -175,29 +179,29 @@ class Player(Entity): # TODO make this inherit the physics entity
         # Apply gravity and all the forces to velocity
         # I skip mass so it's just F = a
         if not self.on_ground:
-            self.velocity.y += self.gravity * core.dt
-            self.jump_buffer_counter -= core.dt
-            self.coyote_counter += core.dt
+            self.velocity.y += self.gravity * dt
+            self.jump_buffer_counter -= dt
+            self.coyote_counter += dt
 
         if self.on_ground:
             self.coyote_counter = 0
 
         if self.last_jump_counter <= self.jump_release_time:
-            self.last_jump_counter += core.dt
+            self.last_jump_counter += dt
 
         if self.on_ground and self.jump_buffer_counter > 0:
             self.jump()
             self.jump_buffer_counter = 0
 
         # Apply forces
-        self.velocity.y += self.acceleration.y * core.dt
+        self.velocity.y += self.acceleration.y * dt
 
         # Cap speed
         if self.velocity.y > self.max_fall_speed:
             self.velocity.y = self.max_fall_speed
 
         # Update Position
-        self.position.y += self.velocity.y * core.dt
+        self.position.y += self.velocity.y * dt
 
         self.on_ground = False
         # Temporary Collision check
@@ -232,6 +236,20 @@ class Player(Entity): # TODO make this inherit the physics entity
         # do some particle effects
         # or call some event
 
+
+def create_tile(x, y, width, height, entity_mgr: EntityManager):
+    tile_entity_id = entity_mgr.create_entity()
+    transform_cmp = TransformComp(pygame.math.Vector2(x, y), width, height)
+    # physics_cmp = PhysicsComp()
+    render_cmp = RenderableComp(pygame.Color(200, 200, 200))
+    entity_mgr.add_components(
+        tile_entity_id, 
+        transform_cmp, 
+        render_cmp,
+        TileComp(),
+        RectToDrawComp())
+
+
 def main():
     # init
     pygame.init()
@@ -245,48 +263,81 @@ def main():
     clock = pygame.time.Clock()
     running = True
 
-    world_surface = pygame.Surface((core.VIEWPORT_WIDTH, core.VIEWPORT_HEIGHT))
-    scaled_surface = pygame.Surface((core.WINDOW_WIDTH, core.WINDOW_HEIGHT))
+    # world_surface = pygame.Surface((core.VIEWPORT_WIDTH, core.VIEWPORT_HEIGHT))
+    # scaled_surface = pygame.Surface((core.WINDOW_WIDTH, core.WINDOW_HEIGHT))
 
-    tiles = [Tile(64, core.VIEWPORT_HEIGHT - 72, 128, 16),
-             Tile(core.VIEWPORT_WIDTH / 2, core.VIEWPORT_HEIGHT / 2, 128, 16)]
+    # tiles = [Tile(64, core.VIEWPORT_HEIGHT - 72, 128, 16),
+    #          Tile(core.VIEWPORT_WIDTH / 2, core.VIEWPORT_HEIGHT / 2, 128, 16)]
 
-    player = Player(0, 0, 32, 48, tiles)
+    # player = Player(0, 0, 32, 48, tiles)
 
     core.initialize()
-    commands.initialize(player)
-    input_handler = InputHandler()
+
+    # New Structure:
+    entity_manager = EntityManager()
+    system_manager = SystemManager()
+
+    # Temporary Factory:
+
+    player_entity_id = entity_manager.create_entity()
+    player_comp = PlayerComp()
+    transform_cmp = TransformComp(pygame.math.Vector2(0, 0), 32, 48)
+    render_cmp = RenderableComp(pygame.color.Color(255, 255, 255))
+    entity_manager.add_components(
+        player_entity_id, 
+        player_comp, 
+        transform_cmp, 
+        render_cmp,
+        RectToDrawComp())
+
+    create_tile(64, core.VIEWPORT_HEIGHT - 72, 128, 16, entity_manager)
+    create_tile(core.VIEWPORT_WIDTH / 2, core.VIEWPORT_HEIGHT / 2 + 32, 128, 16, entity_manager)
+    create_tile(0, core.VIEWPORT_HEIGHT, core.VIEWPORT_WIDTH, 32, entity_manager)
+
+    player_system = PlayerSystem(entity_manager, player_comp)
+
+    # Setup the engine's systems
+    system_manager.add_system(InputSystem(entity_manager))
+    system_manager.add_system(player_system)
+    system_manager.add_system(PhysicsSystem(entity_manager))
+    system_manager.add_system(CameraSystem(entity_manager))
+    system_manager.add_system(RenderSystem(entity_manager, screen))
+
+    commands.initialize(player_system)
 
     while running:
-        core.dt = clock.tick(core.FPS) / 1000.0
-        min(core.dt, 0.2)
+        dt = clock.tick(core.FPS) / 1000.0
+        min(dt, 0.2)
 
-        keys = pygame.key.get_pressed()
+        # for event in pygame.event.get():
+        #     if event.type == pygame.QUIT:
+        #         running = False
+        #     input_handler.handle_input_event(event)
 
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                running = False
-            input_handler.handle_input_event(event)
+        entity_manager.purge_dead_entities()
 
-        # Logic:
-        player.update()
+        system_manager.update(dt)
 
-        core.camera.update(player)
+        # OLD:
+
+        # player.update(dt)
+
+        # core.camera.update(dt, player)
 
         # draw everything to the main surface
-        screen.fill(core.BLACK)
-        world_surface.fill(core.BACKGROUND_COLOR)
-        scaled_surface.fill(core.BACKGROUND_COLOR)
+        # screen.fill(core.BLACK)
+        # world_surface.fill(core.BACKGROUND_COLOR)
+        # scaled_surface.fill(core.BACKGROUND_COLOR)
 
-        player.render(world_surface)
+        # player.render(world_surface)
 
-        for tile in tiles:
-            tile.render(world_surface)
+        # for tile in tiles:
+        #     tile.render(world_surface)
 
         # Update display and render scaled world
-        pygame.transform.scale(world_surface, (core.WINDOW_WIDTH, core.WINDOW_HEIGHT), scaled_surface)
-        screen.blit(scaled_surface, (0, 0))
-        pygame.display.flip()
+        # pygame.transform.scale(world_surface, (core.WINDOW_WIDTH, core.WINDOW_HEIGHT), scaled_surface)
+        # screen.blit(scaled_surface, (0, 0))
+        # pygame.display.flip()
 
     pygame.quit()
     sys.exit()

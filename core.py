@@ -1,6 +1,5 @@
 from camera import Camera
-
-# Note: Keybinds are in input_handler
+import pygame
 
 # === Config ===
 VIEWPORT_WIDTH = 1280 // 2 # size of the surface to which everything is drawn
@@ -10,11 +9,16 @@ WINDOW_HEIGHT = VIEWPORT_HEIGHT * 2
 FPS = 60
 VSYNC = 1
 TITLE = "asperis"
+DEBUG = False
 
-# === Global variables (Singletons) ===
-dt = 0
+# === Keybinds ===
+JUMP_KEY = pygame.K_SPACE
+MOVE_LEFT_KEY = pygame.K_a
+MOVE_RIGHT_KEY = pygame.K_d
+QUIT_KEY = pygame.K_ESCAPE
+
+# === Global variables ===
 camera = None
-commands = None
 
 # Custom Colors:
 BLACK = (0, 0, 0)

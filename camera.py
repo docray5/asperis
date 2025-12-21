@@ -21,12 +21,12 @@ class Camera:
         self.shake_duration = duration
         self.shake_counter = 0
 
-    def update(self, player):
+    def update(self, dt, player): # rather player transform component
         target_x = player.position.x + player.width / 2 - self.width / 2
         target_y = player.position.y + player.height / 2 - self.height / 2
 
         # factor = 1 - math.pow(0.5, dt * self.follow_speed)
-        factor = min(self.follow_speed * core.dt, 1.0)
+        factor = min(self.follow_speed * dt, 1.0)
 
         # if you don't want the dead zone, just remove the ifs and leave the other two lines
         if abs(target_x - self.position.x) > self.dead_zone:
@@ -38,6 +38,6 @@ class Camera:
 
         # Apply screen shake:
         if self.shake_counter < self.shake_duration:
-            self.shake_counter += core.dt
+            self.shake_counter += dt
             self.position.x += self.shake_amount.x * (random.randint(0, 1) * 2 - 1)
             self.position.y += self.shake_amount.y * (random.randint(0, 1) * 2 - 1)
