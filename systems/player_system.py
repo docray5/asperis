@@ -31,6 +31,21 @@ class PlayerSystem(System):
             if self.player_comp.on_ground:
                 self.jump(self.player_comp.jump_force)
 
+        self.player_comp.last_dashed += dt
+
+        # Handle dash:
+        if self.player_comp.dashing:
+            # print("dashing...")
+
+            self.player_comp.dash_time += dt
+            if self.player_comp.dash_time >= self.player_comp.dash_duration:
+                # Dash finished
+                self.player_comp.dashing = False
+                # if self.player_comp.velocity.y < 0:
+                #     self.player_comp.velocity.y = -250
+                if self.player_comp.velocity.y == 0 and self.player_comp.on_ground:
+                    self.player_comp.dashes_left = self.player_comp.max_dash_amount
+
         # reduce penalty for changing direction and apply proper accel rates
         if self.player_comp.input_x_dir != 0 and (
                 self.player_comp.velocity.x * self.player_comp.input_x_dir) < 0:
@@ -97,8 +112,39 @@ class PlayerSystem(System):
     def right_key_up(self):
         self.player_comp.right_held = False
 
+    def down_key_down(self):
+        self.player_comp.dash_direction.y = 1
+
+    def down_key_up(self):
+        self.player_comp.dash_direction.y = 0
+
+    def up_key_down(self):
+        self.player_comp.dash_direction.y = -1
+
+    def up_key_up(self):
+        self.player_comp.dash_direction.y = 0
+
+    def dash_key_up(self):
+        pass
+
+    def dash_key_down(self):
+        if (self.player_comp.input_x_dir == 0 and self.player_comp.dash_direction.y == 0) or self.player_comp.dashes_left < 1 or self.player_comp.last_dashed < self.player_comp.dash_cool_down:
+            return
+
+        self.player_comp.velocity.x = self.player_comp.input_x_dir * core.DASH_SPEED
+        self.player_comp.velocity.y = self.player_comp.dash_direction.y * core.DASH_SPEED
+        if self.player_comp.dash_direction.y < 0:
+            self.player_comp.velocity.y *= 0.4
+
+        self.player_comp.dashing = True
+        self.player_comp.dash_time = 0
+        self.player_comp.dashes_left -= 1
+        self.player_comp.last_dashed = 0
+        print("Dash pressed")
+        print(self.player_comp.velocity.y)
+
     def jump(self, force):
-        if self.player_comp.jumping: 
+        if self.player_comp.jumping:
             return
 
         self.player_comp.velocity.y = force

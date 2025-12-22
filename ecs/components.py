@@ -56,14 +56,23 @@ class PlayerComp(Component):
     left_held: bool = False
     jump_held: bool = False
     last_jump_counter: float = 0
+    dash_direction: pygame.math.Vector2 = field(default_factory=lambda: pygame.math.Vector2(0, 0))
+    dash_time: float = 0
+    dashing: bool = False
+    last_dashed: float = 0
+    dashes_left: int = 0
 
     # config (REMOVE THESE AND PUT INTO CORE)
     coyote_time: float = 0.05
     jump_buffer_time: float = 0.02
     ground_accel_rate: float = 2100
     max_speed: float = 250
+    max_dash_speed: float = 1000
     jump_force: float = -550
     air_accel_rate: float = 1050
     max_fall_speed: float = 1000
     gravity: float = 1400
     jump_release_time: float = 0.02
+    dash_duration: float = 0.15
+    dash_cool_down: float = 0.4
+    max_dash_amount = 1

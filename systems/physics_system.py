@@ -23,7 +23,6 @@ class PhysicsSystem(System):
 
         # === Initial Setup: ===
         player_id = self.entity_manager.get_entities_with(PlayerComp)[0]
-        # TODO FIX THE ERROR BY TYPE
         player_cmp: PlayerComp | None = self.entity_manager.get_component(player_id, PlayerComp)
         player_trans_cmp: TransformComp | None = self.entity_manager.get_component(player_id, TransformComp)
 
@@ -48,34 +47,44 @@ class PhysicsSystem(System):
 
     def move_player_x(self, player_cmp, transform_cmp, dt):
         # Apply forces
-        player_cmp.velocity.x += player_cmp.acceleration.x * dt
+        if player_cmp.dashing:
+            # allow for subtle steering during dash
+            player_cmp.velocity.x += player_cmp.input_x_dir * 10000 * dt
+            # cap dash speed
+            player_cmp.velocity.x = max(-player_cmp.max_dash_speed,
+                                        min(player_cmp.velocity.x, player_cmp.max_dash_speed))
+        else:
+            player_cmp.velocity.x += player_cmp.acceleration.x * dt
 
-        # Apply friction
-        if player_cmp.input_x_dir == 0:
-            player_cmp.velocity.x *= core.FRICTION ** (dt * 60)
-            if abs(player_cmp.velocity.x) < 0.1:
-                player_cmp.velocity.x = 0
+            # Apply friction
+            if player_cmp.input_x_dir == 0:
+                player_cmp.velocity.x *= core.FRICTION ** (dt * 60)
+                if abs(player_cmp.velocity.x) < 0.1:
+                    player_cmp.velocity.x = 0
 
-        # Cap speed
-        if abs(player_cmp.velocity.x) > player_cmp.max_speed:
-            if player_cmp.velocity.x < 0:
-                player_cmp.velocity.x = -player_cmp.max_speed
-            else:
-                player_cmp.velocity.x = player_cmp.max_speed
+            # Cap speed
+            if abs(player_cmp.velocity.x) > player_cmp.max_speed:
+                if player_cmp.velocity.x < 0:
+                    player_cmp.velocity.x = -player_cmp.max_speed
+                else:
+                    player_cmp.velocity.x = player_cmp.max_speed
 
         # Update Position
         transform_cmp.position.x += player_cmp.velocity.x * dt
 
     def move_player_y(self, player_cmp, transform_cmp, dt):
-        if not player_cmp.on_ground:
+        if not player_cmp.on_ground and not player_cmp.dashing:
             player_cmp.velocity.y += player_cmp.gravity * dt
 
         # Apply forces
         player_cmp.velocity.y += player_cmp.acceleration.y * dt
 
         # Cap speed
-        if player_cmp.velocity.y > player_cmp.max_fall_speed:
-            player_cmp.velocity.y = player_cmp.max_fall_speed
+        if abs(player_cmp.velocity.y) > player_cmp.max_fall_speed:
+            if player_cmp.velocity.y < 0:
+                player_cmp.velocity.y = -player_cmp.max_fall_speed
+            else:
+                player_cmp.velocity.y = player_cmp.max_fall_speed
 
         # Update Position
         transform_cmp.position.y += player_cmp.velocity.y * dt
@@ -86,9 +95,11 @@ class PhysicsSystem(System):
         if player_cmp.velocity.x > 0:
             player_trans_cmp.position.x = tile_trans_cmp.position.x - player_trans_cmp.width
             player_cmp.velocity.x = 0
+            player_cmp.dashing = False
         elif player_cmp.velocity.x < 0:
             player_trans_cmp.position.x = tile_trans_cmp.position.x + tile_trans_cmp.width
             player_cmp.velocity.x = 0
+            player_cmp.dashing = False
 
     def handle_player_collision_y(self, player_cmp: PlayerComp, player_trans_cmp: TransformComp, tile_trans_cmp: TransformComp):
         if player_cmp.velocity.y > 0:
@@ -97,9 +108,12 @@ class PhysicsSystem(System):
             player_cmp.on_ground = True
             self.player_hit_the_floor(player_cmp)
             player_cmp.velocity.y = 0
+            player_cmp.dashing = False
+            player_cmp.dashes_left = player_cmp.max_dash_amount
         elif player_cmp.velocity.y < 0:
             player_trans_cmp.position.y = tile_trans_cmp.position.y + tile_trans_cmp.height
             player_cmp.velocity.y = 0
+            player_cmp.dashing = False
 
     def handle_player_gravity_collision(self, player_cmp: PlayerComp):
         if player_cmp.velocity.y >= 0 and not player_cmp.jumping:

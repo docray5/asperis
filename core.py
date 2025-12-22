@@ -18,15 +18,18 @@ JUMP_KEY = pygame.K_SPACE
 MOVE_LEFT_KEY = pygame.K_a
 MOVE_RIGHT_KEY = pygame.K_d
 QUIT_KEY = pygame.K_ESCAPE
+POINT_UP_KEY = pygame.K_w
+POINT_DOWN_KEY = pygame.K_s
+DASH_KEY = pygame.K_LSHIFT
 
 # === Player controller config ===
 FRICTION = 0.8
+DASH_SPEED = 1000  # pixels per frame
 
 # === Global variables ===
 camera = None  # it's global only because it has to be accessed by render and camera systems. So
 # It's only accessed there
 event_manager = None
-factory = None
 
 # Custom Colors:
 BLACK = (0, 0, 0)

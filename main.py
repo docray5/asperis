@@ -13,6 +13,7 @@ from systems.physics_system import PhysicsSystem
 from systems.player_system import PlayerSystem
 from systems.render_system import RenderSystem
 
+
 def main():
     # Additional line because windows scaling is broken and affects my game
     # thanks to this the window displays independently to scaling
@@ -36,13 +37,11 @@ def main():
     entity_manager = EntityManager()
     system_manager = SystemManager()
 
-    core.factory = factory.Factory(entity_manager)
+    player_id = factory.create_player(entity_manager, 0, 0, 32, 48)
 
-    player_id = core.factory.create_player(0, 0, 32, 48)
-
-    core.factory.create_tile(64, core.VIEWPORT_HEIGHT - 72, 128, 16)
-    core.factory.create_tile(core.VIEWPORT_WIDTH / 2, core.VIEWPORT_HEIGHT / 2 + 32, 128, 16)
-    core.factory.create_tile(0, core.VIEWPORT_HEIGHT, core.VIEWPORT_WIDTH, 32)
+    factory.create_tile(entity_manager, 64, core.VIEWPORT_HEIGHT - 72, 128, 16)
+    factory.create_tile(entity_manager, core.VIEWPORT_WIDTH / 2, core.VIEWPORT_HEIGHT / 2 + 32, 128, 16)
+    factory.create_tile(entity_manager, 0, core.VIEWPORT_HEIGHT, core.VIEWPORT_WIDTH, 32)
 
     player_system = PlayerSystem(entity_manager, entity_manager.get_component(player_id, PlayerComp))
     camera_system = CameraSystem(entity_manager)
