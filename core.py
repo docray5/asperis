@@ -26,6 +26,7 @@ FRICTION = 0.8
 camera = None  # it's global only because it has to be accessed by render and camera systems. So
 # It's only accessed there
 event_manager = None
+factory = None
 
 # Custom Colors:
 BLACK = (0, 0, 0)

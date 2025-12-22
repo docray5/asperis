@@ -3,7 +3,8 @@ import sys
 import ctypes
 import commands
 import core
-from ecs.components import PhysicsComp, RectToDrawComp, RenderableComp, TileComp, TransformComp, PlayerComp
+import factory
+from ecs.components import PlayerComp
 from ecs.entity_manger import EntityManager
 from ecs.system_manager import SystemManager
 from systems.camera_system import CameraSystem
@@ -11,20 +12,6 @@ from systems.input_system import InputSystem
 from systems.physics_system import PhysicsSystem
 from systems.player_system import PlayerSystem
 from systems.render_system import RenderSystem
-
-
-def create_tile(x, y, width, height, entity_mgr: EntityManager):
-    tile_entity_id = entity_mgr.create_entity()
-    transform_cmp = TransformComp(pygame.math.Vector2(x, y), width, height)
-    # physics_cmp = PhysicsComp()
-    render_cmp = RenderableComp(pygame.Color(200, 200, 200))
-    entity_mgr.add_components(
-        tile_entity_id, 
-        transform_cmp, 
-        render_cmp,
-        TileComp(),
-        RectToDrawComp())
-
 
 def main():
     # Additional line because windows scaling is broken and affects my game
@@ -49,27 +36,18 @@ def main():
     entity_manager = EntityManager()
     system_manager = SystemManager()
 
-    # Temporary Factory:
+    core.factory = factory.Factory(entity_manager)
 
-    player_entity_id = entity_manager.create_entity()
-    player_comp = PlayerComp()
-    transform_cmp = TransformComp(pygame.math.Vector2(0, 0), 32, 48)
-    render_cmp = RenderableComp(pygame.color.Color(255, 255, 255))
-    entity_manager.add_components(
-        player_entity_id, 
-        player_comp, 
-        transform_cmp, 
-        render_cmp,
-        RectToDrawComp())
+    player_id = core.factory.create_player(0, 0, 32, 48)
 
-    create_tile(64, core.VIEWPORT_HEIGHT - 72, 128, 16, entity_manager)
-    create_tile(core.VIEWPORT_WIDTH / 2, core.VIEWPORT_HEIGHT / 2 + 32, 128, 16, entity_manager)
-    create_tile(0, core.VIEWPORT_HEIGHT, core.VIEWPORT_WIDTH, 32, entity_manager)
+    core.factory.create_tile(64, core.VIEWPORT_HEIGHT - 72, 128, 16)
+    core.factory.create_tile(core.VIEWPORT_WIDTH / 2, core.VIEWPORT_HEIGHT / 2 + 32, 128, 16)
+    core.factory.create_tile(0, core.VIEWPORT_HEIGHT, core.VIEWPORT_WIDTH, 32)
 
-    player_system = PlayerSystem(entity_manager, player_comp)
+    player_system = PlayerSystem(entity_manager, entity_manager.get_component(player_id, PlayerComp))
     camera_system = CameraSystem(entity_manager)
 
-    # Setup the engine's systems
+    # Set up the engine's systems
     system_manager.add_system(InputSystem(entity_manager))
     system_manager.add_system(player_system)
     system_manager.add_system(PhysicsSystem(entity_manager))

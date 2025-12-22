@@ -9,7 +9,7 @@ class PlayerSystem(System):
     It's more like a manager, as it Manages input calls for the player.
     Does not contain physics it just sets/alerts the physics system about changes
     """
-    def __init__(self, entity_manager: EntityManager, player_comp: PlayerComp):
+    def __init__(self, entity_manager: EntityManager, player_comp: PlayerComp | None):
         super().__init__(entity_manager)
         self.player_comp: PlayerComp = player_comp
 

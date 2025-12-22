@@ -24,14 +24,14 @@ class PhysicsSystem(System):
         # === Initial Setup: ===
         player_id = self.entity_manager.get_entities_with(PlayerComp)[0]
         # TODO FIX THE ERROR BY TYPE
-        player_cmp: PlayerComp = self.entity_manager.get_component(player_id, PlayerComp)
-        player_trans_cmp: TransformComp = self.entity_manager.get_component(player_id, TransformComp)
+        player_cmp: PlayerComp | None = self.entity_manager.get_component(player_id, PlayerComp)
+        player_trans_cmp: TransformComp | None = self.entity_manager.get_component(player_id, TransformComp)
 
         # === X-axis: ===
         self.move_player_x(player_cmp, player_trans_cmp, dt)
 
         for tile_id in self.entity_manager.get_entities_with(TileComp):
-            tile_trans_cmp: TransformComp = self.entity_manager.get_component(tile_id, TransformComp)
+            tile_trans_cmp: TransformComp | None = self.entity_manager.get_component(tile_id, TransformComp)
             if self.check_collision(player_trans_cmp, tile_trans_cmp):
                 self.handle_player_collision_x(player_cmp, player_trans_cmp, tile_trans_cmp)
 
@@ -39,7 +39,7 @@ class PhysicsSystem(System):
         self.move_player_y(player_cmp, player_trans_cmp, dt)
 
         for tile_id in self.entity_manager.get_entities_with(TileComp):
-            tile_trans_cmp: TransformComp = self.entity_manager.get_component(tile_id, TransformComp)
+            tile_trans_cmp: TransformComp | None = self.entity_manager.get_component(tile_id, TransformComp)
             if self.check_collision(player_trans_cmp, tile_trans_cmp):
                 self.handle_player_collision_y(player_cmp, player_trans_cmp, tile_trans_cmp)
             elif self.check_collision_for_gravity(player_trans_cmp, tile_trans_cmp):
