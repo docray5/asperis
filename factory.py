@@ -1,6 +1,6 @@
 import pygame
 
-from ecs.components import TransformComp, RenderableComp, TileComp, RectToDrawComp, PlayerComp
+from ecs.components import TransformComp, RenderableComp, TileComp, RectToDrawComp, PlayerComp, PhysicsComp
 from ecs.entity_manger import EntityManager
 
 
@@ -23,11 +23,13 @@ def create_player(entity_manager, x, y, width, height):
     player_comp = PlayerComp()
     transform_cmp = TransformComp(pygame.math.Vector2(x, y), width, height)
     render_cmp = RenderableComp(pygame.color.Color(255, 255, 255))
+    physics_cmp = PhysicsComp()
     entity_manager.add_components(
         player_entity_id,
         player_comp,
         transform_cmp,
         render_cmp,
+        physics_cmp,
         RectToDrawComp())
 
     return player_entity_id

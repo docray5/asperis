@@ -34,7 +34,8 @@ class RectToDrawComp(Component):
 
 @dataclass
 class PhysicsComp(Component):
-    pass
+    velocity: pygame.math.Vector2 = field(default_factory=lambda: pygame.math.Vector2(0, 0))
+    acceleration: pygame.math.Vector2 = field(default_factory=lambda: pygame.math.Vector2(0, 0))
 
 
 @dataclass
@@ -42,9 +43,6 @@ class PlayerComp(Component):
     """
     Component only related to handling of player input
     """
-    # TODO MOVE THESE to PhysicsComp
-    velocity: pygame.math.Vector2 = field(default_factory=lambda: pygame.math.Vector2(0, 0))
-    acceleration: pygame.math.Vector2 = field(default_factory=lambda: pygame.math.Vector2(0, 0))
     jumping: bool = False
     on_ground: bool = False
 

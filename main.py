@@ -4,7 +4,7 @@ import ctypes
 import commands
 import core
 import factory
-from ecs.components import PlayerComp
+from ecs.components import PlayerComp, PhysicsComp
 from ecs.entity_manger import EntityManager
 from ecs.system_manager import SystemManager
 from systems.camera_system import CameraSystem
@@ -43,7 +43,8 @@ def main():
     factory.create_tile(entity_manager, core.VIEWPORT_WIDTH / 2, core.VIEWPORT_HEIGHT / 2 + 32, 128, 16)
     factory.create_tile(entity_manager, 0, core.VIEWPORT_HEIGHT, core.VIEWPORT_WIDTH, 32)
 
-    player_system = PlayerSystem(entity_manager, entity_manager.get_component(player_id, PlayerComp))
+    player_system = PlayerSystem(entity_manager, entity_manager.get_component(player_id, PlayerComp),
+                                 entity_manager.get_component(player_id, PhysicsComp))
     camera_system = CameraSystem(entity_manager)
 
     # Set up the engine's systems

@@ -1,5 +1,5 @@
 import core
-from ecs.components import PlayerComp
+from ecs.components import PlayerComp, PhysicsComp
 from ecs.entity_manger import EntityManager
 from ecs.system import System
 
@@ -9,9 +9,10 @@ class PlayerSystem(System):
     It's more like a manager, as it Manages input calls for the player.
     Does not contain physics it just sets/alerts the physics system about changes
     """
-    def __init__(self, entity_manager: EntityManager, player_comp: PlayerComp | None):
+    def __init__(self, entity_manager: EntityManager, player_comp: PlayerComp | None, physics_comp: PhysicsComp | None):
         super().__init__(entity_manager)
         self.player_comp: PlayerComp = player_comp
+        self.player_physics_comp: PhysicsComp = physics_comp
 
     def update(self, dt: float) -> None:
         # Why do I split the two axis'? It helps with determining from which side did the player
@@ -41,23 +42,23 @@ class PlayerSystem(System):
             if self.player_comp.dash_time >= self.player_comp.dash_duration:
                 # Dash finished
                 self.player_comp.dashing = False
-                # if self.player_comp.velocity.y < 0:
-                #     self.player_comp.velocity.y = -250
-                if self.player_comp.velocity.y == 0 and self.player_comp.on_ground:
+                # if self.player_physics_comp.velocity.y < 0:
+                #     self.player_physics_comp.velocity.y = -250
+                if self.player_physics_comp.velocity.y == 0 and self.player_comp.on_ground:
                     self.player_comp.dashes_left = self.player_comp.max_dash_amount
 
         # reduce penalty for changing direction and apply proper accel rates
         if self.player_comp.input_x_dir != 0 and (
-                self.player_comp.velocity.x * self.player_comp.input_x_dir) < 0:
+                self.player_physics_comp.velocity.x * self.player_comp.input_x_dir) < 0:
             if self.player_comp.on_ground:
-                self.player_comp.acceleration.x = self.player_comp.ground_accel_rate * 2 * self.player_comp.input_x_dir
+                self.player_physics_comp.acceleration.x = self.player_comp.ground_accel_rate * 2 * self.player_comp.input_x_dir
             else:
-                self.player_comp.acceleration.x = self.player_comp.air_accel_rate * 2 * self.player_comp.input_x_dir
+                self.player_physics_comp.acceleration.x = self.player_comp.air_accel_rate * 2 * self.player_comp.input_x_dir
         else:
             if self.player_comp.on_ground:
-                self.player_comp.acceleration.x = self.player_comp.ground_accel_rate * self.player_comp.input_x_dir
+                self.player_physics_comp.acceleration.x = self.player_comp.ground_accel_rate * self.player_comp.input_x_dir
             else:
-                self.player_comp.acceleration.x = self.player_comp.air_accel_rate * self.player_comp.input_x_dir
+                self.player_physics_comp.acceleration.x = self.player_comp.air_accel_rate * self.player_comp.input_x_dir
 
         # === Y-axis: ===
 
@@ -92,12 +93,12 @@ class PlayerSystem(System):
     def jump_key_up(self):
         self.player_comp.jump_held = False
 
-        if not self.player_comp.jumping or self.player_comp.velocity.y > 0:
+        if not self.player_comp.jumping or self.player_physics_comp.velocity.y > 0:
             return
 
         self.player_comp.jumping = False
         if self.player_comp.last_jump_counter > self.player_comp.jump_release_time:
-            self.player_comp.velocity.y *= 0.5
+            self.player_physics_comp.velocity.y *= 0.5
             if core.DEBUG: print("slowing down")
 
     def left_key_down(self):
@@ -131,23 +132,23 @@ class PlayerSystem(System):
         if (self.player_comp.input_x_dir == 0 and self.player_comp.dash_direction.y == 0) or self.player_comp.dashes_left < 1 or self.player_comp.last_dashed < self.player_comp.dash_cool_down:
             return
 
-        self.player_comp.velocity.x = self.player_comp.input_x_dir * core.DASH_SPEED
-        self.player_comp.velocity.y = self.player_comp.dash_direction.y * core.DASH_SPEED
+        self.player_physics_comp.velocity.x = self.player_comp.input_x_dir * core.DASH_SPEED
+        self.player_physics_comp.velocity.y = self.player_comp.dash_direction.y * core.DASH_SPEED
         if self.player_comp.dash_direction.y < 0:
-            self.player_comp.velocity.y *= 0.4
+            self.player_physics_comp.velocity.y *= 0.4
 
         self.player_comp.dashing = True
         self.player_comp.dash_time = 0
         self.player_comp.dashes_left -= 1
         self.player_comp.last_dashed = 0
         print("Dash pressed")
-        print(self.player_comp.velocity.y)
+        print(self.player_physics_comp.velocity.y)
 
     def jump(self, force):
         if self.player_comp.jumping:
             return
 
-        self.player_comp.velocity.y = force
+        self.player_physics_comp.velocity.y = force
         self.player_comp.jumping = True
         self.player_comp.on_ground = False
         self.player_comp.last_jump_counter = 0
