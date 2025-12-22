@@ -52,7 +52,7 @@ class PhysicsSystem(System):
 
         # Apply friction
         if player_cmp.input_x_dir == 0:
-            player_cmp.velocity.x *= 0.8 ** (dt * 60)
+            player_cmp.velocity.x *= core.FRICTION ** (dt * 60)
             if abs(player_cmp.velocity.x) < 0.1:
                 player_cmp.velocity.x = 0
 
@@ -110,12 +110,6 @@ class PhysicsSystem(System):
                           (player_cmp.velocity.y / player_cmp.max_fall_speed) * 0.25))
         # do some particle effects
         # or call some event
-
-    def on_jump(self):
-        pass
-
-    def off_jump(self):
-        pass
 
     def check_collision(self, e1_trans_cmp: TransformComp, e2_trans_cmp: TransformComp) -> bool:
         return (e1_trans_cmp.position.x + e1_trans_cmp.width > e2_trans_cmp.position.x and

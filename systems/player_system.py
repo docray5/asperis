@@ -83,7 +83,7 @@ class PlayerSystem(System):
         self.player_comp.jumping = False
         if self.player_comp.last_jump_counter > self.player_comp.jump_release_time:
             self.player_comp.velocity.y *= 0.5
-            print("slowing down")
+            if core.DEBUG: print("slowing down")
 
     def left_key_down(self):
         self.player_comp.left_held = True
@@ -105,4 +105,4 @@ class PlayerSystem(System):
         self.player_comp.jumping = True
         self.player_comp.on_ground = False
         self.player_comp.last_jump_counter = 0
-        print("--- ---")
+        if core.DEBUG: print("--- Player Jumped ---")

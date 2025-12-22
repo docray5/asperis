@@ -19,6 +19,9 @@ MOVE_LEFT_KEY = pygame.K_a
 MOVE_RIGHT_KEY = pygame.K_d
 QUIT_KEY = pygame.K_ESCAPE
 
+# === Player controller config ===
+FRICTION = 0.8
+
 # === Global variables ===
 camera = None  # it's global only because it has to be accessed by render and camera systems. So
 # It's only accessed there

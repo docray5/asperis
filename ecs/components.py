@@ -57,7 +57,7 @@ class PlayerComp(Component):
     jump_held: bool = False
     last_jump_counter: float = 0
 
-    # config (REMOVE THESE AND PUT INTO CORE
+    # config (REMOVE THESE AND PUT INTO CORE)
     coyote_time: float = 0.05
     jump_buffer_time: float = 0.02
     ground_accel_rate: float = 2100
