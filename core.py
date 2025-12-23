@@ -26,6 +26,9 @@ DASH_KEY = pygame.K_LSHIFT
 FRICTION = 0.8
 DASH_SPEED = 1000  # pixels per frame
 
+# === Enemy config ===
+
+
 # === Global variables ===
 camera = None  # it's global only because it has to be accessed by render and camera systems. So
 # It's only accessed there

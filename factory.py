@@ -1,6 +1,7 @@
 import pygame
 
-from ecs.components import TransformComp, RenderableComp, TileComp, RectToDrawComp, PlayerComp, PhysicsComp
+from ecs.components import TransformComp, RenderableComp, TileComp, RectToDrawComp, PlayerComp, PhysicsComp, EnemyComp, \
+    EnemyType
 from ecs.entity_manger import EntityManager
 
 
@@ -33,3 +34,15 @@ def create_player(entity_manager, x, y, width, height):
         RectToDrawComp())
 
     return player_entity_id
+
+def create_enemy(entity_manager, x, y, width, height):
+    enemy_id = entity_manager.create_entity()
+    transform_cmp = TransformComp(pygame.math.Vector2(x, y), width, height)
+    render_cmp = RenderableComp(pygame.color.Color(255, 30, 30))
+    physics_cmp = PhysicsComp()
+    enemy_cmp = EnemyComp(EnemyType.FOLLOWING)
+    entity_manager.add_components(
+        enemy_id, transform_cmp, render_cmp, physics_cmp, enemy_cmp, RectToDrawComp()
+    )
+
+    return enemy_id

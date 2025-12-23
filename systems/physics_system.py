@@ -1,5 +1,5 @@
 import core
-from ecs.components import TransformComp, PlayerComp, TileComp, PhysicsComp
+from ecs.components import TransformComp, PlayerComp, TileComp, PhysicsComp, EnemyComp, EnemyType
 from ecs.system import System
 from events import ShakeCameraEvent
 
@@ -20,6 +20,30 @@ class PhysicsSystem(System):
         # for entity_id in self.entity_manager.get_entities_with(PhysicsComp, TransformComp):
         #     handle x
         #     Handle y
+
+        # Enemy physics:
+        for enemy_id in self.entity_manager.get_entities_with(EnemyComp):
+            enemy_cmp: EnemyComp | None = self.entity_manager.get_component(enemy_id, EnemyComp)
+            enemy_trans_cmp: TransformComp | None = self.entity_manager.get_component(enemy_id, TransformComp)
+            enemy_physics_cmp: PhysicsComp | None = self.entity_manager.get_component(enemy_id, PhysicsComp)
+            if enemy_cmp.enemy_type == EnemyType.FOLLOWING:
+
+                self.move_enemy_x(enemy_cmp, enemy_physics_cmp, enemy_trans_cmp, dt)
+
+                for tile_id in self.entity_manager.get_entities_with(TileComp):
+                    tile_trans_cmp: TransformComp | None = self.entity_manager.get_component(tile_id, TransformComp)
+                    if self.check_collision(enemy_trans_cmp, tile_trans_cmp):
+                        self.handle_enemy_collision_x(enemy_cmp, enemy_physics_cmp, enemy_trans_cmp, tile_trans_cmp)
+
+                self.move_enemy_y(enemy_cmp, enemy_physics_cmp, enemy_trans_cmp, dt)
+
+                for tile_id in self.entity_manager.get_entities_with(TileComp):
+                    tile_trans_cmp: TransformComp | None = self.entity_manager.get_component(tile_id, TransformComp)
+                    if self.check_collision(enemy_trans_cmp, tile_trans_cmp):
+                        self.handle_enemy_collision_y(enemy_cmp, enemy_physics_cmp, enemy_trans_cmp, tile_trans_cmp)
+                    elif self.check_collision_for_gravity(enemy_trans_cmp, tile_trans_cmp):
+                        self.handle_enemy_gravity_collision(enemy_cmp, enemy_physics_cmp)
+
 
         # Player Physics:
         # === Initial Setup: ===
@@ -144,3 +168,51 @@ class PhysicsSystem(System):
                 e1_trans_cmp.position.x < e2_trans_cmp.position.x + e2_trans_cmp.width and
                 e1_trans_cmp.position.y + e1_trans_cmp.height+1 > e2_trans_cmp.position.y and
                 e1_trans_cmp.position.y < e2_trans_cmp.position.y + e2_trans_cmp.height)
+
+    def move_enemy_x(self, enemy_cmp, physics_cmp, transform_cmp, dt):
+        # Apply forces
+        physics_cmp.velocity.x += physics_cmp.acceleration.x * dt
+
+        # Cap speed
+        if abs(physics_cmp.velocity.x) > enemy_cmp.max_speed:
+            if physics_cmp.velocity.x < 0:
+                physics_cmp.velocity.x = -enemy_cmp.max_speed
+            else:
+                physics_cmp.velocity.x = enemy_cmp.max_speed
+
+        # Update Position
+        transform_cmp.position.x += physics_cmp.velocity.x * dt
+
+    def move_enemy_y(self, enemy_cmp, physics_cmp, transform_cmp, dt):
+        if not enemy_cmp.on_ground:
+            physics_cmp.velocity.y += enemy_cmp.gravity * dt
+
+        # Apply forces
+        physics_cmp.velocity.y += physics_cmp.acceleration.y * dt
+
+        # Update Position
+        transform_cmp.position.y += physics_cmp.velocity.y * dt
+
+        enemy_cmp.on_ground = False
+
+    def handle_enemy_collision_x(self, enemy_cmp: EnemyComp, physics_cmp: PhysicsComp, enemy_trans_cmp: TransformComp, tile_trans_cmp: TransformComp):
+        if physics_cmp.velocity.x > 0:
+            enemy_trans_cmp.position.x = tile_trans_cmp.position.x - enemy_trans_cmp.width
+            physics_cmp.velocity.x = 0
+        elif physics_cmp.velocity.x < 0:
+            enemy_trans_cmp.position.x = tile_trans_cmp.position.x + tile_trans_cmp.width
+            physics_cmp.velocity.x = 0
+
+    def handle_enemy_collision_y(self, enemy_cmp: EnemyComp, physics_cmp: PhysicsComp, enemy_trans_cmp: TransformComp, tile_trans_cmp: TransformComp):
+        if physics_cmp.velocity.y > 0:
+            enemy_trans_cmp.position.y = tile_trans_cmp.position.y - enemy_trans_cmp.height
+            enemy_cmp.jumping = False
+            enemy_cmp.on_ground = True
+            physics_cmp.velocity.y = 0
+        elif physics_cmp.velocity.y < 0:
+            enemy_trans_cmp.position.y = tile_trans_cmp.position.y + tile_trans_cmp.height
+            physics_cmp.velocity.y = 0
+
+    def handle_enemy_gravity_collision(self, enemy_cmp: EnemyComp, physics_cmp):
+        if physics_cmp.velocity.y >= 0 and not enemy_cmp.jumping:
+            enemy_cmp.on_ground = True

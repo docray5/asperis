@@ -1,5 +1,7 @@
 from abc import ABC
 from dataclasses import dataclass, field
+from enum import Enum
+
 import pygame
 
 
@@ -36,6 +38,29 @@ class RectToDrawComp(Component):
 class PhysicsComp(Component):
     velocity: pygame.math.Vector2 = field(default_factory=lambda: pygame.math.Vector2(0, 0))
     acceleration: pygame.math.Vector2 = field(default_factory=lambda: pygame.math.Vector2(0, 0))
+
+
+class HealthComp(Component):
+    health: int = 5
+
+
+class EnemyType(Enum):
+    DUMB = 1
+    FOLLOWING = 2
+
+
+@dataclass
+class EnemyComp(Component):
+    enemy_type: EnemyType = EnemyType.DUMB
+    jumping: bool = False
+    on_ground: bool = False
+    last_jump_counter: float = 0
+
+    max_speed: float = 100  # slower than player
+    jump_force: float = -550  # same as player
+    accel_rate: float = 500
+    gravity: float = 1400
+    jump_cool_down = 1
 
 
 @dataclass

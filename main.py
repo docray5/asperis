@@ -8,6 +8,7 @@ from ecs.components import PlayerComp, PhysicsComp
 from ecs.entity_manger import EntityManager
 from ecs.system_manager import SystemManager
 from systems.camera_system import CameraSystem
+from systems.enemy_system import EnemySystem
 from systems.input_system import InputSystem
 from systems.physics_system import PhysicsSystem
 from systems.player_system import PlayerSystem
@@ -43,6 +44,8 @@ def main():
     factory.create_tile(entity_manager, core.VIEWPORT_WIDTH / 2, core.VIEWPORT_HEIGHT / 2 + 32, 128, 16)
     factory.create_tile(entity_manager, 0, core.VIEWPORT_HEIGHT, core.VIEWPORT_WIDTH, 32)
 
+    factory.create_enemy(entity_manager, 100, 0, 32, 32)
+
     player_system = PlayerSystem(entity_manager, entity_manager.get_component(player_id, PlayerComp),
                                  entity_manager.get_component(player_id, PhysicsComp))
     camera_system = CameraSystem(entity_manager)
@@ -50,6 +53,7 @@ def main():
     # Set up the engine's systems
     system_manager.add_system(InputSystem(entity_manager))
     system_manager.add_system(player_system)
+    system_manager.add_system(EnemySystem(entity_manager, player_id))
     system_manager.add_system(PhysicsSystem(entity_manager))
     system_manager.add_system(camera_system)
     system_manager.add_system(RenderSystem(entity_manager, screen))
