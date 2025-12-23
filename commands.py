@@ -91,6 +91,14 @@ class DashKDownCmd(Command):
         self.player_system.dash_key_down()
 
 
+class AttackKeyDownCmd(Command):
+    def __init__(self, player_system):
+        self.player_system = player_system
+
+    def execute(self):
+        self.player_system.attack_key_down()
+
+
 jump_down_cmd = None
 move_left_down_cmd = None
 move_right_down_cmd = None
@@ -102,10 +110,11 @@ point_up_key_up = None
 point_up_key_down = None
 point_down_key_up = None
 point_down_key_down = None
+attack_key_down = None
 
 def initialize(player_system):
     global jump_down_cmd, move_right_down_cmd, move_left_down_cmd, jump_up_cmd, move_left_up_cmd, move_right_up_cmd, \
-        dash_k_down_cmd, point_down_key_down, point_up_key_down, point_down_key_up, point_up_key_up
+        dash_k_down_cmd, point_down_key_down, point_up_key_down, point_down_key_up, point_up_key_up, attack_key_down
     jump_down_cmd = JumpDownCmd(player_system)
     move_left_down_cmd = MoveLeftDownCmd(player_system)
     move_right_down_cmd = MoveRightDownCmd(player_system)
@@ -117,3 +126,4 @@ def initialize(player_system):
     point_down_key_down = PointDownKeyDownCmd(player_system)
     point_down_key_up = PointDownKeyUpCmd(player_system)
     point_up_key_down = PointUpKeyDownCmd(player_system)
+    attack_key_down = AttackKeyDownCmd(player_system)

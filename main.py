@@ -51,12 +51,13 @@ def main():
                                  entity_manager.get_component(player_id, PhysicsComp))
     camera_system = CameraSystem(entity_manager)
     health_system = HealthSystem(entity_manager)
+    physics_system = PhysicsSystem(entity_manager)
 
     # Set up the engine's systems
     system_manager.add_system(InputSystem(entity_manager))
     system_manager.add_system(player_system)
     system_manager.add_system(EnemySystem(entity_manager, player_id))
-    system_manager.add_system(PhysicsSystem(entity_manager))
+    system_manager.add_system(physics_system)
     system_manager.add_system(health_system)
     system_manager.add_system(camera_system)
     system_manager.add_system(RenderSystem(entity_manager, screen))
@@ -65,6 +66,7 @@ def main():
 
     core.event_manager.subscribe(camera_system)
     core.event_manager.subscribe(health_system)
+    core.event_manager.subscribe(physics_system)
 
     while running:
         dt = clock.tick(core.FPS) / 1000.0

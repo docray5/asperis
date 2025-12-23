@@ -1,16 +1,21 @@
 import core
 from ecs.components import TransformComp, PlayerComp, TileComp, PhysicsComp, EnemyComp, EnemyType
 from ecs.system import System
-from events import ShakeCameraEvent, HitEvent
+from events import ShakeCameraEvent, HitEvent, EventListener, Event, AttackEvent
 
 
-class PhysicsSystem(System):
+class PhysicsSystem(System, EventListener):
     """
     More like a Movement and collision system.
     Moves entities according to their force applied and Handles collisions of entities and emits events.
     """
     def __init__(self, entity_manager):
         super().__init__(entity_manager)
+
+    def on_notify(self, event: Event):
+        if isinstance(event, AttackEvent):
+            self.attack(event.player_id)
+
 
     def update(self, dt: float) -> None:
         # === Initial Setup: ===
@@ -35,7 +40,7 @@ class PhysicsSystem(System):
                 if not self.check_collision(player_trans_cmp, enemy_trans_cmp):
                     continue
 
-                core.event_manager.notify(HitEvent(player_id, 1))
+                core.event_manager.notify(HitEvent(player_id, enemy_cmp.damage))
 
                 collision_direction = self.get_collision_direction(player_trans_cmp, enemy_trans_cmp)
 
@@ -291,6 +296,36 @@ class PhysicsSystem(System):
     def handle_enemy_gravity_collision(self, enemy_cmp: EnemyComp, physics_cmp):
         if physics_cmp.velocity.y >= 0 and not enemy_cmp.jumping:
             enemy_cmp.on_ground = True
+
+    # Attack:
+    def attack(self, player_id):
+        print("Attack!")
+        # update the sword hit box to be on the correct side
+        player_cmp: PlayerComp | None = self.entity_manager.get_component(player_id, PlayerComp)
+        player_trans_cmp: TransformComp | None = self.entity_manager.get_component(player_id, TransformComp)
+        player_physics_cmp: PhysicsComp | None = self.entity_manager.get_component(player_id, PhysicsComp)
+
+        player_cmp.sword_hit_box.position.y = player_trans_cmp.position.y
+        if player_cmp.last_x_dir > 0:
+            player_cmp.sword_hit_box.position.x = player_trans_cmp.position.x + player_trans_cmp.width
+        else:
+            player_cmp.sword_hit_box.position.x = player_trans_cmp.position.x - player_cmp.sword_hit_box.width
+
+        # go through all the enemies and check for collision
+        for enemy_id in self.entity_manager.get_entities_with(EnemyComp):
+            enemy_cmp: EnemyComp | None = self.entity_manager.get_component(enemy_id, EnemyComp)
+            enemy_trans_cmp: TransformComp | None = self.entity_manager.get_component(enemy_id, TransformComp)
+            enemy_physics_cmp: PhysicsComp | None = self.entity_manager.get_component(enemy_id, PhysicsComp)
+
+            print(self.check_collision(player_cmp.sword_hit_box, enemy_trans_cmp))
+            print(player_cmp.sword_hit_box.position)
+            print(enemy_trans_cmp.position)
+            if self.check_collision(player_cmp.sword_hit_box, enemy_trans_cmp):
+                core.event_manager.notify(HitEvent(enemy_id, player_cmp.damage))
+                if player_cmp.last_x_dir > 0:
+                    self.knockback(enemy_physics_cmp, 1, 0, 1000)
+                else:
+                    self.knockback(enemy_physics_cmp, -1, 0, 1000)
 
     # === Utils: ===
 

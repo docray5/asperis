@@ -11,7 +11,11 @@ class HealthSystem(System, EventListener):
         super().__init__(entity_manager)
 
     def update(self, dt: float) -> None:
-        pass
+        for entity_id in self.entity_manager.get_entities_with(HealthComp):
+            health_cmp: HealthComp | None = self.entity_manager.get_component(entity_id, HealthComp)
+            if health_cmp.health <= 0:
+                # do some event that the entity got killed, IDK particles or smth
+                self.entity_manager.delete_entity(entity_id)
 
     def on_notify(self, event: Event):
         if isinstance(event, HitEvent):
@@ -21,4 +25,4 @@ class HealthSystem(System, EventListener):
         health_cmp: HealthComp | None = self.entity_manager.get_component(entity_id, HealthComp)
         health_cmp.health -= damage_dealt
         print(entity_id, health_cmp.health)
-        core.event_manager.notify(ShakeCameraEvent(1, 1))
+        core.event_manager.notify(ShakeCameraEvent(1, 0.4))

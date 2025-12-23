@@ -2,6 +2,7 @@ import core
 from ecs.components import PlayerComp, PhysicsComp
 from ecs.entity_manger import EntityManager
 from ecs.system import System
+from events import AttackEvent
 
 
 class PlayerSystem(System):
@@ -13,6 +14,7 @@ class PlayerSystem(System):
         super().__init__(entity_manager)
         self.player_comp: PlayerComp = player_comp
         self.player_physics_comp: PhysicsComp = physics_comp
+        self.player_id = entity_manager.get_entities_with(PlayerComp)[0]
 
     def update(self, dt: float) -> None:
         # Why do I split the two axis'? It helps with determining from which side did the player
@@ -77,6 +79,9 @@ class PlayerSystem(System):
             self.jump(self.player_comp.jump_force*0.5)
             self.player_comp.jump_buffer_counter = 0
 
+        if self.player_comp.input_x_dir != 0:
+            self.player_comp.last_x_dir = self.player_comp.input_x_dir
+
         if core.DEBUG:
             print("---Player:---")
             print("On ground:", self.player_comp.on_ground)
@@ -132,7 +137,7 @@ class PlayerSystem(System):
     def attack_key_down(self):
         if self.player_comp.last_attack_time >= self.player_comp.attack_cool_down:
             self.player_comp.last_attack_time = 0
-            print("Attack!")
+            core.event_manager.notify(AttackEvent(self.player_id))
 
     def dash_key_down(self):
         if (self.player_comp.input_x_dir == 0 and self.player_comp.dash_direction.y == 0) or self.player_comp.dashes_left < 1 or self.player_comp.last_dashed < self.player_comp.dash_cool_down:

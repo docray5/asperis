@@ -17,6 +17,8 @@ class InputSystem(System):
                 # Soon TM going to turn this into a command
                 pygame.quit()
                 sys.exit()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                commands.attack_key_down.execute()
             if event.type == pygame.KEYDOWN:
                 if event.key == core.JUMP_KEY:
                     commands.jump_down_cmd.execute()

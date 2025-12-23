@@ -18,6 +18,11 @@ class HitEvent(Event):
         self.damage_dealt = damage_dealt
 
 
+class AttackEvent(Event):
+    def __init__(self, player_id):
+        self.player_id = player_id
+
+
 class EventListener:
     """
     Abstract class event listener
