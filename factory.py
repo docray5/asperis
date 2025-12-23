@@ -1,7 +1,7 @@
 import pygame
 
 from ecs.components import TransformComp, RenderableComp, TileComp, RectToDrawComp, PlayerComp, PhysicsComp, EnemyComp, \
-    EnemyType
+    EnemyType, HealthComp
 from ecs.entity_manger import EntityManager
 
 
@@ -31,6 +31,7 @@ def create_player(entity_manager, x, y, width, height):
         transform_cmp,
         render_cmp,
         physics_cmp,
+        HealthComp(),
         RectToDrawComp())
 
     return player_entity_id

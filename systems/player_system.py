@@ -19,6 +19,7 @@ class PlayerSystem(System):
         # hit an obstacle and at the same time does not affect physics accuracy.
 
         # handle input
+        self.player_comp.last_attack_time += dt
 
         self.player_comp.input_x_dir = 0
         if self.player_comp.right_held and not self.player_comp.left_held:
@@ -128,6 +129,11 @@ class PlayerSystem(System):
     def dash_key_up(self):
         pass
 
+    def attack_key_down(self):
+        if self.player_comp.last_attack_time >= self.player_comp.attack_cool_down:
+            self.player_comp.last_attack_time = 0
+            print("Attack!")
+
     def dash_key_down(self):
         if (self.player_comp.input_x_dir == 0 and self.player_comp.dash_direction.y == 0) or self.player_comp.dashes_left < 1 or self.player_comp.last_dashed < self.player_comp.dash_cool_down:
             return
@@ -135,7 +141,7 @@ class PlayerSystem(System):
         self.player_physics_comp.velocity.x = self.player_comp.input_x_dir * core.DASH_SPEED
         self.player_physics_comp.velocity.y = self.player_comp.dash_direction.y * core.DASH_SPEED
         if self.player_comp.dash_direction.y < 0:
-            self.player_physics_comp.velocity.y *= 0.4
+            self.player_physics_comp.velocity.y *= 0.5
 
         self.player_comp.dashing = True
         self.player_comp.dash_time = 0

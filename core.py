@@ -25,6 +25,9 @@ DASH_KEY = pygame.K_LSHIFT
 # === Player controller config ===
 FRICTION = 0.8
 DASH_SPEED = 1000  # pixels per frame
+SEPARATION_BUFFER = 1
+SWORD_HIT_BOX_WIDTH = 32
+SWORD_HIT_BOX_HEIGHT = 48
 
 # === Enemy config ===
 

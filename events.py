@@ -12,6 +12,12 @@ class ShakeCameraEvent(Event):
         self.duration = duration
 
 
+class HitEvent(Event):
+    def __init__(self, entity_id, damage_dealt):
+        self.entity_id = entity_id
+        self.damage_dealt = damage_dealt
+
+
 class EventListener:
     """
     Abstract class event listener

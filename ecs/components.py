@@ -4,6 +4,8 @@ from enum import Enum
 
 import pygame
 
+import core
+
 
 class Component(ABC):
     """Base class for all components"""
@@ -55,6 +57,7 @@ class EnemyComp(Component):
     jumping: bool = False
     on_ground: bool = False
     last_jump_counter: float = 0
+    damage: int = 1
 
     max_speed: float = 100  # slower than player
     jump_force: float = -550  # same as player
@@ -84,6 +87,14 @@ class PlayerComp(Component):
     dashing: bool = False
     last_dashed: float = 0
     dashes_left: int = 0
+    last_x_dir: float = 0
+
+    # Sword:
+    damage: int = 1
+    sword_hit_box: TransformComp = field(
+        default_factory=lambda: TransformComp(
+            pygame.math.Vector2(), core.SWORD_HIT_BOX_WIDTH, core.SWORD_HIT_BOX_HEIGHT))
+    last_attack_time: float = 0
 
     # config (REMOVE THESE AND PUT INTO CORE)
     coyote_time: float = 0.05
@@ -99,3 +110,4 @@ class PlayerComp(Component):
     dash_duration: float = 0.15
     dash_cool_down: float = 0.4
     max_dash_amount = 1
+    attack_cool_down: float = 0.5
