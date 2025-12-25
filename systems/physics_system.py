@@ -1,4 +1,5 @@
 import core
+import factory
 from ecs.components import TransformComp, PlayerComp, TileComp, PhysicsComp, EnemyComp, EnemyType
 from ecs.system import System
 from events import ShakeCameraEvent, HitEvent, EventListener, Event, AttackEvent
@@ -117,6 +118,13 @@ class PhysicsSystem(System, EventListener):
 
     def update_player_physics(self, player_cmp, physics_cmp, transform_cmp, tiles, dt, move: bool):
         """Only move the player and check collisions with tiles"""
+
+        if physics_cmp.is_knockback:
+            physics_cmp.knockback_counter += dt
+            if physics_cmp.knockback_counter >= physics_cmp.knockback_time:
+                physics_cmp.is_knockback = False
+                physics_cmp.knockback_counter = 0
+
         # === Y Axis ===
         if move:
             self.move_player_y(player_cmp, physics_cmp, transform_cmp, dt)
@@ -156,12 +164,15 @@ class PhysicsSystem(System, EventListener):
                 if abs(physics_cmp.velocity.x) < 0.1:
                     physics_cmp.velocity.x = 0
 
+            max_speed = player_cmp.max_speed
+            if physics_cmp.is_knockback:
+                max_speed = physics_cmp.max_knockback_speed
             # Cap speed
-            if abs(physics_cmp.velocity.x) > player_cmp.max_speed:
+            if abs(physics_cmp.velocity.x) > max_speed:
                 if physics_cmp.velocity.x < 0:
-                    physics_cmp.velocity.x = -player_cmp.max_speed
+                    physics_cmp.velocity.x = -max_speed
                 else:
-                    physics_cmp.velocity.x = player_cmp.max_speed
+                    physics_cmp.velocity.x = max_speed
 
         # Update Position
         transform_cmp.position.x += physics_cmp.velocity.x * dt
@@ -229,6 +240,12 @@ class PhysicsSystem(System, EventListener):
             enemy_physics_cmp: PhysicsComp | None = self.entity_manager.get_component(enemy_id, PhysicsComp)
             if enemy_cmp.enemy_type == EnemyType.FOLLOWING:
 
+                if enemy_physics_cmp.is_knockback:
+                    enemy_physics_cmp.knockback_counter += dt
+                    if enemy_physics_cmp.knockback_counter >= enemy_physics_cmp.knockback_time:
+                        enemy_physics_cmp.is_knockback = False
+                        enemy_physics_cmp.knockback_counter = 0
+
                 # === Y-Axis ===
                 if move:
                     self.move_enemy_y(enemy_cmp, enemy_physics_cmp, enemy_trans_cmp, dt)
@@ -253,12 +270,16 @@ class PhysicsSystem(System, EventListener):
         # Apply forces
         physics_cmp.velocity.x += physics_cmp.acceleration.x * dt
 
+
+        max_speed = enemy_cmp.max_speed
+        if physics_cmp.is_knockback:
+            max_speed = physics_cmp.max_knockback_speed
         # Cap speed
-        if abs(physics_cmp.velocity.x) > enemy_cmp.max_speed:
+        if abs(physics_cmp.velocity.x) > max_speed:
             if physics_cmp.velocity.x < 0:
-                physics_cmp.velocity.x = -enemy_cmp.max_speed
+                physics_cmp.velocity.x = -max_speed
             else:
-                physics_cmp.velocity.x = enemy_cmp.max_speed
+                physics_cmp.velocity.x = max_speed
 
         # Update Position
         transform_cmp.position.x += physics_cmp.velocity.x * dt
@@ -305,11 +326,19 @@ class PhysicsSystem(System, EventListener):
         player_trans_cmp: TransformComp | None = self.entity_manager.get_component(player_id, TransformComp)
         player_physics_cmp: PhysicsComp | None = self.entity_manager.get_component(player_id, PhysicsComp)
 
+        slash_drawing_x = 0
+        orientation = True
+
         player_cmp.sword_hit_box.position.y = player_trans_cmp.position.y
         if player_cmp.last_x_dir > 0:
             player_cmp.sword_hit_box.position.x = player_trans_cmp.position.x + player_trans_cmp.width
+            slash_drawing_x = player_trans_cmp.position.x + player_trans_cmp.width - 48
         else:
             player_cmp.sword_hit_box.position.x = player_trans_cmp.position.x - player_cmp.sword_hit_box.width
+            slash_drawing_x = player_trans_cmp.position.x - core.asset_manager.get("slash_frame1.png").get_size()[0] + 48
+            orientation = False
+
+        factory.create_animated_slash_particle(self.entity_manager, slash_drawing_x, player_trans_cmp.position.y, orientation)
 
         # go through all the enemies and check for collision
         for enemy_id in self.entity_manager.get_entities_with(EnemyComp):
@@ -348,6 +377,7 @@ class PhysicsSystem(System, EventListener):
     def knockback(self, physics_cmp, dx, dy, force):
         physics_cmp.velocity.x += force * dx
         physics_cmp.velocity.y += force * dy
+        physics_cmp.is_knockback = True
 
     def get_collision_direction(self, trans1: TransformComp, trans2: TransformComp) -> str:
         """Determine primary collision direction (x or y)"""

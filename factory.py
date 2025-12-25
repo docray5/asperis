@@ -1,7 +1,8 @@
 import pygame
 
+import core
 from ecs.components import TransformComp, RenderableComp, TileComp, RectToDrawComp, PlayerComp, PhysicsComp, EnemyComp, \
-    EnemyType, HealthComp
+    EnemyType, HealthComp, AnimatedSpriteComp
 from ecs.entity_manger import EntityManager
 
 
@@ -47,3 +48,16 @@ def create_enemy(entity_manager, x, y, width, height):
     )
 
     return enemy_id
+
+def create_animated_slash_particle(entity_manager, x, y, orientation):
+    particle_id = entity_manager.create_entity()
+    img1 = core.asset_manager.get("slash_frame1.png")
+    img2 = core.asset_manager.get("slash_frame2.png")
+    img3 = core.asset_manager.get("slash_frame3.png")
+    img4 = core.asset_manager.get("slash_frame4.png")
+    entity_manager.add_components(
+        particle_id,
+        TransformComp(pygame.math.Vector2(x, y - img1.get_size()[1]/2), img1.get_size()[0], img1.get_size()[0]),
+        RenderableComp(pygame.color.Color(255, 255, 255)),
+        AnimatedSpriteComp(frames=[img1, img2, img3, img4], orientation=orientation, animation_speed=0.05)
+    )

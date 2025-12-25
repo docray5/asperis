@@ -40,8 +40,24 @@ class RectToDrawComp(Component):
 class PhysicsComp(Component):
     velocity: pygame.math.Vector2 = field(default_factory=lambda: pygame.math.Vector2(0, 0))
     acceleration: pygame.math.Vector2 = field(default_factory=lambda: pygame.math.Vector2(0, 0))
+    knockback_counter: float = 0
+
+    knockback_time = 0.12
+    is_knockback: bool = False
+    max_knockback_speed: float = 1000
 
 
+@dataclass
+class AnimatedSpriteComp(Component):
+    frames: list  # TODO add type list[pygame.image] or smth
+    current_frame: int = 0
+    animation_speed: float = 0.1
+    last_update: float = 0
+    one_shot: bool = True
+    orientation: bool = True
+
+
+@dataclass
 class HealthComp(Component):
     health: int = 5
 

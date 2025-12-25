@@ -3,7 +3,7 @@ from typing import override
 
 import pygame
 import core
-from ecs.components import RectToDrawComp, RenderableComp, TransformComp
+from ecs.components import RectToDrawComp, RenderableComp, TransformComp, AnimatedSpriteComp
 from ecs.entity_manger import EntityManager
 from ecs.system import System
 
@@ -36,8 +36,13 @@ class RenderSystem(System):
                 rect_to_draw_cmp: RectToDrawComp = self.entity_manager.get_component(entity_id, RectToDrawComp)
                 rect_to_draw_cmp.drawing_rect.update(drawing_x, drawing_y, transform_cmp.width, transform_cmp.height)
                 pygame.draw.rect(self.world_surface, renderable_cmp.color, rect_to_draw_cmp.drawing_rect)
-
-
+            if self.entity_manager.has_components(entity_id, AnimatedSpriteComp):
+                animated_sprite_cmp: AnimatedSpriteComp | None = self.entity_manager.get_component(entity_id, AnimatedSpriteComp)
+                if animated_sprite_cmp.orientation:
+                    self.world_surface.blit(animated_sprite_cmp.frames[animated_sprite_cmp.current_frame], (drawing_x, drawing_y))
+                else:
+                    self.world_surface.blit(pygame.transform.flip(animated_sprite_cmp.frames[animated_sprite_cmp.current_frame], True, False),
+                                            (drawing_x, drawing_y))
 
         # Update display and render scaled world
         pygame.transform.scale(self.world_surface, (core.WINDOW_WIDTH, core.WINDOW_HEIGHT), self.scaled_surface)

@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import pygame
 import sys
 import ctypes
@@ -11,9 +13,51 @@ from systems.camera_system import CameraSystem
 from systems.enemy_system import EnemySystem
 from systems.health_system import HealthSystem
 from systems.input_system import InputSystem
+from systems.particle_system import ParticleSystem
 from systems.physics_system import PhysicsSystem
 from systems.player_system import PlayerSystem
 from systems.render_system import RenderSystem
+
+
+class AssetManager:
+    def __init__(self, assets_path: str = "assets"):
+        """Scans assets folder recursively, loads/caches all PNG/JPG/GIF images."""
+        self.assets_path = Path(assets_path).resolve()
+        self.cache: dict[str, pygame.Surface] = {}
+        self._preload_all_images()
+
+    def _preload_all_images(self):
+        """Load all images from assets/ and subfolders into cache."""
+        if not self.assets_path.exists():
+            print(f"Warning: {self.assets_path} not found")
+            return
+
+        supported_exts = {'.png', '.jpg', '.jpeg', '.gif', '.bmp', '.tga'}
+        for file_path in self.assets_path.rglob('*'):
+            if file_path.is_file() and file_path.suffix.lower() in supported_exts:
+                key = str(file_path.relative_to(self.assets_path))
+                try:
+                    surf = pygame.image.load(file_path).convert_alpha()
+                    self.cache[key] = surf
+                    print(f"Loaded: {key}")
+                except pygame.error as e:
+                    print(f"Failed to load {key}: {e}")
+
+    def get(self, key: str):
+        """Get cached image by relative filename (e.g. 'player.png' or 'sprites/enemy.png')."""
+        return self.cache.get(key)
+
+    def has(self, key: str) -> bool:
+        """Check if asset exists in cache."""
+        return key in self.cache
+
+    def keys(self) -> list:
+        """List all cached asset keys."""
+        return list(self.cache.keys())
+
+    def clear(self):
+        """Clear all cached surfaces (frees memory)."""
+        self.cache.clear()
 
 
 def main():
@@ -47,6 +91,8 @@ def main():
 
     factory.create_enemy(entity_manager, 100, 0, 32, 32)
 
+    factory.create_animated_slash_particle(entity_manager, 0, 0, True)
+
     player_system = PlayerSystem(entity_manager, entity_manager.get_component(player_id, PlayerComp),
                                  entity_manager.get_component(player_id, PhysicsComp))
     camera_system = CameraSystem(entity_manager)
@@ -59,6 +105,7 @@ def main():
     system_manager.add_system(EnemySystem(entity_manager, player_id))
     system_manager.add_system(physics_system)
     system_manager.add_system(health_system)
+    system_manager.add_system(ParticleSystem(entity_manager))
     system_manager.add_system(camera_system)
     system_manager.add_system(RenderSystem(entity_manager, screen))
 

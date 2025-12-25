@@ -2,6 +2,7 @@ from camera import Camera
 import pygame
 
 from events import EventManager
+from main import AssetManager
 
 # === Config ===
 VIEWPORT_WIDTH = 1280 // 2 # size of the surface to which everything is drawn
@@ -26,8 +27,8 @@ DASH_KEY = pygame.K_LSHIFT
 FRICTION = 0.8
 DASH_SPEED = 1000  # pixels per frame
 SEPARATION_BUFFER = 1
-SWORD_HIT_BOX_WIDTH = 32
-SWORD_HIT_BOX_HEIGHT = 48
+SWORD_HIT_BOX_WIDTH = 48
+SWORD_HIT_BOX_HEIGHT = 64
 
 # === Enemy config ===
 
@@ -36,6 +37,7 @@ SWORD_HIT_BOX_HEIGHT = 48
 camera = None  # it's global only because it has to be accessed by render and camera systems. So
 # It's only accessed there
 event_manager = None
+asset_manager: AssetManager | None = None
 
 # Custom Colors:
 BLACK = (0, 0, 0)
@@ -43,6 +45,7 @@ BACKGROUND_COLOR = (33, 33, 33)
 
 
 def initialize(): # Initialize global Objects
-    global camera, event_manager
+    global camera, event_manager, asset_manager
     camera = Camera()
     event_manager = EventManager()
+    asset_manager = AssetManager()
