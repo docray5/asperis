@@ -326,19 +326,37 @@ class PhysicsSystem(System, EventListener):
         player_trans_cmp: TransformComp | None = self.entity_manager.get_component(player_id, TransformComp)
         player_physics_cmp: PhysicsComp | None = self.entity_manager.get_component(player_id, PhysicsComp)
 
-        slash_drawing_x = 0
-        orientation = True
+        slash_drawing_x = player_trans_cmp.position.x - player_trans_cmp.width/2 - player_cmp.sword_hit_box.width/2
+        slash_drawing_y = player_trans_cmp.position.y
+        rotation = 0
+        orientation_x = True
+        orientation_y = True
 
-        player_cmp.sword_hit_box.position.y = player_trans_cmp.position.y
-        if player_cmp.last_x_dir > 0:
-            player_cmp.sword_hit_box.position.x = player_trans_cmp.position.x + player_trans_cmp.width
-            slash_drawing_x = player_trans_cmp.position.x + player_trans_cmp.width - 48
-        else:
-            player_cmp.sword_hit_box.position.x = player_trans_cmp.position.x - player_cmp.sword_hit_box.width
-            slash_drawing_x = player_trans_cmp.position.x - core.asset_manager.get("slash_frame1.png").get_size()[0] + 48
-            orientation = False
+        if player_cmp.input_y_dir == 0:
+            player_cmp.sword_hit_box.width = core.SWORD_HIT_BOX_WIDTH
+            player_cmp.sword_hit_box.height = core.SWORD_HIT_BOX_HEIGHT
+            player_cmp.sword_hit_box.position.y = player_trans_cmp.position.y - abs(player_trans_cmp.height-player_cmp.sword_hit_box.height)/2
+            if player_cmp.last_x_dir > 0:
+                player_cmp.sword_hit_box.position.x = player_trans_cmp.position.x + player_trans_cmp.width
+                slash_drawing_x = player_trans_cmp.position.x + player_trans_cmp.width - 48
+            else:
+                player_cmp.sword_hit_box.position.x = player_trans_cmp.position.x - player_cmp.sword_hit_box.width
+                slash_drawing_x = player_trans_cmp.position.x - core.asset_manager.get("slash_frame1.png").get_size()[0] + 48
+                orientation_x = False
+        else:  # prioritize y axis
+            rotation = 90
+            player_cmp.sword_hit_box.width = core.SWORD_HIT_BOX_HEIGHT
+            player_cmp.sword_hit_box.height = core.SWORD_HIT_BOX_WIDTH
+            player_cmp.sword_hit_box.position.x = player_trans_cmp.position.x - abs(player_trans_cmp.width - player_cmp.sword_hit_box.width)/2
+            if player_cmp.input_y_dir < 0:
+                player_cmp.sword_hit_box.position.y = player_trans_cmp.position.y - player_cmp.sword_hit_box.height
+                slash_drawing_y = player_trans_cmp.position.y
+            else:
+                player_cmp.sword_hit_box.position.y = player_trans_cmp.position.y + player_trans_cmp.height
+                slash_drawing_y = player_trans_cmp.position.y + player_trans_cmp.height
+                orientation_y = False
 
-        factory.create_animated_slash_particle(self.entity_manager, slash_drawing_x, player_trans_cmp.position.y, orientation)
+        factory.create_animated_slash_particle(self.entity_manager,slash_drawing_x, slash_drawing_y, orientation_x, orientation_y, rotation)
 
         # go through all the enemies and check for collision
         for enemy_id in self.entity_manager.get_entities_with(EnemyComp):
@@ -351,10 +369,16 @@ class PhysicsSystem(System, EventListener):
             print(enemy_trans_cmp.position)
             if self.check_collision(player_cmp.sword_hit_box, enemy_trans_cmp):
                 core.event_manager.notify(HitEvent(enemy_id, player_cmp.damage))
-                if player_cmp.last_x_dir > 0:
-                    self.knockback(enemy_physics_cmp, 1, 0, 1000)
+                if player_cmp.input_y_dir == 0:
+                    if player_cmp.last_x_dir > 0:
+                        self.knockback(enemy_physics_cmp, 1, 0, 1000)
+                    else:
+                        self.knockback(enemy_physics_cmp, -1, 0, 1000)
                 else:
-                    self.knockback(enemy_physics_cmp, -1, 0, 1000)
+                    if player_cmp.input_y_dir < 0:
+                        self.knockback(enemy_physics_cmp, 0, -1, 700)
+                    else:
+                        self.knockback(enemy_physics_cmp, 0, 1, 700)
 
     # === Utils: ===
 

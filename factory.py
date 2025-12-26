@@ -49,7 +49,7 @@ def create_enemy(entity_manager, x, y, width, height):
 
     return enemy_id
 
-def create_animated_slash_particle(entity_manager, x, y, orientation):
+def create_animated_slash_particle(entity_manager, x, y, flip_x, flip_y, rotation):
     particle_id = entity_manager.create_entity()
     img1 = core.asset_manager.get("slash_frame1.png")
     img2 = core.asset_manager.get("slash_frame2.png")
@@ -57,7 +57,7 @@ def create_animated_slash_particle(entity_manager, x, y, orientation):
     img4 = core.asset_manager.get("slash_frame4.png")
     entity_manager.add_components(
         particle_id,
-        TransformComp(pygame.math.Vector2(x, y - img1.get_size()[1]/2), img1.get_size()[0], img1.get_size()[0]),
-        RenderableComp(pygame.color.Color(255, 255, 255)),
-        AnimatedSpriteComp(frames=[img1, img2, img3, img4], orientation=orientation, animation_speed=0.05)
+        TransformComp(pygame.math.Vector2(x, y - img1.get_size()[1]/2), img1.get_size()[0], img1.get_size()[0], rotation=rotation),
+        RenderableComp(color=pygame.color.Color(255, 255, 255), flip_x=flip_x, flip_y=flip_y),
+        AnimatedSpriteComp(frames=[img1, img2, img3, img4], animation_speed=0.05)
     )

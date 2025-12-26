@@ -13,6 +13,7 @@ FPS = 60
 VSYNC = 1
 TITLE = "asperis"
 DEBUG = False
+DRAW_HITBOXES = True
 
 # === Keybinds ===
 JUMP_KEY = pygame.K_SPACE

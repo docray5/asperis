@@ -120,16 +120,16 @@ class PlayerSystem(System):
         self.player_comp.right_held = False
 
     def down_key_down(self):
-        self.player_comp.dash_direction.y = 1
+        self.player_comp.input_y_dir = 1
 
     def down_key_up(self):
-        self.player_comp.dash_direction.y = 0
+        self.player_comp.input_y_dir = 0
 
     def up_key_down(self):
-        self.player_comp.dash_direction.y = -1
+        self.player_comp.input_y_dir = -1
 
     def up_key_up(self):
-        self.player_comp.dash_direction.y = 0
+        self.player_comp.input_y_dir = 0
 
     def dash_key_up(self):
         pass
@@ -140,12 +140,12 @@ class PlayerSystem(System):
             core.event_manager.notify(AttackEvent(self.player_id))
 
     def dash_key_down(self):
-        if (self.player_comp.input_x_dir == 0 and self.player_comp.dash_direction.y == 0) or self.player_comp.dashes_left < 1 or self.player_comp.last_dashed < self.player_comp.dash_cool_down:
+        if (self.player_comp.input_x_dir == 0 and self.player_comp.input_y_dir == 0) or self.player_comp.dashes_left < 1 or self.player_comp.last_dashed < self.player_comp.dash_cool_down:
             return
 
         self.player_physics_comp.velocity.x = self.player_comp.input_x_dir * core.DASH_SPEED
-        self.player_physics_comp.velocity.y = self.player_comp.dash_direction.y * core.DASH_SPEED
-        if self.player_comp.dash_direction.y < 0:
+        self.player_physics_comp.velocity.y = self.player_comp.input_y_dir * core.DASH_SPEED
+        if self.player_comp.input_y_dir < 0:
             self.player_physics_comp.velocity.y *= 0.5
 
         self.player_comp.dashing = True

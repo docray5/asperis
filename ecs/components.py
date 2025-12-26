@@ -17,6 +17,7 @@ class TransformComp(Component):
     position: pygame.math.Vector2
     width: float
     height: float
+    rotation: int = 0
 
 
 @dataclass
@@ -28,6 +29,8 @@ class TileComp(Component):
 class RenderableComp(Component):
     color: pygame.Color
     render: bool = True
+    flip_x: bool = True
+    flip_y: bool = True
 
 
 @dataclass
@@ -54,7 +57,6 @@ class AnimatedSpriteComp(Component):
     animation_speed: float = 0.1
     last_update: float = 0
     one_shot: bool = True
-    orientation: bool = True
 
 
 @dataclass
@@ -98,12 +100,13 @@ class PlayerComp(Component):
     left_held: bool = False
     jump_held: bool = False
     last_jump_counter: float = 0
-    dash_direction: pygame.math.Vector2 = field(default_factory=lambda: pygame.math.Vector2(0, 0))
+    input_y_dir: float = 0
     dash_time: float = 0
     dashing: bool = False
     last_dashed: float = 0
     dashes_left: int = 0
     last_x_dir: float = 0
+    last_y_dir: float = 0 # not needed
 
     # Sword:
     damage: int = 1

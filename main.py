@@ -91,8 +91,6 @@ def main():
 
     factory.create_enemy(entity_manager, 100, 0, 32, 32)
 
-    factory.create_animated_slash_particle(entity_manager, 0, 0, True)
-
     player_system = PlayerSystem(entity_manager, entity_manager.get_component(player_id, PlayerComp),
                                  entity_manager.get_component(player_id, PhysicsComp))
     camera_system = CameraSystem(entity_manager)

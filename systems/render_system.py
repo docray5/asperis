@@ -3,7 +3,7 @@ from typing import override
 
 import pygame
 import core
-from ecs.components import RectToDrawComp, RenderableComp, TransformComp, AnimatedSpriteComp
+from ecs.components import RectToDrawComp, RenderableComp, TransformComp, AnimatedSpriteComp, PlayerComp
 from ecs.entity_manger import EntityManager
 from ecs.system import System
 
@@ -37,12 +37,17 @@ class RenderSystem(System):
                 rect_to_draw_cmp.drawing_rect.update(drawing_x, drawing_y, transform_cmp.width, transform_cmp.height)
                 pygame.draw.rect(self.world_surface, renderable_cmp.color, rect_to_draw_cmp.drawing_rect)
             if self.entity_manager.has_components(entity_id, AnimatedSpriteComp):
-                animated_sprite_cmp: AnimatedSpriteComp | None = self.entity_manager.get_component(entity_id, AnimatedSpriteComp)
-                if animated_sprite_cmp.orientation:
-                    self.world_surface.blit(animated_sprite_cmp.frames[animated_sprite_cmp.current_frame], (drawing_x, drawing_y))
-                else:
-                    self.world_surface.blit(pygame.transform.flip(animated_sprite_cmp.frames[animated_sprite_cmp.current_frame], True, False),
-                                            (drawing_x, drawing_y))
+                anim_spr_cmp: AnimatedSpriteComp | None = self.entity_manager.get_component(entity_id, AnimatedSpriteComp)
+                sprite_to_draw = pygame.transform.rotate(anim_spr_cmp.frames[anim_spr_cmp.current_frame], transform_cmp.rotation)
+                sprite_to_draw = pygame.transform.flip(sprite_to_draw, not renderable_cmp.flip_x, not renderable_cmp.flip_y)
+                self.world_surface.blit(sprite_to_draw, (drawing_x, drawing_y))
+            if core.DRAW_HITBOXES:
+                if self.entity_manager.has_components(entity_id, PlayerComp):
+                    player_cmp: PlayerComp | None = self.entity_manager.get_component(entity_id, PlayerComp)
+                    hitbox_drawing_x = round(player_cmp.sword_hit_box.position.x - core.camera.position.x)
+                    hitbox_drawing_y = round(player_cmp.sword_hit_box.position.y - core.camera.position.y)
+                    pygame.draw.rect(self.world_surface, (255, 192, 203),
+                                     pygame.Rect(hitbox_drawing_x, hitbox_drawing_y, player_cmp.sword_hit_box.width, player_cmp.sword_hit_box.height), 2)
 
         # Update display and render scaled world
         pygame.transform.scale(self.world_surface, (core.WINDOW_WIDTH, core.WINDOW_HEIGHT), self.scaled_surface)
