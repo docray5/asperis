@@ -131,9 +131,6 @@ class PlayerSystem(System):
     def up_key_up(self):
         self.player_comp.input_y_dir = 0
 
-    def dash_key_up(self):
-        pass
-
     def attack_key_down(self):
         if self.player_comp.last_attack_time >= self.player_comp.attack_cool_down:
             self.player_comp.last_attack_time = 0
@@ -152,8 +149,6 @@ class PlayerSystem(System):
         self.player_comp.dash_time = 0
         self.player_comp.dashes_left -= 1
         self.player_comp.last_dashed = 0
-        print("Dash pressed")
-        print(self.player_physics_comp.velocity.y)
 
     def jump(self, force):
         if self.player_comp.jumping:

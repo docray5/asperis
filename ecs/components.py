@@ -61,7 +61,7 @@ class AnimatedSpriteComp(Component):
 
 @dataclass
 class HealthComp(Component):
-    health: int = 5
+    health: int = 100
 
 
 class EnemyType(Enum):
@@ -78,6 +78,7 @@ class EnemyComp(Component):
     damage: int = 1
 
     max_speed: float = 100  # slower than player
+    max_fall_speed: float = 1000
     jump_force: float = -550  # same as player
     accel_rate: float = 500
     gravity: float = 1400
@@ -106,7 +107,6 @@ class PlayerComp(Component):
     last_dashed: float = 0
     dashes_left: int = 0
     last_x_dir: float = 0
-    last_y_dir: float = 0 # not needed
 
     # Sword:
     damage: int = 1
