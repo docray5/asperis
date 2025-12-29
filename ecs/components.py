@@ -124,7 +124,7 @@ class PlayerComp(Component):
     max_speed: float = 250
     max_dash_speed: float = 1000
     jump_force: float = -550
-    air_accel_rate: float = 1050
+    air_accel_rate: float = 2100
     max_fall_speed: float = 1000
     gravity: float = 1400
     jump_release_time: float = 0.02

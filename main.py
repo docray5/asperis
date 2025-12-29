@@ -90,7 +90,8 @@ def main():
     factory.create_tile(entity_manager, -core.VIEWPORT_WIDTH*2, core.VIEWPORT_HEIGHT, core.VIEWPORT_WIDTH*4, 32)
     factory.create_tile(entity_manager, core.VIEWPORT_WIDTH, core.VIEWPORT_HEIGHT-32, 32, 32)
 
-    factory.create_enemy(entity_manager, 100, 0, 32, 32)
+    factory.create_enemy(entity_manager, -100, 0, 32, 32)
+    factory.create_enemy(entity_manager, -200, 0, 32, 32)
 
     player_system = PlayerSystem(entity_manager, entity_manager.get_component(player_id, PlayerComp),
                                  entity_manager.get_component(player_id, PhysicsComp))
