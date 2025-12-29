@@ -107,6 +107,8 @@ class PlayerComp(Component):
     last_dashed: float = 0
     dashes_left: int = 0
     last_x_dir: float = 0
+    invincibility_counter = 0
+    invincibility = False
 
     # Sword:
     damage: int = 1
@@ -130,3 +132,4 @@ class PlayerComp(Component):
     dash_cool_down: float = 0.4
     max_dash_amount = 1
     attack_cool_down: float = 0.5
+    invincibility_time = 0.5  # after getting hit

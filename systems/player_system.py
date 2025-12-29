@@ -1,5 +1,5 @@
 import core
-from ecs.components import PlayerComp, PhysicsComp
+from ecs.components import PlayerComp, PhysicsComp, RenderableComp
 from ecs.entity_manger import EntityManager
 from ecs.system import System
 from events import AttackEvent
@@ -15,6 +15,7 @@ class PlayerSystem(System):
         self.player_comp: PlayerComp = player_comp
         self.player_physics_comp: PhysicsComp = physics_comp
         self.player_id = entity_manager.get_entities_with(PlayerComp)[0]
+        self.player_render_cmp: RenderableComp | None = self.entity_manager.get_component(self.player_id, RenderableComp)
 
     def update(self, dt: float) -> None:
         # Why do I split the two axis'? It helps with determining from which side did the player
@@ -81,6 +82,18 @@ class PlayerSystem(System):
 
         if self.player_comp.input_x_dir != 0:
             self.player_comp.last_x_dir = self.player_comp.input_x_dir
+
+        if self.player_comp.invincibility:
+            self.player_render_cmp.color = core.PLAYER_INVINCIBLE_COLOR
+        else:
+            self.player_render_cmp.color = core.PLAYER_COLOR
+
+        # Handle counters:
+        if self.player_comp.invincibility:
+            self.player_comp.invincibility_counter += dt
+            if self.player_comp.invincibility_counter >= self.player_comp.invincibility_time:
+                self.player_comp.invincibility_counter = 0
+                self.player_comp.invincibility = False
 
         if core.DEBUG:
             print("---Player:---")

@@ -41,7 +41,7 @@ class PhysicsSystem(System, EventListener):
                 if not self.check_collision(player_trans_cmp, enemy_trans_cmp):
                     continue
 
-                core.event_manager.notify(HitEvent(player_id, enemy_cmp.damage))
+                self.attack_player(player_id, player_cmp, enemy_cmp)
 
                 collision_direction = self.get_collision_direction(player_trans_cmp, enemy_trans_cmp)
 
@@ -114,10 +114,10 @@ class PhysicsSystem(System, EventListener):
         """Only move the entity and check collisions with tiles"""
 
         if physics_cmp.is_knockback:
-            physics_cmp.knockback_counter += dt
-            if physics_cmp.knockback_counter >= physics_cmp.knockback_time:
+            physics_cmp.knockback_counter -= dt
+            if physics_cmp.knockback_counter <= 0:
                 physics_cmp.is_knockback = False
-                physics_cmp.knockback_counter = 0
+                physics_cmp.knockback_counter = physics_cmp.knockback_time
 
         # === Y Axis ===
         if move:
@@ -156,7 +156,7 @@ class PhysicsSystem(System, EventListener):
                 physics_cmp.velocity.x += physics_cmp.acceleration.x * dt
 
                 # Apply friction
-                if entity_cmp.input_x_dir == 0:
+                if entity_cmp.input_x_dir == 0 and not physics_cmp.is_knockback:
                     physics_cmp.velocity.x *= core.FRICTION ** (dt * 60)
                     if abs(physics_cmp.velocity.x) < 0.1:
                         physics_cmp.velocity.x = 0
@@ -240,7 +240,7 @@ class PhysicsSystem(System, EventListener):
         e1_trans_cmp.position.y = e2_trans_cmp.position.y - e1_trans_cmp.height
         e1_physics_cmp.velocity.y = 0
 
-        self.knockback(e1_physics_cmp, 0, -1, 400)
+        self.knockback_set_vel_y(e1_physics_cmp, -1, 400)
         e2_physics_cmp.velocity.y = 0
 
     # Player specific methods:
@@ -277,16 +277,23 @@ class PhysicsSystem(System, EventListener):
                 orientation_x = False
         else:  # prioritize y axis
             rotation = 90
-            player_cmp.sword_hit_box.width = core.SWORD_HIT_BOX_HEIGHT
-            player_cmp.sword_hit_box.height = core.SWORD_HIT_BOX_WIDTH
+            player_cmp.sword_hit_box.width = core.SWORD_HIT_BOX_WIDTH
+            player_cmp.sword_hit_box.height = core.SWORD_HIT_BOX_HEIGHT
             player_cmp.sword_hit_box.position.x = player_trans_cmp.position.x - abs(player_trans_cmp.width - player_cmp.sword_hit_box.width)/2
             if player_cmp.input_y_dir < 0:
+                player_cmp.sword_hit_box.width = core.SWORD_HIT_BOX_HEIGHT * 1.5
+                player_cmp.sword_hit_box.height = core.SWORD_HIT_BOX_WIDTH
+                player_cmp.sword_hit_box.position.x = player_trans_cmp.position.x - abs(
+                    player_trans_cmp.width - player_cmp.sword_hit_box.width) / 2
                 player_cmp.sword_hit_box.position.y = player_trans_cmp.position.y - player_cmp.sword_hit_box.height
                 slash_drawing_y = player_trans_cmp.position.y
             else:
                 player_cmp.sword_hit_box.position.y = player_trans_cmp.position.y + player_trans_cmp.height
                 slash_drawing_y = player_trans_cmp.position.y + player_trans_cmp.height
                 orientation_y = False
+
+        if player_cmp.input_y_dir > 0 and player_cmp.on_ground:
+            return
 
         factory.create_animated_slash_particle(self.entity_manager,slash_drawing_x, slash_drawing_y, orientation_x, orientation_y, rotation)
 
@@ -303,14 +310,22 @@ class PhysicsSystem(System, EventListener):
                 core.event_manager.notify(HitEvent(enemy_id, player_cmp.damage))
                 if player_cmp.input_y_dir == 0:
                     if player_cmp.last_x_dir > 0:
-                        self.knockback(enemy_physics_cmp, 1, 0, 1000)
+                        self.knockback_set_vel_x(enemy_physics_cmp, 1, 1000)
+                        self.knockback(player_physics_cmp, -1, 0, 100)
                     else:
-                        self.knockback(enemy_physics_cmp, -1, 0, 1000)
+                        self.knockback_set_vel_x(enemy_physics_cmp, -1, 1000)
+                        self.knockback(player_physics_cmp, 1, 0, 100)
                 else:
                     if player_cmp.input_y_dir < 0:
-                        self.knockback(enemy_physics_cmp, 0, -1, 700)
+                        self.knockback_set_vel_y(enemy_physics_cmp, -1, 600)
                     else:
-                        self.knockback(enemy_physics_cmp, 0, 1, 700)
+                        self.knockback(enemy_physics_cmp, 0, 1, 600)
+                        self.knockback_set_vel_y(player_physics_cmp, -1, 600)
+
+    def attack_player(self, player_id, player_cmp, enemy_cmp):
+        core.event_manager.notify(HitEvent(player_id, enemy_cmp.damage))
+        player_cmp.invincibility = True
+
 
     # === Utils: ===
 
@@ -330,9 +345,19 @@ class PhysicsSystem(System, EventListener):
                 e1_trans_cmp.position.y + e1_trans_cmp.height+1 > e2_trans_cmp.position.y and
                 e1_trans_cmp.position.y < e2_trans_cmp.position.y + e2_trans_cmp.height)
 
-    def knockback(self, physics_cmp, dx, dy, force):
+    def knockback(self, physics_cmp, dx, dy, force, duration=0.0):
         physics_cmp.velocity.x += force * dx
         physics_cmp.velocity.y += force * dy
+        physics_cmp.is_knockback = True
+        if duration != 0:
+            physics_cmp.knockback_counter = duration
+
+    def knockback_set_vel_x(self, physics_cmp, dx, force):
+        physics_cmp.velocity.x = force * dx
+        physics_cmp.is_knockback = True
+
+    def knockback_set_vel_y(self, physics_cmp, dy, force):
+        physics_cmp.velocity.y = force * dy
         physics_cmp.is_knockback = True
 
     def get_collision_direction(self, trans1: TransformComp, trans2: TransformComp) -> str:

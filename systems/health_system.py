@@ -1,5 +1,5 @@
 import core
-from ecs.components import HealthComp
+from ecs.components import HealthComp, PlayerComp
 from ecs.entity_manger import EntityManager
 from ecs.system import System
 from events import EventListener, Event, HitEvent, ShakeCameraEvent
@@ -23,6 +23,10 @@ class HealthSystem(System, EventListener):
 
     def hit(self, entity_id, damage_dealt):
         health_cmp: HealthComp | None = self.entity_manager.get_component(entity_id, HealthComp)
+        if self.entity_manager.has_components(entity_id, PlayerComp):
+            player_cmp: PlayerComp | None = self.entity_manager.get_component(entity_id, PlayerComp)
+            if player_cmp.invincibility:
+                return
+            core.event_manager.notify(ShakeCameraEvent(2, 0.4))
         health_cmp.health -= damage_dealt
         print(entity_id, health_cmp.health)
-        core.event_manager.notify(ShakeCameraEvent(1, 0.4))

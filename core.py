@@ -9,7 +9,7 @@ VIEWPORT_WIDTH = 1280 // 2 # size of the surface to which everything is drawn
 VIEWPORT_HEIGHT = 720 // 2
 WINDOW_WIDTH = VIEWPORT_WIDTH * 2 # size of the upscaled window
 WINDOW_HEIGHT = VIEWPORT_HEIGHT * 2
-FPS = 60
+FPS = 120
 VSYNC = 1
 TITLE = "asperis"
 DEBUG = False
@@ -44,6 +44,8 @@ asset_manager: AssetManager | None = None
 # Custom Colors:
 BLACK = (0, 0, 0)
 BACKGROUND_COLOR = (33, 33, 33)
+PLAYER_COLOR = (255, 255, 255)
+PLAYER_INVINCIBLE_COLOR = (143, 143, 143)
 
 
 def initialize(): # Initialize global Objects

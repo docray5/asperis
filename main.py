@@ -87,7 +87,8 @@ def main():
 
     factory.create_tile(entity_manager, 64, core.VIEWPORT_HEIGHT - 72, 128, 16)
     factory.create_tile(entity_manager, core.VIEWPORT_WIDTH / 2, core.VIEWPORT_HEIGHT / 2 + 32, 128, 16)
-    factory.create_tile(entity_manager, 0, core.VIEWPORT_HEIGHT, core.VIEWPORT_WIDTH, 32)
+    factory.create_tile(entity_manager, -core.VIEWPORT_WIDTH*2, core.VIEWPORT_HEIGHT, core.VIEWPORT_WIDTH*4, 32)
+    factory.create_tile(entity_manager, core.VIEWPORT_WIDTH, core.VIEWPORT_HEIGHT-32, 32, 32)
 
     factory.create_enemy(entity_manager, 100, 0, 32, 32)
 
