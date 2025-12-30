@@ -3,7 +3,6 @@ import pygame
 import core
 from ecs.components import TransformComp, RenderableComp, TileComp, RectToDrawComp, PlayerComp, PhysicsComp, EnemyComp, \
     EnemyType, HealthComp, AnimatedSpriteComp
-from ecs.entity_manger import EntityManager
 
 
 def create_tile(entity_manager, x, y, width, height):
@@ -37,12 +36,12 @@ def create_player(entity_manager, x, y, width, height):
 
     return player_entity_id
 
-def create_enemy(entity_manager, x, y, width, height):
+def create_enemy(entity_manager, x, y, width, height, max_speed=100, enemy_type=EnemyType.FOLLOWING):
     enemy_id = entity_manager.create_entity()
     transform_cmp = TransformComp(pygame.math.Vector2(x, y), width, height)
     render_cmp = RenderableComp(pygame.color.Color(255, 30, 30))
     physics_cmp = PhysicsComp()
-    enemy_cmp = EnemyComp(EnemyType.FOLLOWING)
+    enemy_cmp = EnemyComp(enemy_type=enemy_type, max_speed=max_speed)
     entity_manager.add_components(
         enemy_id, transform_cmp, render_cmp, physics_cmp, enemy_cmp, HealthComp(), RectToDrawComp()
     )

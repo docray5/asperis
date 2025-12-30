@@ -30,6 +30,8 @@ class EnemySystem(System):
 
                 if enemy_cmp.on_ground and dist_y > self.player_transform_cmp.height*1.5 and abs(dist_x) < 200 and enemy_cmp.last_jump_counter >= enemy_cmp.jump_cool_down:
                     self.jump(enemy_cmp, enemy_physics_cmp)
+            elif enemy_cmp.enemy_type == EnemyType.PATROLLING:
+                enemy_physics_cmp.acceleration.x = enemy_cmp.accel_rate * enemy_cmp.patrol_direction
 
     def jump(self, enemy_cmp, enemy_physics_cmp):
         if enemy_cmp.jumping or not enemy_cmp.on_ground:

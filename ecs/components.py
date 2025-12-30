@@ -65,17 +65,18 @@ class HealthComp(Component):
 
 
 class EnemyType(Enum):
-    DUMB = 1
+    PATROLLING = 1
     FOLLOWING = 2
 
 
 @dataclass
 class EnemyComp(Component):
-    enemy_type: EnemyType = EnemyType.DUMB
+    enemy_type: EnemyType = EnemyType.PATROLLING
     jumping: bool = False
     on_ground: bool = False
     last_jump_counter: float = 0
     damage: int = 1
+    patrol_direction = -1
 
     max_speed: float = 100  # slower than player
     max_fall_speed: float = 1000

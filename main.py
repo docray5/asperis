@@ -6,7 +6,7 @@ import ctypes
 import commands
 import core
 import factory
-from ecs.components import PlayerComp, PhysicsComp
+from ecs.components import PlayerComp, PhysicsComp, EnemyType
 from ecs.entity_manger import EntityManager
 from ecs.system_manager import SystemManager
 from systems.camera_system import CameraSystem
@@ -92,6 +92,7 @@ def main():
 
     factory.create_enemy(entity_manager, -100, 0, 32, 32)
     factory.create_enemy(entity_manager, -200, 0, 32, 32)
+    factory.create_enemy(entity_manager, core.VIEWPORT_WIDTH / 2+64, core.VIEWPORT_HEIGHT / 2, 32, 32, 80, EnemyType.PATROLLING)
 
     player_system = PlayerSystem(entity_manager, entity_manager.get_component(player_id, PlayerComp),
                                  entity_manager.get_component(player_id, PhysicsComp))
