@@ -1,8 +1,9 @@
+import pygame
 import core
 import factory
-from ecs.components import TransformComp, PlayerComp, TileComp, PhysicsComp, EnemyComp, EnemyType
+from ecs.components import TransformComp, PlayerComp, TileComp, PhysicsComp, EnemyComp, EnemyType, RenderableComp
 from ecs.system import System
-from events import ShakeCameraEvent, HitEvent, EventListener, Event, AttackEvent
+from events import ShakeCameraEvent, HitEvent, EventListener, Event, AttackEvent, CreateParticlesEvent
 
 
 class PhysicsSystem(System, EventListener):
@@ -19,11 +20,12 @@ class PhysicsSystem(System, EventListener):
 
 
     def update(self, dt: float) -> None:
-        # === Initial Setup: ===
+        # === Initial Setup: === (Move these to be class attributes
         player_id = self.entity_manager.get_entities_with(PlayerComp)[0]
         player_cmp: PlayerComp | None = self.entity_manager.get_component(player_id, PlayerComp)
         player_physics_cmp: PhysicsComp | None = self.entity_manager.get_component(player_id, PhysicsComp)
         player_trans_cmp: TransformComp | None = self.entity_manager.get_component(player_id, TransformComp)
+        player_render_cmp: RenderableComp | None = self.entity_manager.get_component(player_id, RenderableComp)
         tiles = self.entity_manager.get_entities_with(TileComp)
 
         self.update_player_physics(player_cmp, player_physics_cmp, player_trans_cmp, tiles, dt, True)
@@ -44,7 +46,7 @@ class PhysicsSystem(System, EventListener):
                 if not self.check_collision(player_trans_cmp, enemy_trans_cmp):
                     continue
 
-                self.attack_player(player_id, player_cmp, enemy_cmp)
+                self.attack_player(player_id, player_cmp, player_trans_cmp, player_render_cmp, enemy_cmp)
 
                 collision_direction = self.get_collision_direction(player_trans_cmp, enemy_trans_cmp)
 
@@ -96,7 +98,7 @@ class PhysicsSystem(System, EventListener):
                 if not self.check_collision(player_trans_cmp, enemy_trans_cmp):
                     continue
 
-                self.attack_player(player_id, player_cmp, enemy_cmp)
+                self.attack_player(player_id, player_cmp, player_trans_cmp, player_render_cmp, enemy_cmp)
 
                 collision_direction = self.get_collision_direction(player_trans_cmp, enemy_trans_cmp)
 
@@ -283,7 +285,7 @@ class PhysicsSystem(System, EventListener):
             entity_cmp.on_ground = True
 
             if isinstance(entity_cmp, PlayerComp):
-                self.player_hit_the_floor(entity_cmp, physics_cmp)
+                self.player_hit_the_floor(entity_cmp, physics_cmp, entity_trans_cmp)
                 entity_cmp.dashing = False
                 entity_cmp.dashes_left = entity_cmp.max_dash_amount
 
@@ -402,11 +404,17 @@ class PhysicsSystem(System, EventListener):
             self.knockback_set_vel_y(e1_physics_cmp, 1, 100)
 
     # Player specific methods:
-    def player_hit_the_floor(self, player_cmp, physics_cmp):
-        core.event_manager.notify(ShakeCameraEvent((physics_cmp.velocity.y / player_cmp.max_fall_speed) * 3,
-                          (physics_cmp.velocity.y / player_cmp.max_fall_speed) * 0.25))
-        # do some particle effects
-        # or call some event
+    def player_hit_the_floor(self, player_cmp, physics_cmp, trans_cmp):
+        vel = physics_cmp.velocity.y / player_cmp.max_fall_speed
+
+        core.event_manager.notify(ShakeCameraEvent(vel * 3,
+                          vel * 0.25))
+
+        core.event_manager.notify(
+            CreateParticlesEvent(int(vel*20), trans_cmp.position.x + trans_cmp.width / 2,
+                                 trans_cmp.position.y + trans_cmp.height,
+                                 int(trans_cmp.width / 2), 4, 2, pygame.Color(230, 230, 230, 200),
+                                 -30, 180+30, int(vel*100), int(vel*100), 0.4, 0.1, 0.1))
 
     # Attack:
     def attack(self, player_id):
@@ -460,6 +468,7 @@ class PhysicsSystem(System, EventListener):
             enemy_cmp: EnemyComp | None = self.entity_manager.get_component(enemy_id, EnemyComp)
             enemy_trans_cmp: TransformComp | None = self.entity_manager.get_component(enemy_id, TransformComp)
             enemy_physics_cmp: PhysicsComp | None = self.entity_manager.get_component(enemy_id, PhysicsComp)
+            enemy_render_cmp: RenderableComp | None = self.entity_manager.get_component(enemy_id, RenderableComp)
 
             print(self.check_collision(player_cmp.sword_hit_box, enemy_trans_cmp))
             print(player_cmp.sword_hit_box.position)
@@ -470,20 +479,36 @@ class PhysicsSystem(System, EventListener):
                     if player_cmp.last_x_dir > 0:
                         self.knockback_set_vel_x(enemy_physics_cmp, 1, 1000)
                         self.knockback(player_physics_cmp, -1, 0, 100)
+                        self.create_blood_particles(enemy_trans_cmp, enemy_render_cmp.color, 90, 270)
                     else:
                         self.knockback_set_vel_x(enemy_physics_cmp, -1, 1000)
                         self.knockback(player_physics_cmp, 1, 0, 100)
+                        self.create_blood_particles(enemy_trans_cmp, enemy_render_cmp.color, -90, 90)
                 else:
                     if player_cmp.input_y_dir < 0:
                         self.knockback_set_vel_y(enemy_physics_cmp, -1, 600)
+                        self.create_blood_particles(enemy_trans_cmp, enemy_render_cmp.color, 0, 180)
                     else:
                         self.knockback(enemy_physics_cmp, 0, 1, 600)
                         self.knockback_set_vel_y(player_physics_cmp, -1, 600)
+                        self.create_blood_particles(enemy_trans_cmp, enemy_render_cmp.color, -180, 0)
 
-    def attack_player(self, player_id, player_cmp, enemy_cmp):
+
+    def attack_player(self, player_id, player_cmp, player_trans_cmp, player_render_cmp, enemy_cmp):
+        if player_cmp.invincibility:
+            return
+        core.event_manager.notify(ShakeCameraEvent(2, 0.4))
         core.event_manager.notify(HitEvent(player_id, enemy_cmp.damage))
         player_cmp.invincibility = True
+        player_cmp.invincibility_counter = 0
+        self.create_blood_particles(player_trans_cmp, player_render_cmp.color, 0, 360)
 
+    def create_blood_particles(self, entity_trans_cmp: TransformComp, color: pygame.Color, angle_from, angle_to):
+        core.event_manager.notify(
+            CreateParticlesEvent(20, entity_trans_cmp.position.x + entity_trans_cmp.width / 2,
+                                 entity_trans_cmp.position.y + entity_trans_cmp.height / 2,
+                                 8, 4, 2, pygame.Color(color),
+                                 angle_from, angle_to, 150, 10, 0.3, 0, 0.01))
     # === Utils: ===
 
     def check_collision(self, e1_trans_cmp: TransformComp, e2_trans_cmp: TransformComp) -> bool:

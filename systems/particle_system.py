@@ -1,13 +1,23 @@
-from ecs.components import AnimatedSpriteComp
+import math
+import random
+
+import factory
+from ecs.components import AnimatedSpriteComp, ParticleComp, RenderableComp, TransformComp
 from ecs.entity_manger import EntityManager
 from ecs.system import System
+from events import EventListener, Event, CreateParticlesEvent
 
 
-class ParticleSystem(System):
+class ParticleSystem(System, EventListener):
     def __init__(self, entity_manager: EntityManager):
         super().__init__(entity_manager)
 
+    def on_notify(self, event: Event):
+        if isinstance(event, CreateParticlesEvent):
+            self.create_particles(event.particle_count, event.x, event.y, event.position_offset, event.radius, event.radius_offset, event.color, event.angle_from, event.angle_to, event.speed, event.speed_offset, event.life_duration, event.life_duration_offset, event.time_to_change_opacity)
+
     def update(self, dt: float) -> None:
+        # Handle Animated Sprites
         for entity_id in self.entity_manager.get_entities_with(AnimatedSpriteComp):
             animated_particle_cmp: AnimatedSpriteComp | None = self.entity_manager.get_component(entity_id, AnimatedSpriteComp)
 
@@ -20,3 +30,50 @@ class ParticleSystem(System):
                     animated_particle_cmp.current_frame = 0
                     if animated_particle_cmp.one_shot:
                         self.entity_manager.delete_entity(entity_id)
+
+        # Handle Actual Particles:
+        for entity_id in self.entity_manager.get_entities_with(ParticleComp):
+            particle_cmp: ParticleComp | None = self.entity_manager.get_component(entity_id, ParticleComp)
+
+            particle_cmp.time_alive += dt
+            if particle_cmp.time_alive > particle_cmp.life_duration:
+                self.entity_manager.delete_entity(entity_id)
+
+            if particle_cmp.time_to_change_opacity > 0 and particle_cmp.time_alive > particle_cmp.time_to_change_opacity:
+                render_cmp: RenderableComp | None = self.entity_manager.get_component(entity_id, RenderableComp)
+
+                # Calculate how long we've been fading
+                fade_elapsed = particle_cmp.time_alive - particle_cmp.time_to_change_opacity
+                fade_remaining = particle_cmp.life_duration - particle_cmp.time_to_change_opacity
+
+                # Calculate opacity as a percentage (0-255 range)
+                fade_progress = fade_elapsed / fade_remaining
+                render_cmp.color.a = int(255 * max(0.0, 1 - fade_progress))
+
+            # calculate what needs to be added to position of the particle to go in the desired direction
+
+            transform_cmp: TransformComp | None = self.entity_manager.get_component(entity_id, TransformComp)
+            angle_rad = math.radians(particle_cmp.direction)
+            displacement_x = particle_cmp.speed * math.cos(angle_rad) * dt
+            displacement_y = particle_cmp.speed * math.sin(angle_rad) * dt
+
+            transform_cmp.position.x += displacement_x
+            transform_cmp.position.y += displacement_y
+
+    def create_particles(self, particle_count, x, y, position_offset, radius, radius_offset, color,
+                         angle_from, angle_to, speed, speed_offset, life_duration, life_duration_offset,
+                         time_to_change_opacity):
+        for i in range(particle_count):
+            new_x = x + random.randint(-position_offset, position_offset)
+            new_y = y + random.randint(-position_offset, position_offset)
+
+            new_radius = radius + random.randint(-radius_offset, radius_offset)
+
+            direction = random.randint(angle_from, angle_to)
+
+            new_speed = speed + random.randint(-speed_offset, speed_offset)
+
+            new_life_duration = life_duration + random.randint(int(-life_duration_offset*100), int(life_duration_offset*100))/100
+
+            factory.create_circle_particle(self.entity_manager, new_x, new_y, new_radius, color, direction, new_speed,
+                                           new_life_duration, time_to_change_opacity)

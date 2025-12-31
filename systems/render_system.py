@@ -1,9 +1,9 @@
-from turtle import width
 from typing import override
 
 import pygame
 import core
-from ecs.components import RectToDrawComp, RenderableComp, TransformComp, AnimatedSpriteComp, PlayerComp
+from ecs.components import RectToDrawComp, RenderableComp, TransformComp, AnimatedSpriteComp, PlayerComp, \
+    CircleToDrawComp
 from ecs.entity_manger import EntityManager
 from ecs.system import System
 
@@ -12,12 +12,12 @@ class RenderSystem(System):
     def __init__(self, entity_manager: EntityManager, screen_surface: pygame.Surface):
         super().__init__(entity_manager)
         self.screen_surface: pygame.Surface = screen_surface
-        self.world_surface = pygame.Surface((core.VIEWPORT_WIDTH, core.VIEWPORT_HEIGHT))
-        self.scaled_surface = pygame.Surface((core.WINDOW_WIDTH, core.WINDOW_HEIGHT))
+        self.world_surface = pygame.Surface((core.VIEWPORT_WIDTH, core.VIEWPORT_HEIGHT), pygame.SRCALPHA)
+        self.scaled_surface = pygame.Surface((core.WINDOW_WIDTH, core.WINDOW_HEIGHT), pygame.SRCALPHA)
 
     @override
     def update(self, dt: float) -> None:
-        self.screen_surface.fill(core.BLACK)
+        self.screen_surface.fill(core.BACKGROUND_COLOR)
         self.world_surface.fill(core.BACKGROUND_COLOR)
         self.scaled_surface.fill(core.BACKGROUND_COLOR)
 
@@ -48,6 +48,10 @@ class RenderSystem(System):
                     hitbox_drawing_y = round(player_cmp.sword_hit_box.position.y - core.camera.position.y)
                     pygame.draw.rect(self.world_surface, (255, 192, 203),
                                      pygame.Rect(hitbox_drawing_x, hitbox_drawing_y, player_cmp.sword_hit_box.width, player_cmp.sword_hit_box.height), 2)
+            if self.entity_manager.has_components(entity_id, CircleToDrawComp):
+                circle_cmp: CircleToDrawComp | None = self.entity_manager.get_component(entity_id, CircleToDrawComp)
+                circle_cmp.surface.set_alpha(renderable_cmp.color.a)
+                self.world_surface.blit(circle_cmp.surface, (drawing_x, drawing_y))
 
         # Update display and render scaled world
         pygame.transform.scale(self.world_surface, (core.WINDOW_WIDTH, core.WINDOW_HEIGHT), self.scaled_surface)

@@ -1,8 +1,10 @@
+import pygame
+
 import core
-from ecs.components import HealthComp, PlayerComp
+from ecs.components import HealthComp, TransformComp, RenderableComp
 from ecs.entity_manger import EntityManager
 from ecs.system import System
-from events import EventListener, Event, HitEvent, ShakeCameraEvent
+from events import EventListener, Event, HitEvent, CreateParticlesEvent
 
 
 class HealthSystem(System, EventListener):
@@ -14,8 +16,15 @@ class HealthSystem(System, EventListener):
         for entity_id in self.entity_manager.get_entities_with(HealthComp):
             health_cmp: HealthComp | None = self.entity_manager.get_component(entity_id, HealthComp)
             if health_cmp.health <= 0:
+                trans_cmp: TransformComp | None = self.entity_manager.get_component(entity_id, TransformComp)
+                render_cmp: RenderableComp | None = self.entity_manager.get_component(entity_id, RenderableComp)
                 # do some event that the entity got killed, IDK particles or smth
                 self.entity_manager.delete_entity(entity_id)
+                core.event_manager.notify(
+                    CreateParticlesEvent(70, trans_cmp.position.x + trans_cmp.width / 2,
+                                         trans_cmp.position.y + trans_cmp.height / 2,
+                                         16, 6, 4, pygame.Color(render_cmp.color),
+                                         0, 360, 100, 100, 0.4, 0, 0.2))
 
     def on_notify(self, event: Event):
         if isinstance(event, HitEvent):
@@ -23,10 +32,5 @@ class HealthSystem(System, EventListener):
 
     def hit(self, entity_id, damage_dealt):
         health_cmp: HealthComp | None = self.entity_manager.get_component(entity_id, HealthComp)
-        if self.entity_manager.has_components(entity_id, PlayerComp):
-            player_cmp: PlayerComp | None = self.entity_manager.get_component(entity_id, PlayerComp)
-            if player_cmp.invincibility:
-                return
-            core.event_manager.notify(ShakeCameraEvent(2, 0.4))
         health_cmp.health -= damage_dealt
         print(entity_id, health_cmp.health)

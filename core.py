@@ -44,9 +44,10 @@ asset_manager: AssetManager | None = None
 
 # Custom Colors:
 BLACK = (0, 0, 0)
-BACKGROUND_COLOR = (33, 33, 33)
+BACKGROUND_COLOR = (33, 33, 33, 1)
 PLAYER_COLOR = (255, 255, 255)
 PLAYER_INVINCIBLE_COLOR = (143, 143, 143)
+CLEAR_COLOR = (0, 0, 0, 0)
 
 
 def initialize(): # Initialize global Objects

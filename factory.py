@@ -2,7 +2,7 @@ import pygame
 
 import core
 from ecs.components import TransformComp, RenderableComp, TileComp, RectToDrawComp, PlayerComp, PhysicsComp, EnemyComp, \
-    EnemyType, HealthComp, AnimatedSpriteComp
+    EnemyType, HealthComp, AnimatedSpriteComp, ParticleComp, CircleToDrawComp
 
 
 def create_tile(entity_manager, x, y, width, height):
@@ -60,3 +60,20 @@ def create_animated_slash_particle(entity_manager, x, y, flip_x, flip_y, rotatio
         RenderableComp(color=pygame.color.Color(255, 255, 255), flip_x=flip_x, flip_y=flip_y),
         AnimatedSpriteComp(frames=[img1, img2, img3, img4], animation_speed=0.05)
     )
+
+def create_circle_particle(entity_manager, x, y, radius: int, color: pygame.Color, angle_direction, speed, life_duration, time_to_change_opacity):
+    particle_id = entity_manager.create_entity()
+    circle_to_draw_cmp = CircleToDrawComp(pygame.Surface((radius * 2, radius * 2), pygame.SRCALPHA))
+    entity_manager.add_components(
+        particle_id,
+        TransformComp(pygame.math.Vector2(x, y), radius, radius),
+        ParticleComp(life_duration=life_duration, direction=angle_direction, speed=speed, time_to_change_opacity=time_to_change_opacity),
+        circle_to_draw_cmp,
+        RenderableComp(color)
+    )
+
+    prep_circle_surf(circle_to_draw_cmp.surface, color, radius)
+
+# TODO this one could be poolable
+def prep_circle_surf(surface: pygame.Surface, color: pygame.Color, radius: int):
+    pygame.draw.circle(surface, color, (radius, radius), radius)

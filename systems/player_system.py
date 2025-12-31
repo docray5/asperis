@@ -1,8 +1,10 @@
+import pygame
+
 import core
-from ecs.components import PlayerComp, PhysicsComp, RenderableComp
+from ecs.components import PlayerComp, PhysicsComp, RenderableComp, TransformComp
 from ecs.entity_manger import EntityManager
 from ecs.system import System
-from events import AttackEvent
+from events import AttackEvent, CreateParticlesEvent
 
 
 class PlayerSystem(System):
@@ -16,6 +18,7 @@ class PlayerSystem(System):
         self.player_physics_comp: PhysicsComp = physics_comp
         self.player_id = entity_manager.get_entities_with(PlayerComp)[0]
         self.player_render_cmp: RenderableComp | None = self.entity_manager.get_component(self.player_id, RenderableComp)
+        self.player_trans_cmp: TransformComp | None = self.entity_manager.get_component(self.player_id, TransformComp)
 
     def update(self, dt: float) -> None:
         # Why do I split the two axis'? It helps with determining from which side did the player
@@ -162,6 +165,11 @@ class PlayerSystem(System):
         self.player_comp.dash_time = 0
         self.player_comp.dashes_left -= 1
         self.player_comp.last_dashed = 0
+        core.event_manager.notify(
+            CreateParticlesEvent(20, self.player_trans_cmp.position.x + self.player_trans_cmp.width / 2,
+                                 self.player_trans_cmp.position.y + self.player_trans_cmp.height/2,
+                                 int(self.player_trans_cmp.width / 2), 5, 2, pygame.Color(230, 230, 230, 200),
+                                 0, 360, 100, 100, 0.5, 0.1, 0.1))
 
     def jump(self, force):
         if self.player_comp.jumping:
@@ -171,4 +179,11 @@ class PlayerSystem(System):
         self.player_comp.jumping = True
         self.player_comp.on_ground = False
         self.player_comp.last_jump_counter = 0
+
+        core.event_manager.notify(
+            CreateParticlesEvent(10, self.player_trans_cmp.position.x + self.player_trans_cmp.width/2,
+                                 self.player_trans_cmp.position.y + self.player_trans_cmp.height,
+                                 int(self.player_trans_cmp.width/2), 5, 2, pygame.Color(230, 230, 230, 200),
+                                 -180+75, -75, 100, 100, 0.5, 0.1, 0.1))
+
         if core.DEBUG: print("--- Player Jumped ---")

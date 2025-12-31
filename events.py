@@ -1,3 +1,6 @@
+import pygame
+
+
 class Event:
     """
     Abstract data class for storing data about and event
@@ -16,6 +19,26 @@ class HitEvent(Event):
     def __init__(self, entity_id, damage_dealt):
         self.entity_id = entity_id
         self.damage_dealt = damage_dealt
+
+
+class CreateParticlesEvent(Event):
+    def __init__(self, particle_count: int, x: float, y: float, position_offset: int, radius: int, radius_offset: int,
+                 color: pygame.Color, angle_from: int, angle_to: int, speed: float, speed_offset: int,
+                 life_duration: float, life_duration_offset: float, time_to_change_opacity: float):
+        self.particle_count = particle_count
+        self.x = x
+        self.y = y
+        self.position_offset = position_offset
+        self.radius = radius
+        self.radius_offset = radius_offset
+        self.color = color
+        self.angle_from = angle_from
+        self.angle_to = angle_to
+        self.speed = speed
+        self.speed_offset = speed_offset
+        self.life_duration = life_duration
+        self.life_duration_offset = life_duration_offset
+        self.time_to_change_opacity = time_to_change_opacity
 
 
 class AttackEvent(Event):

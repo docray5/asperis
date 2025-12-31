@@ -40,6 +40,11 @@ class RectToDrawComp(Component):
 
 
 @dataclass
+class CircleToDrawComp(Component):
+    surface: pygame.Surface
+
+
+@dataclass
 class PhysicsComp(Component):
     velocity: pygame.math.Vector2 = field(default_factory=lambda: pygame.math.Vector2(0, 0))
     acceleration: pygame.math.Vector2 = field(default_factory=lambda: pygame.math.Vector2(0, 0))
@@ -60,8 +65,17 @@ class AnimatedSpriteComp(Component):
 
 
 @dataclass
+class ParticleComp(Component):
+    life_duration: float = 1
+    time_alive: float = 0
+    direction: int = 0  # angle
+    speed: float = 300
+    time_to_change_opacity: float = 0
+
+
+@dataclass
 class HealthComp(Component):
-    health: int = 100
+    health: int = 10
 
 
 class EnemyType(Enum):
