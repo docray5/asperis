@@ -75,7 +75,7 @@ class ParticleComp(Component):
 
 @dataclass
 class HealthComp(Component):
-    health: int = 10
+    health: int = 50
 
 
 class EnemyType(Enum):

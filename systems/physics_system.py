@@ -41,7 +41,7 @@ class PhysicsSystem(System, EventListener):
             enemy_cmp: EnemyComp | None = self.entity_manager.get_component(enemy_id, EnemyComp)
             enemy_trans_cmp: TransformComp | None = self.entity_manager.get_component(enemy_id, TransformComp)
             enemy_physics_cmp: PhysicsComp | None = self.entity_manager.get_component(enemy_id, PhysicsComp)
-            if enemy_cmp.enemy_type == EnemyType.FOLLOWING:
+            if enemy_cmp.enemy_type == EnemyType.FOLLOWING or enemy_cmp.enemy_type == EnemyType.PATROLLING:
 
                 if not self.check_collision(player_trans_cmp, enemy_trans_cmp):
                     continue
@@ -52,15 +52,27 @@ class PhysicsSystem(System, EventListener):
 
                 # Combat physics x-axis collision with player
                 if collision_direction == "x":
-                    relative_vel_x = player_physics_cmp.velocity.x - enemy_physics_cmp.velocity.x
-                    self.handle_entity_collision_with_tile_x(enemy_cmp, enemy_physics_cmp, enemy_trans_cmp, player_trans_cmp)
-                    if relative_vel_x > 0:  # Player moving right relative to enemy
-                        # test without the line below
-                        self.knockback(player_physics_cmp, -1, 0, 1000)
-                    elif relative_vel_x < 0:  # Player moving left relative to enemy
-                        self.knockback(player_physics_cmp, 1, 0, 1000)
+                    if enemy_cmp.enemy_type == EnemyType.PATROLLING:
+                        # Separate AND ensure they don't re-collide immediately
+                        if enemy_trans_cmp.position.x < player_trans_cmp.position.x:
+                            # Enemy is LEFT of player, push it left
+                            enemy_trans_cmp.position.x = player_trans_cmp.position.x - enemy_trans_cmp.width - 1
+                            enemy_physics_cmp.velocity.x = -300
+                        else:
+                            # Enemy is RIGHT of player, push it right
+                            enemy_trans_cmp.position.x = player_trans_cmp.position.x + player_trans_cmp.width + 1
+                            enemy_physics_cmp.velocity.x = 300
+                        # maybe some day I will change this but as of right now seems to actually be bad
+                        # enemy_cmp.patrol_direction *= -1
+                    else:  # FOLLOWING
+                        self.handle_entity_collision_with_tile_x(enemy_cmp, enemy_physics_cmp, enemy_trans_cmp,
+                                                                 player_trans_cmp)
+
+                    # Player knockback
+                    if player_trans_cmp.position.x < enemy_trans_cmp.position.x:
+                        self.knockback_set_vel_x(player_physics_cmp, -1, 1000)
                     else:
-                        print("Alone-x: Wtf bro, this is not supposed to happen. WHAT DID YOU DO N...")
+                        self.knockback_set_vel_x(player_physics_cmp, 1, 1000)
 
                 # Combat physics y-axis collision with player
                 elif collision_direction == "y":
@@ -93,38 +105,6 @@ class PhysicsSystem(System, EventListener):
                             self.handle_enemy_landed_on_player(enemy_trans_cmp, enemy_physics_cmp, player_trans_cmp, player_physics_cmp)
                     else:
                         print("Alone-y: Wtf bro, this is not supposed to happen. WHAT DID YOU DO N...")
-
-            elif enemy_cmp.enemy_type == EnemyType.PATROLLING:
-                if not self.check_collision(player_trans_cmp, enemy_trans_cmp):
-                    continue
-
-                self.attack_player(player_id, player_cmp, player_trans_cmp, player_render_cmp, enemy_cmp)
-
-                collision_direction = self.get_collision_direction(player_trans_cmp, enemy_trans_cmp)
-
-                if collision_direction == "x":
-                    relative_vel_x = player_physics_cmp.velocity.x - enemy_physics_cmp.velocity.x
-                    if relative_vel_x > 0:
-                        self.knockback(player_physics_cmp, -1, 0, 1000)
-                    elif relative_vel_x < 0:
-                        self.knockback(player_physics_cmp, 1, 0, 1000)
-
-                    if enemy_physics_cmp.velocity.x > 0:
-                        enemy_trans_cmp.position.x = player_trans_cmp.position.x - enemy_trans_cmp.width
-                    else:
-                        enemy_trans_cmp.position.x = player_trans_cmp.position.x + player_trans_cmp.width
-
-                else:
-                    if player_physics_cmp.velocity.y > 0:  # Player falling down
-                        player_trans_cmp.position.y = enemy_trans_cmp.position.y - player_trans_cmp.height
-                        self.knockback_set_vel_y(player_physics_cmp, -1, 400)
-                    else:
-                        self.knockback_set_vel_y(player_physics_cmp, 1, 0)
-                        # add this shit if you want the player to properly interact with the patrol enemy
-                        # self.knockback_set_vel_y(player_physics_cmp, 1, 400)
-                        # self.knockback_set_vel_y(enemy_physics_cmp, -1, 100)
-
-                    # player_physics_cmp.velocity.y = -player_physics_cmp.velocity.y
 
         # === SECOND COLLISION PASS ===
         # It's here because it cleans up whatever got messed up during the player-enemy collision,
