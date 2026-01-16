@@ -25,16 +25,21 @@ QUIT_KEY = pygame.K_ESCAPE
 POINT_UP_KEY = pygame.K_w
 POINT_DOWN_KEY = pygame.K_s
 DASH_KEY = pygame.K_LSHIFT
+ATTACK_KEY = pygame.K_RCTRL
 
 # === Player controller config ===
 FRICTION = 0.8
 DASH_SPEED = 1000  # pixels per frame
 SEPARATION_BUFFER = 1
-SWORD_HIT_BOX_WIDTH = 48
-SWORD_HIT_BOX_HEIGHT = 64
+PLAYER_SWORD_HIT_BOX_WIDTH = 64
+PLAYER_SWORD_HIT_BOX_HEIGHT = 64
 
 # === Enemy config ===
-
+BOSS_SIZE = (128, 128)
+BOSS_SWORD_HIT_BOX = (BOSS_SIZE[1]+64, BOSS_SIZE[1]+64)
+BOSS_DAMAGE = 2
+ATTACK_SIGHT_RANGE = 256
+SIGHT_RANGE = 1024
 
 # === Global variables ===
 camera = None  # it's global only because it has to be accessed by render and camera systems. So

@@ -3,7 +3,7 @@ from typing import override
 import pygame
 import core
 from ecs.components import RectToDrawComp, RenderableComp, TransformComp, AnimatedSpriteComp, PlayerComp, \
-    CircleToDrawComp
+    CircleToDrawComp, BossComp
 from ecs.entity_manger import EntityManager
 from ecs.system import System
 
@@ -38,7 +38,10 @@ class RenderSystem(System):
                 pygame.draw.rect(self.world_surface, renderable_cmp.color, rect_to_draw_cmp.drawing_rect)
             if self.entity_manager.has_components(entity_id, AnimatedSpriteComp):
                 anim_spr_cmp: AnimatedSpriteComp | None = self.entity_manager.get_component(entity_id, AnimatedSpriteComp)
-                sprite_to_draw = pygame.transform.rotate(anim_spr_cmp.frames[anim_spr_cmp.current_frame], transform_cmp.rotation)
+                new_size = (anim_spr_cmp.frames[anim_spr_cmp.current_frame].get_size()[0]*transform_cmp.scale, anim_spr_cmp.frames[anim_spr_cmp.current_frame].get_size()[1]*transform_cmp.scale)
+                sprite_to_draw = pygame.Surface(new_size).convert_alpha()
+                pygame.transform.scale(anim_spr_cmp.frames[anim_spr_cmp.current_frame], new_size, sprite_to_draw)
+                sprite_to_draw = pygame.transform.rotate(sprite_to_draw, transform_cmp.rotation)
                 sprite_to_draw = pygame.transform.flip(sprite_to_draw, not renderable_cmp.flip_x, not renderable_cmp.flip_y)
                 self.world_surface.blit(sprite_to_draw, (drawing_x, drawing_y))
             if core.DRAW_HITBOXES:
@@ -48,6 +51,14 @@ class RenderSystem(System):
                     hitbox_drawing_y = round(player_cmp.sword_hit_box.position.y - core.camera.position.y)
                     pygame.draw.rect(self.world_surface, (255, 192, 203),
                                      pygame.Rect(hitbox_drawing_x, hitbox_drawing_y, player_cmp.sword_hit_box.width, player_cmp.sword_hit_box.height), 2)
+                if self.entity_manager.has_components(entity_id, BossComp):
+                    boss_cmp: BossComp | None = self.entity_manager.get_component(entity_id, BossComp)
+                    hitbox_drawing_x = round(boss_cmp.sword_hit_box.position.x - core.camera.position.x)
+                    hitbox_drawing_y = round(boss_cmp.sword_hit_box.position.y - core.camera.position.y)
+                    pygame.draw.rect(self.world_surface, (255, 192, 203),
+                                     pygame.Rect(hitbox_drawing_x, hitbox_drawing_y, boss_cmp.sword_hit_box.width,
+                                                 boss_cmp.sword_hit_box.height), 2)
+                    # add one for the boss
             if self.entity_manager.has_components(entity_id, CircleToDrawComp):
                 circle_cmp: CircleToDrawComp | None = self.entity_manager.get_component(entity_id, CircleToDrawComp)
                 circle_cmp.surface.set_alpha(renderable_cmp.color.a)

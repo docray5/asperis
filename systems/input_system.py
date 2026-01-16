@@ -33,6 +33,8 @@ class InputSystem(System):
                     commands.point_down_key_down.execute()
                 if event.key == core.DASH_KEY:
                     commands.dash_k_down_cmd.execute()
+                if event.key == core.ATTACK_KEY:
+                    commands.attack_key_down.execute()
                 if event.key == pygame.K_x:
                     core.event_manager.notify(CreateParticlesEvent(30, 0, core.VIEWPORT_HEIGHT/2, 10, 4, 2, pygame.Color(255, 255, 255, 255), 45, 90, 150, 50, 0.8, 0.1, 0.3))
             if event.type == pygame.KEYUP:

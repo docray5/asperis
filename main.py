@@ -88,11 +88,13 @@ def main():
     factory.create_tile(entity_manager, 64, core.VIEWPORT_HEIGHT - 72, 128, 16)
     factory.create_tile(entity_manager, core.VIEWPORT_WIDTH / 2, core.VIEWPORT_HEIGHT / 2 + 32, 128, 16)
     factory.create_tile(entity_manager, -core.VIEWPORT_WIDTH*2, core.VIEWPORT_HEIGHT, core.VIEWPORT_WIDTH*4, 32)
-    factory.create_tile(entity_manager, core.VIEWPORT_WIDTH, core.VIEWPORT_HEIGHT-32, 32, 32)
+    # factory.create_tile(entity_manager, core.VIEWPORT_WIDTH, core.VIEWPORT_HEIGHT-32, 32, 32) for showcase of physics
 
     factory.create_enemy(entity_manager, -100, 0, 32, 32)
     factory.create_enemy(entity_manager, -200, 0, 32, 32)
     factory.create_enemy(entity_manager, core.VIEWPORT_WIDTH / 2+64, core.VIEWPORT_HEIGHT / 2, 32, 32, 80, EnemyType.PATROLLING)
+
+    factory.create_boss(entity_manager, core.VIEWPORT_WIDTH*2 - core.BOSS_SIZE[0], 0)
 
     player_system = PlayerSystem(entity_manager, entity_manager.get_component(player_id, PlayerComp),
                                  entity_manager.get_component(player_id, PhysicsComp))

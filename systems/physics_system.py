@@ -1,9 +1,11 @@
 import pygame
 import core
 import factory
-from ecs.components import TransformComp, PlayerComp, TileComp, PhysicsComp, EnemyComp, EnemyType, RenderableComp
+from ecs.components import TransformComp, PlayerComp, TileComp, PhysicsComp, EnemyComp, EnemyType, RenderableComp, \
+    BossComp
 from ecs.system import System
-from events import ShakeCameraEvent, HitEvent, EventListener, Event, AttackEvent, CreateParticlesEvent
+from events import ShakeCameraEvent, HitEvent, EventListener, Event, PlayerAttackEvent, CreateParticlesEvent, \
+    BossAttackEvent
 
 
 class PhysicsSystem(System, EventListener):
@@ -15,8 +17,10 @@ class PhysicsSystem(System, EventListener):
         super().__init__(entity_manager)
 
     def on_notify(self, event: Event):
-        if isinstance(event, AttackEvent):
-            self.attack(event.player_id)
+        if isinstance(event, PlayerAttackEvent):
+            self.player_attack(event.player_id)
+        elif isinstance(event, BossAttackEvent):
+            self.boss_attack(event.boss_id, event.player_id)
 
 
     def update(self, dt: float) -> None:
@@ -41,12 +45,12 @@ class PhysicsSystem(System, EventListener):
             enemy_cmp: EnemyComp | None = self.entity_manager.get_component(enemy_id, EnemyComp)
             enemy_trans_cmp: TransformComp | None = self.entity_manager.get_component(enemy_id, TransformComp)
             enemy_physics_cmp: PhysicsComp | None = self.entity_manager.get_component(enemy_id, PhysicsComp)
-            if enemy_cmp.enemy_type == EnemyType.FOLLOWING or enemy_cmp.enemy_type == EnemyType.PATROLLING:
+            if enemy_cmp.enemy_type == EnemyType.FOLLOWING or enemy_cmp.enemy_type == EnemyType.PATROLLING or enemy_cmp.enemy_type == EnemyType.BOSS:
 
                 if not self.check_collision(player_trans_cmp, enemy_trans_cmp):
                     continue
 
-                self.attack_player(player_id, player_cmp, player_trans_cmp, player_render_cmp, enemy_cmp)
+                self.enemy_attack(player_id, player_cmp, player_trans_cmp, player_render_cmp, enemy_cmp)
 
                 collision_direction = self.get_collision_direction(player_trans_cmp, enemy_trans_cmp)
 
@@ -125,7 +129,7 @@ class PhysicsSystem(System, EventListener):
             enemy_trans_cmp: TransformComp | None = self.entity_manager.get_component(enemy_id, TransformComp)
             enemy_physics_cmp: PhysicsComp | None = self.entity_manager.get_component(enemy_id, PhysicsComp)
 
-            if enemy_cmp.enemy_type == EnemyType.FOLLOWING or enemy_cmp.enemy_type == EnemyType.PATROLLING:
+            if enemy_cmp.enemy_type == EnemyType.FOLLOWING or enemy_cmp.enemy_type == EnemyType.PATROLLING or enemy_cmp.enemy_type == EnemyType.BOSS:
                 self.update_entity_physics(enemy_cmp, enemy_physics_cmp, enemy_trans_cmp, tiles, dt, move, enemy_cmp.enemy_type)
 
     def update_entity_physics(self, entity_cmp, physics_cmp, transform_cmp, tiles, dt, move: bool, enemy_type=None):
@@ -397,7 +401,7 @@ class PhysicsSystem(System, EventListener):
                                  -30, 180+30, int(vel*100), int(vel*100), 0.4, 0.1, 0.1))
 
     # Attack:
-    def attack(self, player_id):
+    def player_attack(self, player_id):
         print("Attack!")
         # update the sword hit box to be on the correct side
         player_cmp: PlayerComp | None = self.entity_manager.get_component(player_id, PlayerComp)
@@ -411,24 +415,24 @@ class PhysicsSystem(System, EventListener):
         orientation_y = True
 
         if player_cmp.input_y_dir == 0:
-            player_cmp.sword_hit_box.width = core.SWORD_HIT_BOX_WIDTH
-            player_cmp.sword_hit_box.height = core.SWORD_HIT_BOX_HEIGHT
+            player_cmp.sword_hit_box.width = core.PLAYER_SWORD_HIT_BOX_WIDTH
+            player_cmp.sword_hit_box.height = core.PLAYER_SWORD_HIT_BOX_HEIGHT
             player_cmp.sword_hit_box.position.y = player_trans_cmp.position.y - abs(player_trans_cmp.height-player_cmp.sword_hit_box.height) / 2
             if player_cmp.last_x_dir > 0:
                 player_cmp.sword_hit_box.position.x = player_trans_cmp.position.x + player_trans_cmp.width
                 slash_drawing_x = player_trans_cmp.position.x + player_trans_cmp.width - 48
             else:
                 player_cmp.sword_hit_box.position.x = player_trans_cmp.position.x - player_cmp.sword_hit_box.width
-                slash_drawing_x = player_trans_cmp.position.x - core.asset_manager.get("slash_frame1.png").get_size()[0] + 48
+                slash_drawing_x = player_trans_cmp.position.x - core.asset_manager.get("p_slash_frame1.png").get_size()[0] + 48
                 orientation_x = False
         else:  # prioritize y axis
             rotation = 90
-            player_cmp.sword_hit_box.width = core.SWORD_HIT_BOX_WIDTH
-            player_cmp.sword_hit_box.height = core.SWORD_HIT_BOX_HEIGHT
+            player_cmp.sword_hit_box.width = core.PLAYER_SWORD_HIT_BOX_WIDTH
+            player_cmp.sword_hit_box.height = core.PLAYER_SWORD_HIT_BOX_HEIGHT
             player_cmp.sword_hit_box.position.x = player_trans_cmp.position.x - abs(player_trans_cmp.width - player_cmp.sword_hit_box.width) / 2
             if player_cmp.input_y_dir < 0:
-                player_cmp.sword_hit_box.width = core.SWORD_HIT_BOX_HEIGHT * 1.5
-                player_cmp.sword_hit_box.height = core.SWORD_HIT_BOX_WIDTH
+                player_cmp.sword_hit_box.width = core.PLAYER_SWORD_HIT_BOX_HEIGHT * 0.8
+                player_cmp.sword_hit_box.height = core.PLAYER_SWORD_HIT_BOX_WIDTH * 1.1
                 player_cmp.sword_hit_box.position.x = player_trans_cmp.position.x - abs(
                     player_trans_cmp.width - player_cmp.sword_hit_box.width) / 2
                 player_cmp.sword_hit_box.position.y = player_trans_cmp.position.y - player_cmp.sword_hit_box.height
@@ -473,8 +477,50 @@ class PhysicsSystem(System, EventListener):
                         self.knockback_set_vel_y(player_physics_cmp, -1, 600)
                         self.create_blood_particles(enemy_trans_cmp, enemy_render_cmp.color, -180, 0)
 
+    def boss_attack(self, boss_id, player_id):
+        print("Boss attack")
+        # update the sword hit box to be on the correct side
+        player_cmp: PlayerComp | None = self.entity_manager.get_component(player_id, PlayerComp)
+        player_trans_cmp: TransformComp | None = self.entity_manager.get_component(player_id, TransformComp)
+        player_physics_cmp: PhysicsComp | None = self.entity_manager.get_component(player_id, PhysicsComp)
+        player_render_cmp: RenderableComp | None = self.entity_manager.get_component(player_id, RenderableComp)
 
-    def attack_player(self, player_id, player_cmp, player_trans_cmp, player_render_cmp, enemy_cmp):
+        boss_cmp: BossComp | None = self.entity_manager.get_component(boss_id, BossComp)
+        boss_trans_cmp: TransformComp | None = self.entity_manager.get_component(boss_id, TransformComp)
+        boss_physics_cmp: PhysicsComp | None = self.entity_manager.get_component(boss_id, PhysicsComp)
+
+        slash_drawing_x = boss_trans_cmp.position.x - boss_trans_cmp.width / 2 - boss_cmp.sword_hit_box.width / 2
+        slash_drawing_y = boss_trans_cmp.position.y - 64
+        orientation_x = True
+
+        boss_cmp.sword_hit_box.width = core.BOSS_SWORD_HIT_BOX[0]
+        boss_cmp.sword_hit_box.height = core.BOSS_SWORD_HIT_BOX[1]
+        boss_cmp.sword_hit_box.position.y = boss_trans_cmp.position.y - abs(boss_trans_cmp.height - boss_cmp.sword_hit_box.height)
+        if boss_cmp.attack_dir_x > 0:
+            boss_cmp.sword_hit_box.position.x = boss_trans_cmp.position.x
+            slash_drawing_x = boss_trans_cmp.position.x + boss_trans_cmp.width - 128
+        else:
+            boss_cmp.sword_hit_box.position.x = boss_trans_cmp.position.x + boss_trans_cmp.width - boss_cmp.sword_hit_box.width
+            slash_drawing_x = boss_trans_cmp.position.x - boss_trans_cmp.width - core.asset_manager.get("b_slash_frame1.png").get_size()[0] + 128
+            orientation_x = False
+
+        factory.create_animated_slash_particle2(self.entity_manager, slash_drawing_x, slash_drawing_y, orientation_x, 3)
+
+        print(self.check_collision(boss_cmp.sword_hit_box, player_trans_cmp))
+        print(boss_cmp.sword_hit_box.position)
+        print(player_trans_cmp.position)
+        if self.check_collision(boss_cmp.sword_hit_box, player_trans_cmp):
+            core.event_manager.notify(HitEvent(player_id, boss_cmp.damage))
+            if boss_cmp.attack_dir_x > 0:
+                self.knockback_set_vel_x(player_physics_cmp, 1, 1000)
+                self.knockback(player_physics_cmp, -1, 0, 100)
+                self.create_blood_particles(player_trans_cmp, player_render_cmp.color, 90, 270)
+            else:
+                self.knockback_set_vel_x(player_physics_cmp, -1, 1000)
+                self.knockback(player_physics_cmp, 1, 0, 100)
+                self.create_blood_particles(player_trans_cmp, player_render_cmp.color, -90, 90)
+
+    def enemy_attack(self, player_id, player_cmp, player_trans_cmp, player_render_cmp, enemy_cmp):
         if player_cmp.invincibility:
             return
         core.event_manager.notify(ShakeCameraEvent(2, 0.4))
@@ -514,6 +560,8 @@ class PhysicsSystem(System, EventListener):
                 e1_trans_cmp.position.y < e2_trans_cmp.position.y + e2_trans_cmp.height)
 
     def knockback(self, physics_cmp, dx, dy, force, duration=0.0):
+        if physics_cmp.knockback_resistance == 0:
+            return
         physics_cmp.velocity.x += force * dx
         physics_cmp.velocity.y += force * dy
         physics_cmp.is_knockback = True
@@ -522,13 +570,25 @@ class PhysicsSystem(System, EventListener):
         else:
             physics_cmp.knockback_counter = physics_cmp.knockback_time
 
-    def knockback_set_vel_x(self, physics_cmp, dx, force):
+    def knockback_set_vel_x(self, physics_cmp, dx, force, duration=0.0):
+        if physics_cmp.knockback_resistance == 0:
+            return
         physics_cmp.velocity.x = force * dx
         physics_cmp.is_knockback = True
+        if duration != 0:
+            physics_cmp.knockback_counter = duration
+        else:
+            physics_cmp.knockback_counter = physics_cmp.knockback_time
 
-    def knockback_set_vel_y(self, physics_cmp, dy, force):
+    def knockback_set_vel_y(self, physics_cmp, dy, force, duration=0.0):
+        if physics_cmp.knockback_resistance == 0:
+            return
         physics_cmp.velocity.y = force * dy
         physics_cmp.is_knockback = True
+        if duration != 0:
+            physics_cmp.knockback_counter = duration
+        else:
+            physics_cmp.knockback_counter = physics_cmp.knockback_time
 
     def get_collision_direction(self, trans1: TransformComp, trans2: TransformComp) -> str:
         """Determine primary collision direction (x or y)"""

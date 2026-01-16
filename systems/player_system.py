@@ -4,7 +4,7 @@ import core
 from ecs.components import PlayerComp, PhysicsComp, RenderableComp, TransformComp
 from ecs.entity_manger import EntityManager
 from ecs.system import System
-from events import AttackEvent, CreateParticlesEvent
+from events import PlayerAttackEvent, CreateParticlesEvent
 
 
 class PlayerSystem(System):
@@ -150,7 +150,7 @@ class PlayerSystem(System):
     def attack_key_down(self):
         if self.player_comp.last_attack_time >= self.player_comp.attack_cool_down:
             self.player_comp.last_attack_time = 0
-            core.event_manager.notify(AttackEvent(self.player_id))
+            core.event_manager.notify(PlayerAttackEvent(self.player_id))
 
     def dash_key_down(self):
         if (self.player_comp.input_x_dir == 0 and self.player_comp.input_y_dir == 0) or self.player_comp.dashes_left < 1 or self.player_comp.last_dashed < self.player_comp.dash_cool_down:

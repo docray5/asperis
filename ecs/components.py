@@ -1,9 +1,7 @@
 from abc import ABC
 from dataclasses import dataclass, field
 from enum import Enum
-
 import pygame
-
 import core
 
 
@@ -18,6 +16,7 @@ class TransformComp(Component):
     width: float
     height: float
     rotation: int = 0
+    scale: float = 1
 
 
 @dataclass
@@ -53,6 +52,7 @@ class PhysicsComp(Component):
     knockback_time = 0.12
     is_knockback: bool = False
     max_knockback_speed: float = 1000
+    knockback_resistance: float = 1  # 1 for no resistance, 0 for no knockback
 
 
 @dataclass
@@ -75,12 +75,13 @@ class ParticleComp(Component):
 
 @dataclass
 class HealthComp(Component):
-    health: int = 50
+    health: int = 10
 
 
 class EnemyType(Enum):
     PATROLLING = 1
     FOLLOWING = 2
+    BOSS = 3
 
 
 @dataclass
@@ -98,6 +99,20 @@ class EnemyComp(Component):
     accel_rate: float = 500
     gravity: float = 1400
     jump_cool_down = 1
+
+
+@dataclass
+class BossComp(Component):
+    attack_dir_x: int = 0
+
+    # Boss sword:
+    damage: int = 2
+    sword_hit_box: TransformComp = field(
+        default_factory=lambda: TransformComp(
+            pygame.math.Vector2(), core.BOSS_SWORD_HIT_BOX[0], core.BOSS_SWORD_HIT_BOX[1]))
+    last_attack_time: float = 0
+
+    attack_cool_down: float = 1.5
 
 
 @dataclass
@@ -129,7 +144,7 @@ class PlayerComp(Component):
     damage: int = 1
     sword_hit_box: TransformComp = field(
         default_factory=lambda: TransformComp(
-            pygame.math.Vector2(), core.SWORD_HIT_BOX_WIDTH, core.SWORD_HIT_BOX_HEIGHT))
+            pygame.math.Vector2(), core.PLAYER_SWORD_HIT_BOX_WIDTH, core.PLAYER_SWORD_HIT_BOX_HEIGHT))
     last_attack_time: float = 0
 
     # config (REMOVE THESE AND PUT INTO CORE)
@@ -146,5 +161,5 @@ class PlayerComp(Component):
     dash_duration: float = 0.15
     dash_cool_down: float = 0.4
     max_dash_amount = 1
-    attack_cool_down: float = 0.5
+    attack_cool_down: float = 0.75  # faster attack cool down: 0.45 (for collectible)
     invincibility_time = 0.5  # after getting hit

@@ -41,8 +41,14 @@ class CreateParticlesEvent(Event):
         self.time_to_change_opacity = time_to_change_opacity
 
 
-class AttackEvent(Event):
+class PlayerAttackEvent(Event):
     def __init__(self, player_id):
+        self.player_id = player_id
+
+
+class BossAttackEvent(Event):
+    def __init__(self, boss_id, player_id):
+        self.boss_id = boss_id
         self.player_id = player_id
 
 
