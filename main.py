@@ -92,6 +92,8 @@ def main():
 
     factory.create_enemy(entity_manager, -100, 0, 32, 32)
     factory.create_enemy(entity_manager, -200, 0, 32, 32)
+    factory.create_enemy(entity_manager, -300, 0, 32, 32)
+    factory.create_enemy(entity_manager, -400, 0, 32, 32)
     factory.create_enemy(entity_manager, core.VIEWPORT_WIDTH / 2+64, core.VIEWPORT_HEIGHT / 2, 32, 32, 80, EnemyType.PATROLLING)
 
     factory.create_boss(entity_manager, core.VIEWPORT_WIDTH*2 - core.BOSS_SIZE[0], 0)

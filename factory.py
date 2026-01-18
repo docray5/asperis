@@ -101,8 +101,8 @@ def create_boss(entity_manager, x, y):
     enemy_id = entity_manager.create_entity()
     transform_cmp = TransformComp(pygame.math.Vector2(x, y), core.BOSS_SIZE[0], core.BOSS_SIZE[1])
     render_cmp = RenderableComp(pygame.color.Color(200, 20, 20))
-    physics_cmp = PhysicsComp(knockback_resistance=0)
-    enemy_cmp = EnemyComp(enemy_type=EnemyType.BOSS, max_speed=90)
+    physics_cmp = PhysicsComp(knockback_resistance=0.15)
+    enemy_cmp = EnemyComp(enemy_type=EnemyType.BOSS, max_speed=110, damage=2)
     entity_manager.add_components(
         enemy_id, transform_cmp, render_cmp, physics_cmp, enemy_cmp, BossComp(), HealthComp(health=20), RectToDrawComp(),
 

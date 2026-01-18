@@ -36,88 +36,23 @@ class PhysicsSystem(System, EventListener):
 
         self.update_enemy_physics(tiles, dt, True)
 
-        # === ENEMY-TO-ENEMY COLLISIONS ===
+        # === ENEMY-TO-ENEMY COLLISIONS (unfortunately O=n^2) ===
         self.handle_enemy_to_enemy_collisions()
 
         # Player-Enemy Collisions:
         for enemy_id in self.entity_manager.get_entities_with(EnemyComp):
-            if player_cmp.dashing: break
+            if player_cmp.dashing or player_cmp.invincibility: break
             enemy_cmp: EnemyComp | None = self.entity_manager.get_component(enemy_id, EnemyComp)
             enemy_trans_cmp: TransformComp | None = self.entity_manager.get_component(enemy_id, TransformComp)
-            enemy_physics_cmp: PhysicsComp | None = self.entity_manager.get_component(enemy_id, PhysicsComp)
-            if enemy_cmp.enemy_type == EnemyType.FOLLOWING or enemy_cmp.enemy_type == EnemyType.PATROLLING or enemy_cmp.enemy_type == EnemyType.BOSS:
 
-                if not self.check_collision(player_trans_cmp, enemy_trans_cmp):
-                    continue
+            if not self.check_collision(player_trans_cmp, enemy_trans_cmp):
+                continue
 
-                self.enemy_attack(player_id, player_cmp, player_trans_cmp, player_render_cmp, enemy_cmp)
+            attack_dir_x = self.get_collision_dir_x_e1_e2(enemy_trans_cmp, player_trans_cmp)
+            attack_dir_y = self.get_collision_dir_y_e1_e2(enemy_trans_cmp, player_trans_cmp)
+            self.hit_the_player(player_id, player_cmp, player_trans_cmp, player_render_cmp, enemy_cmp, player_physics_cmp, attack_dir_x, attack_dir_y)
 
-                collision_direction = self.get_collision_direction(player_trans_cmp, enemy_trans_cmp)
-
-                # Combat physics x-axis collision with player
-                if collision_direction == "x":
-                    if enemy_cmp.enemy_type == EnemyType.PATROLLING:
-                        # Separate AND ensure they don't re-collide immediately
-                        if enemy_trans_cmp.position.x < player_trans_cmp.position.x:
-                            # Enemy is LEFT of player, push it left
-                            enemy_trans_cmp.position.x = player_trans_cmp.position.x - enemy_trans_cmp.width - 1
-                            enemy_physics_cmp.velocity.x = -300
-                        else:
-                            # Enemy is RIGHT of player, push it right
-                            enemy_trans_cmp.position.x = player_trans_cmp.position.x + player_trans_cmp.width + 1
-                            enemy_physics_cmp.velocity.x = 300
-                        # maybe some day I will change this but as of right now seems to actually be bad
-                        # enemy_cmp.patrol_direction *= -1
-                    else:  # FOLLOWING
-                        self.handle_entity_collision_with_tile_x(enemy_cmp, enemy_physics_cmp, enemy_trans_cmp,
-                                                                 player_trans_cmp)
-
-                    # Player knockback
-                    if player_trans_cmp.position.x < enemy_trans_cmp.position.x:
-                        self.knockback_set_vel_x(player_physics_cmp, -1, 1000)
-                    else:
-                        self.knockback_set_vel_x(player_physics_cmp, 1, 1000)
-
-                # Combat physics y-axis collision with player
-                elif collision_direction == "y":
-                    self.fix_float_velocity_y(player_physics_cmp.velocity)
-                    self.fix_float_velocity_y(enemy_physics_cmp.velocity)
-
-                    if player_physics_cmp.velocity.y > 0 and enemy_physics_cmp.velocity.y <= 0:
-                        print("Player landed on enemy")
-                        self.handle_player_landed_on_enemy(player_trans_cmp, player_physics_cmp, enemy_trans_cmp, enemy_physics_cmp)
-                    elif enemy_physics_cmp.velocity.y > 0 and player_physics_cmp.velocity.y <= 0:
-                        print("Enemy landed on player")
-                        self.handle_enemy_landed_on_player(enemy_trans_cmp, enemy_physics_cmp, player_trans_cmp, player_physics_cmp)
-                    elif player_physics_cmp.velocity.y > 0 and enemy_physics_cmp.velocity.y > 0:
-                        print("Collision while player and enemies where falling")
-                        if player_trans_cmp.position.y == enemy_trans_cmp.position.y:
-                            print("- Wtf bro, this is not supposed to happen. WHAT DID YOU DO N...",
-                                  "Player pos equals enemy pos during ^")
-                        if player_trans_cmp.position.y < enemy_trans_cmp.position.y:
-                            self.handle_player_landed_on_enemy(player_trans_cmp, player_physics_cmp, enemy_trans_cmp, enemy_physics_cmp)
-                        else:
-                            self.handle_enemy_landed_on_player(enemy_trans_cmp, enemy_physics_cmp, player_trans_cmp, player_physics_cmp)
-                    elif player_physics_cmp.velocity.y < 0 and enemy_physics_cmp.velocity.y < 0:
-                        print("Collision while player and enemies where jumping")
-                        if player_trans_cmp.position.y == enemy_trans_cmp.position.y:
-                            print("- Wtf bro, this is not supposed to happen. WHAT DID YOU DO N...",
-                                  "Player pos equals enemy pos during ^")
-                        if player_trans_cmp.position.y < enemy_trans_cmp.position.y:
-                            self.handle_player_landed_on_enemy(player_trans_cmp, player_physics_cmp, enemy_trans_cmp, enemy_physics_cmp)
-                        else:
-                            self.handle_enemy_landed_on_player(enemy_trans_cmp, enemy_physics_cmp, player_trans_cmp, player_physics_cmp)
-                    else:
-                        print("Alone-y: Wtf bro, this is not supposed to happen. WHAT DID YOU DO N...")
-
-        # === SECOND COLLISION PASS ===
-        # It's here because it cleans up whatever got messed up during the player-enemy collision,
-        # does not cause too much of a performance loss, but thanks to this it prevents some edge cases.
-        self.update_player_physics(player_cmp, player_physics_cmp, player_trans_cmp, tiles, dt, False)
-
-        self.update_enemy_physics(tiles, dt, False)
-
-    # === Some methods:
+    # === Some methods: ===
 
     def update_player_physics(self, player_cmp, physics_cmp, transform_cmp, tiles, dt, move: bool):
         self.update_entity_physics(player_cmp, physics_cmp, transform_cmp, tiles, dt, move)
@@ -170,8 +105,6 @@ class PhysicsSystem(System, EventListener):
                 if enemy_type == EnemyType.PATROLLING and abs(physics_cmp.velocity.x) < 0.001:
                     physics_cmp.velocity.x = -physics_cmp.velocity.x
                     entity_cmp.patrol_direction = -entity_cmp.patrol_direction
-
-                # break  # TODO check if this actually helps, Only helps when you have sorted tile list by distance
 
     def move_entity_x(self, entity_cmp, physics_cmp, transform_cmp, dt):
         max_speed = entity_cmp.max_speed
@@ -284,19 +217,6 @@ class PhysicsSystem(System, EventListener):
         if physics_cmp.velocity.y >= 0 and not entity_cmp.jumping:
             entity_cmp.on_ground = True
 
-    def handle_player_landed_on_enemy(self, player_trans_cmp, player_physics_cmp, enemy_trans_cmp, enemy_physics_cmp):
-        self.handle_e1_landed_on_e2(player_trans_cmp, player_physics_cmp, enemy_trans_cmp, enemy_physics_cmp)
-
-    def handle_enemy_landed_on_player(self, enemy_trans_cmp, enemy_physics_cmp, player_trans_cmp, player_physics_cmp):
-        self.handle_e1_landed_on_e2(enemy_trans_cmp, enemy_physics_cmp, player_trans_cmp, player_physics_cmp)
-
-    def handle_e1_landed_on_e2(self, e1_trans_cmp, e1_physics_cmp, e2_trans_cmp, e2_physics_cmp):
-        e1_trans_cmp.position.y = e2_trans_cmp.position.y - e1_trans_cmp.height
-        e1_physics_cmp.velocity.y = 0
-
-        self.knockback_set_vel_y(e1_physics_cmp, -1, 400)
-        e2_physics_cmp.velocity.y = 0
-
     # === Enemy-to-Enemy Collision Handling ===
     def handle_enemy_to_enemy_collisions(self):
         """Check collisions between all pairs of enemies and separate them"""
@@ -304,88 +224,45 @@ class PhysicsSystem(System, EventListener):
 
         # Check all pairs of enemies
         for i in range(len(enemy_ids)):
-            for j in range(i + 1, len(enemy_ids)):
+            for j in range(len(enemy_ids)):
                 enemy1_id = enemy_ids[i]
                 enemy2_id = enemy_ids[j]
+                if enemy1_id == enemy2_id:
+                    continue
 
                 enemy1_cmp: EnemyComp | None = self.entity_manager.get_component(enemy1_id, EnemyComp)
                 enemy1_trans_cmp: TransformComp | None = self.entity_manager.get_component(enemy1_id, TransformComp)
-                enemy1_physics_cmp: PhysicsComp | None = self.entity_manager.get_component(enemy1_id, PhysicsComp)
 
                 enemy2_cmp: EnemyComp | None = self.entity_manager.get_component(enemy2_id, EnemyComp)
                 enemy2_trans_cmp: TransformComp | None = self.entity_manager.get_component(enemy2_id, TransformComp)
                 enemy2_physics_cmp: PhysicsComp | None = self.entity_manager.get_component(enemy2_id, PhysicsComp)
 
-                if enemy1_cmp.enemy_type == EnemyType.PATROLLING or enemy2_cmp.enemy_type == EnemyType.PATROLLING:
+                # we don't want the boss and the patrolling enemy to collide with other enemies
+                if (enemy1_cmp.enemy_type == EnemyType.BOSS or enemy2_cmp.enemy_type == EnemyType.BOSS or
+                    enemy1_cmp.enemy_type == EnemyType.PATROLLING or enemy2_cmp.enemy_type == EnemyType.PATROLLING
+                    or (enemy1_cmp.collision_invincibility and enemy2_cmp.collision_invincibility)):
                     continue
 
                 # Check for collision
                 if self.check_collision(enemy1_trans_cmp, enemy2_trans_cmp):
-                    # Determine collision direction
-                    collision_direction = self.get_collision_direction(enemy1_trans_cmp, enemy2_trans_cmp)
+                    # apply knockback
+                    attack_dir_x = self.get_collision_dir_x_e1_e2(enemy1_trans_cmp, enemy2_trans_cmp)
+                    attack_dir_y = self.get_collision_dir_y_e1_e2(enemy1_trans_cmp, enemy2_trans_cmp)
+                    self.knockback_set_vel_x(enemy2_physics_cmp, attack_dir_x, enemy1_cmp.knockback_force_x*0.55)
+                    self.knockback_set_vel_y(enemy2_physics_cmp, attack_dir_y, enemy1_cmp.knockback_force_y*0.55)
+                    enemy2_cmp.collision_invincibility = True
 
-                    if collision_direction == "x":
-                        self.separate_enemies_x(enemy1_trans_cmp, enemy1_physics_cmp, enemy2_trans_cmp, enemy2_physics_cmp)
-                    else:
-                        self.separate_enemies_y(enemy1_trans_cmp, enemy1_physics_cmp, enemy2_trans_cmp, enemy2_physics_cmp)
+    @staticmethod
+    def get_collision_dir_x_e1_e2(e1_trans_cmp: TransformComp, e2_trans_cmp: TransformComp) -> int:
+        e1_center_x = e1_trans_cmp.position.x - e1_trans_cmp.width / 2
+        e2_center_x = e2_trans_cmp.position.x - e2_trans_cmp.width / 2
+        return 1 if e1_center_x < e2_center_x else -1
 
-    def separate_enemies_x(self, e1_trans_cmp: TransformComp, e1_physics_cmp: PhysicsComp,
-                           e2_trans_cmp: TransformComp, e2_physics_cmp: PhysicsComp):
-        """Separate two enemies horizontally"""
-        # Calculate overlap
-        left_edge_e1 = e1_trans_cmp.position.x
-        right_edge_e1 = e1_trans_cmp.position.x + e1_trans_cmp.width
-        left_edge_e2 = e2_trans_cmp.position.x
-        right_edge_e2 = e2_trans_cmp.position.x + e2_trans_cmp.width
-
-        # Determine which enemy is on the left
-        if left_edge_e1 < left_edge_e2:
-            # E1 is on the left, push it left and E2 right
-            overlap = right_edge_e1 - left_edge_e2
-            e1_trans_cmp.position.x -= overlap / 2
-            e2_trans_cmp.position.x += overlap / 2
-
-            # Push apart with velocity
-            e1_physics_cmp.velocity.x = -300
-            e2_physics_cmp.velocity.x = 300
-        else:
-            # E2 is on the left, push it left and E1 right
-            overlap = right_edge_e2 - left_edge_e1
-            e2_trans_cmp.position.x -= overlap / 2
-            e1_trans_cmp.position.x += overlap / 2
-
-            # Push apart with velocity
-            e2_physics_cmp.velocity.x = -300
-            e1_physics_cmp.velocity.x = 300
-
-    def separate_enemies_y(self, e1_trans_cmp: TransformComp, e1_physics_cmp: PhysicsComp,
-                           e2_trans_cmp: TransformComp, e2_physics_cmp: PhysicsComp):
-        """Separate two enemies vertically"""
-        # Calculate overlap
-        top_edge_e1 = e1_trans_cmp.position.y
-        bottom_edge_e1 = e1_trans_cmp.position.y + e1_trans_cmp.height
-        top_edge_e2 = e2_trans_cmp.position.y
-        bottom_edge_e2 = e2_trans_cmp.position.y + e2_trans_cmp.height
-
-        # Determine which enemy is on top
-        if top_edge_e1 < top_edge_e2:
-            # E1 is on top, push it up and E2 down
-            overlap = bottom_edge_e1 - top_edge_e2
-            e1_trans_cmp.position.y -= overlap / 2
-            e2_trans_cmp.position.y += overlap / 2
-
-            # Give upward velocity to the top one
-            e1_physics_cmp.velocity.y = -200
-            e2_physics_cmp.velocity.y = 100
-        else:
-            # E2 is on top, push it up and E1 down
-            overlap = bottom_edge_e2 - top_edge_e1
-            e2_trans_cmp.position.y -= overlap / 2
-            e1_trans_cmp.position.y += overlap / 2
-
-            # Give upward velocity to the top one
-            self.knockback_set_vel_y(e2_physics_cmp, -1, 300)
-            self.knockback_set_vel_y(e1_physics_cmp, 1, 100)
+    @staticmethod
+    def get_collision_dir_y_e1_e2(e1_trans_cmp: TransformComp, e2_trans_cmp: TransformComp) -> int:
+        e1_center_y = e1_trans_cmp.position.y - e1_trans_cmp.height / 2
+        e2_center_y = e2_trans_cmp.position.y - e2_trans_cmp.height / 2
+        return 1 if e1_center_y < e2_center_y else -1
 
     # Player specific methods:
     def player_hit_the_floor(self, player_cmp, physics_cmp, trans_cmp):
@@ -463,19 +340,19 @@ class PhysicsSystem(System, EventListener):
                     if player_cmp.last_x_dir > 0:
                         self.knockback_set_vel_x(enemy_physics_cmp, 1, 1000)
                         self.knockback(player_physics_cmp, -1, 0, 100)
-                        self.create_blood_particles(enemy_trans_cmp, enemy_render_cmp.color, 90, 270)
+                        self.create_blood_particles(enemy_trans_cmp, enemy_render_cmp.color, -90, 90)
                     else:
                         self.knockback_set_vel_x(enemy_physics_cmp, -1, 1000)
                         self.knockback(player_physics_cmp, 1, 0, 100)
-                        self.create_blood_particles(enemy_trans_cmp, enemy_render_cmp.color, -90, 90)
+                        self.create_blood_particles(enemy_trans_cmp, enemy_render_cmp.color, 90, 270)
                 else:
                     if player_cmp.input_y_dir < 0:
                         self.knockback_set_vel_y(enemy_physics_cmp, -1, 600)
-                        self.create_blood_particles(enemy_trans_cmp, enemy_render_cmp.color, 0, 180)
+                        self.create_blood_particles(enemy_trans_cmp, enemy_render_cmp.color, -180, 0)
                     else:
                         self.knockback(enemy_physics_cmp, 0, 1, 600)
                         self.knockback_set_vel_y(player_physics_cmp, -1, 600)
-                        self.create_blood_particles(enemy_trans_cmp, enemy_render_cmp.color, -180, 0)
+                        self.create_blood_particles(enemy_trans_cmp, enemy_render_cmp.color, 0, 180)
 
     def boss_attack(self, boss_id, player_id):
         print("Boss attack")
@@ -487,7 +364,7 @@ class PhysicsSystem(System, EventListener):
 
         boss_cmp: BossComp | None = self.entity_manager.get_component(boss_id, BossComp)
         boss_trans_cmp: TransformComp | None = self.entity_manager.get_component(boss_id, TransformComp)
-        boss_physics_cmp: PhysicsComp | None = self.entity_manager.get_component(boss_id, PhysicsComp)
+        enemy_cmp: EnemyComp | None = self.entity_manager.get_component(boss_id, EnemyComp)
 
         slash_drawing_x = boss_trans_cmp.position.x - boss_trans_cmp.width / 2 - boss_cmp.sword_hit_box.width / 2
         slash_drawing_y = boss_trans_cmp.position.y - 64
@@ -498,10 +375,10 @@ class PhysicsSystem(System, EventListener):
         boss_cmp.sword_hit_box.position.y = boss_trans_cmp.position.y - abs(boss_trans_cmp.height - boss_cmp.sword_hit_box.height)
         if boss_cmp.attack_dir_x > 0:
             boss_cmp.sword_hit_box.position.x = boss_trans_cmp.position.x
-            slash_drawing_x = boss_trans_cmp.position.x + boss_trans_cmp.width - 128
+            slash_drawing_x = boss_trans_cmp.position.x - 128-32
         else:
             boss_cmp.sword_hit_box.position.x = boss_trans_cmp.position.x + boss_trans_cmp.width - boss_cmp.sword_hit_box.width
-            slash_drawing_x = boss_trans_cmp.position.x - boss_trans_cmp.width - core.asset_manager.get("b_slash_frame1.png").get_size()[0] + 128
+            slash_drawing_x = boss_trans_cmp.position.x - boss_trans_cmp.width - core.asset_manager.get("b_slash_frame1.png").get_size()[0] + 128+32
             orientation_x = False
 
         factory.create_animated_slash_particle2(self.entity_manager, slash_drawing_x, slash_drawing_y, orientation_x, 3)
@@ -509,32 +386,38 @@ class PhysicsSystem(System, EventListener):
         print(self.check_collision(boss_cmp.sword_hit_box, player_trans_cmp))
         print(boss_cmp.sword_hit_box.position)
         print(player_trans_cmp.position)
-        if self.check_collision(boss_cmp.sword_hit_box, player_trans_cmp):
-            core.event_manager.notify(HitEvent(player_id, boss_cmp.damage))
-            if boss_cmp.attack_dir_x > 0:
-                self.knockback_set_vel_x(player_physics_cmp, 1, 1000)
-                self.knockback(player_physics_cmp, -1, 0, 100)
-                self.create_blood_particles(player_trans_cmp, player_render_cmp.color, 90, 270)
-            else:
-                self.knockback_set_vel_x(player_physics_cmp, -1, 1000)
-                self.knockback(player_physics_cmp, 1, 0, 100)
-                self.create_blood_particles(player_trans_cmp, player_render_cmp.color, -90, 90)
 
-    def enemy_attack(self, player_id, player_cmp, player_trans_cmp, player_render_cmp, enemy_cmp):
-        if player_cmp.invincibility:
+        if self.check_collision(boss_cmp.sword_hit_box, player_trans_cmp):
+            self.hit_the_player(player_id, player_cmp, player_trans_cmp, player_render_cmp, enemy_cmp, player_physics_cmp, boss_cmp.attack_dir_x, -1)
+
+    def hit_the_player(self, player_id, player_cmp, player_trans_cmp, player_render_cmp, enemy_cmp, player_physics_cmp, attack_dir_x, attack_dir_y):
+        """
+        this applies the knockback and all the special events related to hitting the player (THE ONLY METHOD)
+        it also runs only when the player isn't invincible or dashing.
+        """
+        if player_cmp.invincibility or player_cmp.dashing:
             return
         core.event_manager.notify(ShakeCameraEvent(2, 0.4))
         core.event_manager.notify(HitEvent(player_id, enemy_cmp.damage))
         player_cmp.invincibility = True
         player_cmp.invincibility_counter = 0
-        self.create_blood_particles(player_trans_cmp, player_render_cmp.color, 0, 360)
+        self.create_player_blood_particles(player_trans_cmp)
+        self.knockback_set_vel_x(player_physics_cmp, attack_dir_x, enemy_cmp.knockback_force_x)
+        self.knockback_set_vel_y(player_physics_cmp, attack_dir_y, enemy_cmp.knockback_force_y)
 
     def create_blood_particles(self, entity_trans_cmp: TransformComp, color: pygame.Color, angle_from, angle_to):
         core.event_manager.notify(
-            CreateParticlesEvent(20, entity_trans_cmp.position.x + entity_trans_cmp.width / 2,
+            CreateParticlesEvent(75, entity_trans_cmp.position.x + entity_trans_cmp.width / 2,
                                  entity_trans_cmp.position.y + entity_trans_cmp.height / 2,
-                                 8, 4, 2, pygame.Color(color),
-                                 angle_from, angle_to, 150, 10, 0.3, 0, 0.01))
+                                 16, 3, 2, pygame.Color(254, 104, 15),
+                                 angle_from, angle_to, 200, 200, 0.4, 0.3, 0.1))
+
+    def create_player_blood_particles(self, entity_trans_cmp: TransformComp):
+        core.event_manager.notify(
+            CreateParticlesEvent(50, entity_trans_cmp.position.x + entity_trans_cmp.width / 2,
+                                 entity_trans_cmp.position.y + entity_trans_cmp.height / 2,
+                                 int(entity_trans_cmp.width / 2), 3, 2, pygame.Color(10, 10, 10),
+                                 0, 360, 200, 10, 0.4, 0, 0.1))
     # === Utils: ===
 
     def check_collision(self, e1_trans_cmp: TransformComp, e2_trans_cmp: TransformComp) -> bool:
@@ -562,8 +445,8 @@ class PhysicsSystem(System, EventListener):
     def knockback(self, physics_cmp, dx, dy, force, duration=0.0):
         if physics_cmp.knockback_resistance == 0:
             return
-        physics_cmp.velocity.x += force * dx
-        physics_cmp.velocity.y += force * dy
+        physics_cmp.velocity.x += force * dx * physics_cmp.knockback_resistance
+        physics_cmp.velocity.y += force * dy * physics_cmp.knockback_resistance
         physics_cmp.is_knockback = True
         if duration != 0:
             physics_cmp.knockback_counter = duration
@@ -573,7 +456,7 @@ class PhysicsSystem(System, EventListener):
     def knockback_set_vel_x(self, physics_cmp, dx, force, duration=0.0):
         if physics_cmp.knockback_resistance == 0:
             return
-        physics_cmp.velocity.x = force * dx
+        physics_cmp.velocity.x = force * dx * physics_cmp.knockback_resistance
         physics_cmp.is_knockback = True
         if duration != 0:
             physics_cmp.knockback_counter = duration
@@ -583,25 +466,12 @@ class PhysicsSystem(System, EventListener):
     def knockback_set_vel_y(self, physics_cmp, dy, force, duration=0.0):
         if physics_cmp.knockback_resistance == 0:
             return
-        physics_cmp.velocity.y = force * dy
+        physics_cmp.velocity.y = force * dy * physics_cmp.knockback_resistance
         physics_cmp.is_knockback = True
         if duration != 0:
             physics_cmp.knockback_counter = duration
         else:
             physics_cmp.knockback_counter = physics_cmp.knockback_time
-
-    def get_collision_direction(self, trans1: TransformComp, trans2: TransformComp) -> str:
-        """Determine primary collision direction (x or y)"""
-        overlap_x = min(
-            trans1.position.x + trans1.width - trans2.position.x,
-            trans2.position.x + trans2.width - trans1.position.x
-        )
-        overlap_y = min(
-            trans1.position.y + trans1.height - trans2.position.y,
-            trans2.position.y + trans2.height - trans1.position.y
-        )
-
-        return "x" if overlap_x < overlap_y else "y"
 
     def clamp_velocity_x(self, velocity, max_speed):
         if abs(velocity.x) > max_speed:
@@ -616,7 +486,3 @@ class PhysicsSystem(System, EventListener):
                 velocity.y = -max_speed
             else:
                 velocity.y = max_speed
-
-    def fix_float_velocity_y(self, velocity):
-        if abs(velocity.y) < core.FLOATING_POINT_ERROR_FIX_THRESHOLD:
-            velocity.y = 0

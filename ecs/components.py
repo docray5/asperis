@@ -92,6 +92,8 @@ class EnemyComp(Component):
     last_jump_counter: float = 0
     damage: int = 1
     patrol_direction = -1
+    collision_invincibility_counter = 0
+    collision_invincibility = False
 
     max_speed: float = 100  # slower than player
     max_fall_speed: float = 1000
@@ -99,6 +101,9 @@ class EnemyComp(Component):
     accel_rate: float = 500
     gravity: float = 1400
     jump_cool_down = 1
+    knockback_force_x = 670
+    knockback_force_y = 300
+    collision_invincibility_time = 0.5  # after getting hit
 
 
 @dataclass
@@ -106,13 +111,16 @@ class BossComp(Component):
     attack_dir_x: int = 0
 
     # Boss sword:
-    damage: int = 2
     sword_hit_box: TransformComp = field(
         default_factory=lambda: TransformComp(
             pygame.math.Vector2(), core.BOSS_SWORD_HIT_BOX[0], core.BOSS_SWORD_HIT_BOX[1]))
     last_attack_time: float = 0
+    is_attacking: bool = False
 
-    attack_cool_down: float = 1.5
+    attack_cool_down: float = 2
+    stop_moving_before_attack: float = 0.3 # time before the attack that the boss stops to take a swing
+    start_moving_after_attack: float = 0.2
+    attack_delay: float = 0.3
 
 
 @dataclass
@@ -161,5 +169,5 @@ class PlayerComp(Component):
     dash_duration: float = 0.15
     dash_cool_down: float = 0.4
     max_dash_amount = 1
-    attack_cool_down: float = 0.75  # faster attack cool down: 0.45 (for collectible)
-    invincibility_time = 0.5  # after getting hit
+    attack_cool_down: float = 0.55  # faster attack cool down: 0.45 (for collectible)
+    invincibility_time = 0.67  # after getting hit
