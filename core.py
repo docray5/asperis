@@ -39,7 +39,7 @@ BOSS_SIZE = (88, 128)
 BOSS_SWORD_HIT_BOX = (BOSS_SIZE[0]+90, BOSS_SIZE[1]+64)
 BOSS_DAMAGE = 2
 ATTACK_SIGHT_RANGE = BOSS_SWORD_HIT_BOX[0]/2 + 64
-SIGHT_RANGE = 1024
+SIGHT_RANGE = 768
 
 # === Global variables ===
 camera = None  # it's global only because it has to be accessed by render and camera systems. So

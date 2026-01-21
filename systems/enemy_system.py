@@ -25,12 +25,13 @@ class EnemySystem(System):
                 dist_x = enemy_transform_cmp.position.x - self.player_transform_cmp.position.x
                 dist_y = enemy_transform_cmp.position.y - self.player_transform_cmp.position.y
 
-                if dist_x > 0:
-                    enemy_physics_cmp.acceleration.x = -enemy_cmp.accel_rate
-                    render_cmp.flip_x = False
-                else:
-                    enemy_physics_cmp.acceleration.x = enemy_cmp.accel_rate
-                    render_cmp.flip_x = True
+                if abs(dist_x) < core.SIGHT_RANGE and abs(dist_y) < core.SIGHT_RANGE:
+                    if dist_x > 0:
+                        enemy_physics_cmp.acceleration.x = -enemy_cmp.accel_rate
+                        render_cmp.flip_x = False
+                    else:
+                        enemy_physics_cmp.acceleration.x = enemy_cmp.accel_rate
+                        render_cmp.flip_x = True
 
                 enemy_cmp.last_jump_counter += dt
 

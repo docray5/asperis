@@ -107,7 +107,7 @@ class EnemyComp(Component):
     jump_cool_down = 1
     knockback_force_x = 670
     knockback_force_y = 300
-    collision_invincibility_time = 0.5  # after getting hit
+    collision_invincibility_time = 0.2  # after getting hit
 
 
 class AnimationType(Enum):

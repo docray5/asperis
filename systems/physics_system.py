@@ -1,3 +1,4 @@
+import random
 from threading import Timer
 
 import pygame
@@ -257,8 +258,8 @@ class PhysicsSystem(System, EventListener):
                     # apply knockback
                     attack_dir_x = self.get_collision_dir_x_e1_e2(enemy1_trans_cmp, enemy2_trans_cmp)
                     attack_dir_y = self.get_collision_dir_y_e1_e2(enemy1_trans_cmp, enemy2_trans_cmp)
-                    self.knockback_set_vel_x(enemy2_physics_cmp, attack_dir_x, enemy1_cmp.knockback_force_x*0.55)
-                    self.knockback_set_vel_y(enemy2_physics_cmp, attack_dir_y, enemy1_cmp.knockback_force_y*0.55)
+                    self.knockback_set_vel_x(enemy2_physics_cmp, attack_dir_x, enemy1_cmp.knockback_force_x*0.3)
+                    self.knockback_set_vel_y(enemy2_physics_cmp, attack_dir_y, enemy1_cmp.knockback_force_y*0.3)
                     enemy2_cmp.collision_invincibility = True
 
     @staticmethod
@@ -446,9 +447,12 @@ class PhysicsSystem(System, EventListener):
                 e1_trans_cmp.position.y + e1_trans_cmp.height + 1 > e2_trans_cmp.position.y and
                 e1_trans_cmp.position.y < e2_trans_cmp.position.y + e2_trans_cmp.height)
 
-    def knockback(self, physics_cmp, dx, dy, force, duration=0.0):
+    def knockback(self, physics_cmp, dx, dy, force, duration=0.0, random_force_offset=0):
         if physics_cmp.knockback_resistance == 0:
             return
+
+        force += random.randint(-random_force_offset, random_force_offset)
+
         physics_cmp.velocity.x += force * dx * physics_cmp.knockback_resistance
         physics_cmp.velocity.y += force * dy * physics_cmp.knockback_resistance
         physics_cmp.is_knockback = True
@@ -457,9 +461,12 @@ class PhysicsSystem(System, EventListener):
         else:
             physics_cmp.knockback_counter = physics_cmp.knockback_time
 
-    def knockback_set_vel_x(self, physics_cmp, dx, force, duration=0.0):
+    def knockback_set_vel_x(self, physics_cmp, dx, force, duration=0.0, random_force_offset=0):
         if physics_cmp.knockback_resistance == 0:
             return
+
+        force += random.randint(-random_force_offset, random_force_offset)
+
         physics_cmp.velocity.x = force * dx * physics_cmp.knockback_resistance
         physics_cmp.is_knockback = True
         if duration != 0:
@@ -467,9 +474,12 @@ class PhysicsSystem(System, EventListener):
         else:
             physics_cmp.knockback_counter = physics_cmp.knockback_time
 
-    def knockback_set_vel_y(self, physics_cmp, dy, force, duration=0.0):
+    def knockback_set_vel_y(self, physics_cmp, dy, force, duration=0.0, random_force_offset=0):
         if physics_cmp.knockback_resistance == 0:
             return
+
+        force += random.randint(-random_force_offset, random_force_offset)
+
         physics_cmp.velocity.y = force * dy * physics_cmp.knockback_resistance
         physics_cmp.is_knockback = True
         if duration != 0:
