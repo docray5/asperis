@@ -1,5 +1,5 @@
 import core
-from ecs.components import EnemyComp, EnemyType, TransformComp, PhysicsComp, BossComp
+from ecs.components import EnemyComp, EnemyType, TransformComp, PhysicsComp, BossComp, RenderableComp
 from ecs.entity_manger import EntityManager
 from ecs.system import System
 from events import BossAttackEvent
@@ -20,14 +20,17 @@ class EnemySystem(System):
             enemy_cmp: EnemyComp | None = self.entity_manager.get_component(enemy_id, EnemyComp)
             enemy_transform_cmp: TransformComp | None = self.entity_manager.get_component(enemy_id, TransformComp)
             enemy_physics_cmp: PhysicsComp | None = self.entity_manager.get_component(enemy_id, PhysicsComp)
+            render_cmp: RenderableComp | None = self.entity_manager.get_component(enemy_id, RenderableComp)
             if enemy_cmp.enemy_type == EnemyType.FOLLOWING:
                 dist_x = enemy_transform_cmp.position.x - self.player_transform_cmp.position.x
                 dist_y = enemy_transform_cmp.position.y - self.player_transform_cmp.position.y
 
                 if dist_x > 0:
                     enemy_physics_cmp.acceleration.x = -enemy_cmp.accel_rate
+                    render_cmp.flip_x = False
                 else:
                     enemy_physics_cmp.acceleration.x = enemy_cmp.accel_rate
+                    render_cmp.flip_x = True
 
                 enemy_cmp.last_jump_counter += dt
 
@@ -45,6 +48,10 @@ class EnemySystem(System):
                         enemy_cmp.collision_invincibility = False
             elif enemy_cmp.enemy_type == EnemyType.PATROLLING:
                 enemy_physics_cmp.acceleration.x = enemy_cmp.accel_rate * enemy_cmp.patrol_direction
+                if enemy_cmp.patrol_direction > 0:
+                    render_cmp.flip_x = False
+                else:
+                    render_cmp.flip_x = True
             elif enemy_cmp.enemy_type == EnemyType.BOSS:
                 boss_cmp: BossComp | None = self.entity_manager.get_component(enemy_id, BossComp)
 
@@ -61,18 +68,18 @@ class EnemySystem(System):
                 if dist_x > 0:
                     enemy_physics_cmp.acceleration.x = -enemy_cmp.accel_rate
                     boss_cmp.attack_dir_x = -1
+                    render_cmp.flip_x = False
                 else:
                     enemy_physics_cmp.acceleration.x = enemy_cmp.accel_rate
                     boss_cmp.attack_dir_x = 1
+                    render_cmp.flip_x = True
+
+                if boss_cmp.last_attack_time < boss_cmp.start_moving_delay:
+                    enemy_physics_cmp.acceleration.x = 0
+                    enemy_physics_cmp.velocity.x = 0
 
                 if abs(dist_x) > core.ATTACK_SIGHT_RANGE or abs(dist_y) > core.ATTACK_SIGHT_RANGE:
                     continue
-
-                if (boss_cmp.last_attack_time + boss_cmp.stop_moving_before_attack >= boss_cmp.attack_cool_down
-                        or boss_cmp.last_attack_time <= boss_cmp.start_moving_after_attack):
-                    enemy_physics_cmp.acceleration.x = 0
-                    print(boss_cmp.last_attack_time + boss_cmp.stop_moving_before_attack)
-                    enemy_physics_cmp.velocity.x = 0
 
                 if boss_cmp.last_attack_time >= boss_cmp.attack_cool_down:
                     boss_cmp.last_attack_time = 0

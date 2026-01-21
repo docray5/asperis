@@ -2,10 +2,11 @@ import math
 import random
 
 import factory
-from ecs.components import AnimatedSpriteComp, ParticleComp, RenderableComp, TransformComp
+from ecs.components import AnimatedSpriteComp, ParticleComp, RenderableComp, TransformComp, AnimatedCharacterComp, \
+    PhysicsComp, AnimationType
 from ecs.entity_manger import EntityManager
 from ecs.system import System
-from events import EventListener, Event, CreateParticlesEvent
+from events import EventListener, Event, CreateParticlesEvent, SwitchAnimationForEntity
 
 
 class ParticleSystem(System, EventListener):
@@ -15,6 +16,13 @@ class ParticleSystem(System, EventListener):
     def on_notify(self, event: Event):
         if isinstance(event, CreateParticlesEvent):
             self.create_particles(event.particle_count, event.x, event.y, event.position_offset, event.radius, event.radius_offset, event.color, event.angle_from, event.angle_to, event.speed, event.speed_offset, event.life_duration, event.life_duration_offset, event.time_to_change_opacity)
+        if isinstance(event, SwitchAnimationForEntity):
+            animated_particle_cmp: AnimatedCharacterComp | None = self.entity_manager.get_component(event.entity_id, AnimatedCharacterComp)
+            if animated_particle_cmp is not None:
+                if not animated_particle_cmp.current_animation == AnimationType.ATTACK:
+                    animated_particle_cmp.current_animation = event.new_animation_type
+                    animated_particle_cmp.current_animated_sprite.current_frame = 0
+                    animated_particle_cmp.current_animated_sprite.last_update = 0
 
     def update(self, dt: float) -> None:
         # Handle Animated Sprites
@@ -30,6 +38,42 @@ class ParticleSystem(System, EventListener):
                     animated_particle_cmp.current_frame = 0
                     if animated_particle_cmp.one_shot:
                         self.entity_manager.delete_entity(entity_id)
+
+        # Handle Animated characters
+        for entity_id in self.entity_manager.get_entities_with(AnimatedCharacterComp):
+            animated_particle_cmp: AnimatedCharacterComp | None = self.entity_manager.get_component(entity_id, AnimatedCharacterComp)
+
+            animated_particle_cmp.current_animated_sprite.last_update += dt
+            if animated_particle_cmp.current_animated_sprite.last_update >= animated_particle_cmp.current_animated_sprite.animation_speed:
+                animated_particle_cmp.current_animated_sprite.last_update = 0
+                animated_particle_cmp.current_animated_sprite.current_frame += 1
+                if animated_particle_cmp.current_animated_sprite.current_frame >= len(animated_particle_cmp.current_animated_sprite.frames):
+                    animated_particle_cmp.current_animated_sprite.current_frame = 0
+                    if animated_particle_cmp.current_animated_sprite.one_shot:
+                        animated_particle_cmp.current_animation = AnimationType.IDLE
+
+
+            # if the character is moving, after the idle animation gets triggered, we set
+
+            if animated_particle_cmp.current_animation == AnimationType.MOVING:
+                physics_cmp: PhysicsComp | None = self.entity_manager.get_component(entity_id, PhysicsComp)
+                if abs(physics_cmp.velocity.x) < 0.01:
+                    animated_particle_cmp.current_animation = AnimationType.IDLE
+
+            if animated_particle_cmp.current_animation == AnimationType.IDLE:
+                physics_cmp: PhysicsComp | None = self.entity_manager.get_component(entity_id, PhysicsComp)
+                if abs(physics_cmp.velocity.x) >= 0.01:
+                    animated_particle_cmp.current_animation = AnimationType.MOVING
+
+            # each frame check if animation type got changed, then change the current animation:
+            if animated_particle_cmp.current_animation == AnimationType.IDLE:
+                animated_particle_cmp.current_animated_sprite = animated_particle_cmp.idle_animated_sprite
+            elif animated_particle_cmp.current_animation == AnimationType.ATTACK:
+                animated_particle_cmp.current_animated_sprite = animated_particle_cmp.attack_animated_sprite
+            elif animated_particle_cmp.current_animation == AnimationType.MOVING:
+                animated_particle_cmp.current_animated_sprite = animated_particle_cmp.moving_animated_sprite
+            elif animated_particle_cmp.current_animation == AnimationType.HIT:
+                animated_particle_cmp.current_animated_sprite = animated_particle_cmp.hit_animated_sprite
 
         # Handle Actual Particles:
         for entity_id in self.entity_manager.get_entities_with(ParticleComp):

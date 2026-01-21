@@ -52,6 +52,12 @@ class BossAttackEvent(Event):
         self.player_id = player_id
 
 
+class SwitchAnimationForEntity(Event):
+    def __init__(self, entity_id, new_animation_type):
+        self.entity_id = entity_id
+        self.new_animation_type = new_animation_type
+
+
 class EventListener:
     """
     Abstract class event listener

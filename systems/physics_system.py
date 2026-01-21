@@ -1,11 +1,13 @@
+from threading import Timer
+
 import pygame
 import core
 import factory
 from ecs.components import TransformComp, PlayerComp, TileComp, PhysicsComp, EnemyComp, EnemyType, RenderableComp, \
-    BossComp
+    BossComp, AnimationType
 from ecs.system import System
 from events import ShakeCameraEvent, HitEvent, EventListener, Event, PlayerAttackEvent, CreateParticlesEvent, \
-    BossAttackEvent
+    BossAttackEvent, SwitchAnimationForEntity
 
 
 class PhysicsSystem(System, EventListener):
@@ -15,13 +17,20 @@ class PhysicsSystem(System, EventListener):
     """
     def __init__(self, entity_manager):
         super().__init__(entity_manager)
+        self.boss_id = None
+        self.player_id = None
 
     def on_notify(self, event: Event):
         if isinstance(event, PlayerAttackEvent):
             self.player_attack(event.player_id)
         elif isinstance(event, BossAttackEvent):
-            self.boss_attack(event.boss_id, event.player_id)
-
+            # First run animation, then attack after some time
+            self.boss_id = event.boss_id
+            self.player_id = event.player_id
+            # self.boss_attack_anim(event.boss_id)
+            core.event_manager.notify(SwitchAnimationForEntity(event.boss_id, AnimationType.ATTACK))
+            t = Timer(self.entity_manager.get_component(event.boss_id, BossComp).attack_delay, self.boss_attack)
+            t.start()
 
     def update(self, dt: float) -> None:
         # === Initial Setup: === (Move these to be class attributes
@@ -336,6 +345,7 @@ class PhysicsSystem(System, EventListener):
             print(enemy_trans_cmp.position)
             if self.check_collision(player_cmp.sword_hit_box, enemy_trans_cmp):
                 core.event_manager.notify(HitEvent(enemy_id, player_cmp.damage))
+                core.event_manager.notify(SwitchAnimationForEntity(enemy_id, AnimationType.HIT))
                 if player_cmp.input_y_dir == 0:
                     if player_cmp.last_x_dir > 0:
                         self.knockback_set_vel_x(enemy_physics_cmp, 1, 1000)
@@ -354,8 +364,11 @@ class PhysicsSystem(System, EventListener):
                         self.knockback_set_vel_y(player_physics_cmp, -1, 600)
                         self.create_blood_particles(enemy_trans_cmp, enemy_render_cmp.color, 0, 180)
 
-    def boss_attack(self, boss_id, player_id):
+    def boss_attack(self):
         print("Boss attack")
+        boss_id = self.boss_id
+        player_id = self.player_id
+
         # update the sword hit box to be on the correct side
         player_cmp: PlayerComp | None = self.entity_manager.get_component(player_id, PlayerComp)
         player_trans_cmp: TransformComp | None = self.entity_manager.get_component(player_id, TransformComp)
@@ -366,22 +379,13 @@ class PhysicsSystem(System, EventListener):
         boss_trans_cmp: TransformComp | None = self.entity_manager.get_component(boss_id, TransformComp)
         enemy_cmp: EnemyComp | None = self.entity_manager.get_component(boss_id, EnemyComp)
 
-        slash_drawing_x = boss_trans_cmp.position.x - boss_trans_cmp.width / 2 - boss_cmp.sword_hit_box.width / 2
-        slash_drawing_y = boss_trans_cmp.position.y - 64
-        orientation_x = True
-
         boss_cmp.sword_hit_box.width = core.BOSS_SWORD_HIT_BOX[0]
         boss_cmp.sword_hit_box.height = core.BOSS_SWORD_HIT_BOX[1]
         boss_cmp.sword_hit_box.position.y = boss_trans_cmp.position.y - abs(boss_trans_cmp.height - boss_cmp.sword_hit_box.height)
         if boss_cmp.attack_dir_x > 0:
             boss_cmp.sword_hit_box.position.x = boss_trans_cmp.position.x
-            slash_drawing_x = boss_trans_cmp.position.x - 128-32
         else:
             boss_cmp.sword_hit_box.position.x = boss_trans_cmp.position.x + boss_trans_cmp.width - boss_cmp.sword_hit_box.width
-            slash_drawing_x = boss_trans_cmp.position.x - boss_trans_cmp.width - core.asset_manager.get("b_slash_frame1.png").get_size()[0] + 128+32
-            orientation_x = False
-
-        factory.create_animated_slash_particle2(self.entity_manager, slash_drawing_x, slash_drawing_y, orientation_x, 3)
 
         print(self.check_collision(boss_cmp.sword_hit_box, player_trans_cmp))
         print(boss_cmp.sword_hit_box.position)

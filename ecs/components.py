@@ -61,7 +61,11 @@ class AnimatedSpriteComp(Component):
     current_frame: int = 0
     animation_speed: float = 0.1
     last_update: float = 0
-    one_shot: bool = True
+    one_shot: bool = False
+
+    offset_x: int = 0
+    offset_y: int = 0
+    time: float = 0  # 0 means play's indefinitely
 
 
 @dataclass
@@ -106,6 +110,27 @@ class EnemyComp(Component):
     collision_invincibility_time = 0.5  # after getting hit
 
 
+class AnimationType(Enum):
+    IDLE = 1
+    ATTACK = 2
+    MOVING = 3
+    HIT = 4
+
+
+@dataclass
+class AnimatedCharacterComp(Component):
+    attack_animated_sprite: AnimatedSpriteComp
+    idle_animated_sprite: AnimatedSpriteComp
+    moving_animated_sprite: AnimatedSpriteComp
+    hit_animated_sprite: AnimatedSpriteComp
+
+    current_animation: AnimationType
+    current_animated_sprite: AnimatedSpriteComp
+
+    base_animation_width: float = 0
+    base_animation_height: float = 0
+
+
 @dataclass
 class BossComp(Component):
     attack_dir_x: int = 0
@@ -118,9 +143,8 @@ class BossComp(Component):
     is_attacking: bool = False
 
     attack_cool_down: float = 2
-    stop_moving_before_attack: float = 0.3 # time before the attack that the boss stops to take a swing
-    start_moving_after_attack: float = 0.2
-    attack_delay: float = 0.3
+    start_moving_delay: float = 2
+    attack_delay: float = 0.2
 
 
 @dataclass
@@ -166,7 +190,7 @@ class PlayerComp(Component):
     max_fall_speed: float = 1000
     gravity: float = 1400
     jump_release_time: float = 0.02
-    dash_duration: float = 0.15
+    dash_duration: float = 0.2
     dash_cool_down: float = 0.4
     max_dash_amount = 1
     attack_cool_down: float = 0.55  # faster attack cool down: 0.45 (for collectible)

@@ -2,7 +2,8 @@ import pygame
 
 import core
 from ecs.components import TransformComp, RenderableComp, TileComp, RectToDrawComp, PlayerComp, PhysicsComp, EnemyComp, \
-    EnemyType, HealthComp, AnimatedSpriteComp, ParticleComp, CircleToDrawComp, BossComp
+    EnemyType, HealthComp, AnimatedSpriteComp, ParticleComp, CircleToDrawComp, BossComp, AnimatedCharacterComp, \
+    AnimationType
 
 
 def create_tile(entity_manager, x, y, width, height):
@@ -58,27 +59,27 @@ def create_animated_slash_particle(entity_manager, x, y, flip_x, flip_y, rotatio
         particle_id,
         TransformComp(pygame.math.Vector2(x, y - img1.get_size()[1]/2), img1.get_size()[0], img1.get_size()[0], rotation=rotation),
         RenderableComp(color=pygame.color.Color(255, 255, 255), flip_x=flip_x, flip_y=flip_y),
-        AnimatedSpriteComp(frames=[img1, img2, img3, img4], animation_speed=0.05)
+        AnimatedSpriteComp(frames=[img1, img2, img3, img4], animation_speed=0.05, one_shot=True)
     )
 
-def create_animated_slash_particle2(entity_manager, x, y, flip_x, scale):
-    particle_id = entity_manager.create_entity()
-    img1 = core.asset_manager.get("b_slash_frame1.png")
-    img2 = core.asset_manager.get("b_slash_frame2.png")
-    img3 = core.asset_manager.get("b_slash_frame3.png")
-    img4 = core.asset_manager.get("b_slash_frame4.png")
-    img5 = core.asset_manager.get("b_slash_frame5.png")
-    img6 = core.asset_manager.get("b_slash_frame6.png")
-    img7 = core.asset_manager.get("b_slash_frame7.png")
-    img8 = core.asset_manager.get("b_slash_frame8.png")
-    img9 = core.asset_manager.get("b_slash_frame9.png")
-    entity_manager.add_components(
-        particle_id,
-        TransformComp(pygame.math.Vector2(x, y - img1.get_size()[1] / 2), img1.get_size()[0], img1.get_size()[0],
-                      rotation=0, scale=scale),
-        RenderableComp(color=pygame.color.Color(255, 255, 255), flip_x=flip_x, flip_y=True),
-        AnimatedSpriteComp(frames=[img1, img2, img3, img4, img5, img6, img7, img8, img9], animation_speed=0.025)
-    )
+# def create_animated_slash_particle2(entity_manager, x, y, flip_x, scale):
+#     particle_id = entity_manager.create_entity()
+#     img1 = core.asset_manager.get("b_slash_frame1.png")
+#     img2 = core.asset_manager.get("b_slash_frame2.png")
+#     img3 = core.asset_manager.get("b_slash_frame3.png")
+#     img4 = core.asset_manager.get("b_slash_frame4.png")
+#     img5 = core.asset_manager.get("b_slash_frame5.png")
+#     img6 = core.asset_manager.get("b_slash_frame6.png")
+#     img7 = core.asset_manager.get("b_slash_frame7.png")
+#     img8 = core.asset_manager.get("b_slash_frame8.png")
+#     img9 = core.asset_manager.get("b_slash_frame9.png")
+#     entity_manager.add_components(
+#         particle_id,
+#         TransformComp(pygame.math.Vector2(x, y - img1.get_size()[1] / 2), img1.get_size()[0], img1.get_size()[0],
+#                       rotation=0, scale=scale),
+#         RenderableComp(color=pygame.color.Color(255, 255, 255), flip_x=flip_x, flip_y=True),
+#         AnimatedSpriteComp(frames=[img1, img2, img3, img4, img5, img6, img7, img8, img9], animation_speed=0.025, one_shot=True)
+#     )
 
 def create_circle_particle(entity_manager, x, y, radius: int, color: pygame.Color, angle_direction, speed, life_duration, time_to_change_opacity):
     particle_id = entity_manager.create_entity()
@@ -99,13 +100,89 @@ def prep_circle_surf(surface: pygame.Surface, color: pygame.Color, radius: int):
 
 def create_boss(entity_manager, x, y):
     enemy_id = entity_manager.create_entity()
-    transform_cmp = TransformComp(pygame.math.Vector2(x, y), core.BOSS_SIZE[0], core.BOSS_SIZE[1])
+    transform_cmp = TransformComp(pygame.math.Vector2(x, y), core.BOSS_SIZE[0], core.BOSS_SIZE[1], scale=4)
     render_cmp = RenderableComp(pygame.color.Color(200, 20, 20))
     physics_cmp = PhysicsComp(knockback_resistance=0.15)
     enemy_cmp = EnemyComp(enemy_type=EnemyType.BOSS, max_speed=110, damage=2)
-    entity_manager.add_components(
-        enemy_id, transform_cmp, render_cmp, physics_cmp, enemy_cmp, BossComp(), HealthComp(health=20), RectToDrawComp(),
 
+    base_animation_size = (core.asset_manager.get("boss_walk0.png").get_size()[0], core.asset_manager.get("boss_walk0.png").get_size()[1])
+    print(base_animation_size)
+
+    idle_frames = [
+        core.asset_manager.get("boss_idle0.png"),
+        core.asset_manager.get("boss_idle1.png"),
+        core.asset_manager.get("boss_idle2.png"),
+        core.asset_manager.get("boss_idle3.png"),
+        core.asset_manager.get("boss_idle4.png"),
+        core.asset_manager.get("boss_idle5.png"),
+        core.asset_manager.get("boss_idle6.png"),
+        core.asset_manager.get("boss_idle7.png"),
+        core.asset_manager.get("boss_idle8.png"),
+        core.asset_manager.get("boss_idle9.png"),
+        core.asset_manager.get("boss_idle10.png")
+    ]
+    idle_anim_frames_obj = AnimatedSpriteComp(idle_frames, offset_x=abs(base_animation_size[0]-idle_frames[0].get_size()[0]), offset_y=0)
+
+    moving_frames = [
+        core.asset_manager.get("boss_walk0.png"),
+        core.asset_manager.get("boss_walk1.png"),
+        core.asset_manager.get("boss_walk2.png"),
+        core.asset_manager.get("boss_walk3.png"),
+        core.asset_manager.get("boss_walk4.png"),
+        core.asset_manager.get("boss_walk5.png"),
+        core.asset_manager.get("boss_walk6.png"),
+        core.asset_manager.get("boss_walk7.png"),
+        core.asset_manager.get("boss_walk8.png"),
+        core.asset_manager.get("boss_walk9.png"),
+        core.asset_manager.get("boss_walk10.png"),
+        core.asset_manager.get("boss_walk11.png"),
+        core.asset_manager.get("boss_walk12.png")
+    ]
+    moving_anim_frames_obj = AnimatedSpriteComp(moving_frames, offset_x=0, offset_y=0)
+
+    hit_frames = [
+        core.asset_manager.get("boss_hit0.png"),
+        core.asset_manager.get("boss_hit1.png"),
+        core.asset_manager.get("boss_hit2.png"),
+        core.asset_manager.get("boss_hit3.png"),
+        core.asset_manager.get("boss_hit4.png"),
+        core.asset_manager.get("boss_hit5.png"),
+        core.asset_manager.get("boss_hit6.png"),
+        core.asset_manager.get("boss_hit7.png")
+    ]
+    hit_anim_frames_obj = AnimatedSpriteComp(hit_frames, one_shot=True, offset_x=abs(base_animation_size[0]-hit_frames[0].get_size()[0])-4, offset_y=0)
+
+    attack_frames = [
+        core.asset_manager.get("boss_attack0.png"),
+        core.asset_manager.get("boss_attack1.png"),
+        core.asset_manager.get("boss_attack2.png"),
+        core.asset_manager.get("boss_attack3.png"),
+        core.asset_manager.get("boss_attack4.png"),
+        core.asset_manager.get("boss_attack5.png"),
+        core.asset_manager.get("boss_attack6.png"),
+        core.asset_manager.get("boss_attack7.png"),
+        core.asset_manager.get("boss_attack8.png"),
+        core.asset_manager.get("boss_attack9.png"),
+        core.asset_manager.get("boss_attack10.png"),
+        core.asset_manager.get("boss_attack11.png"),
+        core.asset_manager.get("boss_attack12.png"),
+        core.asset_manager.get("boss_attack13.png"),
+        core.asset_manager.get("boss_attack14.png"),
+        core.asset_manager.get("boss_attack15.png"),
+        core.asset_manager.get("boss_attack16.png"),
+        core.asset_manager.get("boss_attack17.png")
+    ]
+
+    attack_anim_speed = 0.05
+    attack_anim_total_time = attack_anim_speed * len(attack_frames)
+    attack_anim_frames_obj = AnimatedSpriteComp(attack_frames, animation_speed=attack_anim_speed, one_shot=True, offset_x=abs(base_animation_size[0]-attack_frames[0].get_size()[0])-3, offset_y=5)
+
+    animated_character_cmp = AnimatedCharacterComp(base_animation_width=base_animation_size[0], base_animation_height=base_animation_size[1], idle_animated_sprite=idle_anim_frames_obj, hit_animated_sprite=hit_anim_frames_obj, attack_animated_sprite=attack_anim_frames_obj, moving_animated_sprite=moving_anim_frames_obj, current_animated_sprite=idle_anim_frames_obj, current_animation=AnimationType.IDLE)
+
+    entity_manager.add_components(
+        enemy_id, transform_cmp, render_cmp, physics_cmp, enemy_cmp,
+        BossComp(attack_delay=8*attack_anim_speed, attack_cool_down=attack_anim_total_time+1, start_moving_delay=attack_anim_total_time),
+        HealthComp(health=20), RectToDrawComp(), animated_character_cmp,
     )
 
     return enemy_id
