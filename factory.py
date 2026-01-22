@@ -1,9 +1,10 @@
 import pygame
 
 import core
+from commands import ChangeColorToCmd
 from ecs.components import TransformComp, RenderableComp, TileComp, RectToDrawComp, PlayerComp, PhysicsComp, EnemyComp, \
     EnemyType, HealthComp, AnimatedSpriteComp, ParticleComp, CircleToDrawComp, BossComp, AnimatedCharacterComp, \
-    AnimationType
+    AnimationType, ClickableComp, LabelComp, TextureToDrawComp
 
 
 def create_tile(entity_manager, x, y, width, height):
@@ -49,6 +50,53 @@ def create_enemy(entity_manager, x, y, width, height, max_speed=100, enemy_type=
 
     return enemy_id
 
+def create_darker_overlay(entity_manager):
+    entity_id = entity_manager.create_entity()
+    transform_cmp = TransformComp(pygame.math.Vector2(0, 0), core.VIEWPORT_WIDTH, core.VIEWPORT_HEIGHT)
+    render_cmp = RenderableComp(pygame.color.Color(255, 255, 255), affected_by_camera=False)
+
+    entity_manager.add_components(
+        entity_id, transform_cmp, render_cmp, TextureToDrawComp(core.asset_manager.get("overlay.png"))
+    )
+
+    return entity_id
+
+def create_button(entity_manager, x, y, width, height, text, on_click_cmd):
+    x -= width / 2
+    y -= height / 2
+
+    entity_id = entity_manager.create_entity()
+    transform_cmp = TransformComp(pygame.math.Vector2(x, y), width, height)
+    render_cmp = RenderableComp(pygame.color.Color(core.BUTTON_COLOR), affected_by_camera=False)
+    clickable_cmp = ClickableComp(on_click_cmd, ChangeColorToCmd(render_cmp, pygame.Color(core.BUTTON_ON_HOVER_COLOR)), ChangeColorToCmd(render_cmp, pygame.Color(core.BUTTON_COLOR)))
+
+    label_cmp = LabelComp(text, core.BUTTON_FONT_COLOR)
+    label_cmp.font = pygame.font.SysFont(core.FONT_FAMILY, label_cmp.font_size)
+    label_cmp.text_surface = label_cmp.font.render(label_cmp.text, True, label_cmp.color)
+
+    entity_manager.add_components(
+        entity_id, transform_cmp, render_cmp, clickable_cmp, RectToDrawComp(), label_cmp
+    )
+
+    return entity_id
+
+def create_label(entity_manager, x, y, font_size, color: pygame.Color, text):
+
+    entity_id = entity_manager.create_entity()
+    transform_cmp = TransformComp(pygame.math.Vector2(x, y), 0, 0)
+    render_cmp = RenderableComp(color, affected_by_camera=False)
+
+    label_cmp = LabelComp(text, color)
+    label_cmp.font_size = font_size
+    label_cmp.font = pygame.font.SysFont(core.FONT_FAMILY, label_cmp.font_size)
+    label_cmp.text_surface = label_cmp.font.render(label_cmp.text, True, label_cmp.color)
+
+    entity_manager.add_components(
+        entity_id, transform_cmp, render_cmp, label_cmp
+    )
+
+    return entity_id
+
 def create_animated_slash_particle(entity_manager, x, y, flip_x, flip_y, rotation):
     particle_id = entity_manager.create_entity()
     img1 = core.asset_manager.get("p_slash_frame1.png")
@@ -81,7 +129,7 @@ def create_animated_slash_particle(entity_manager, x, y, flip_x, flip_y, rotatio
 #         AnimatedSpriteComp(frames=[img1, img2, img3, img4, img5, img6, img7, img8, img9], animation_speed=0.025, one_shot=True)
 #     )
 
-def create_circle_particle(entity_manager, x, y, radius: int, color: pygame.Color, angle_direction, speed, life_duration, time_to_change_opacity):
+def create_circle_particle(entity_manager, x, y, radius: int, color: pygame.Color, angle_direction, speed, life_duration, time_to_change_opacity, affected_by_camera=True):
     particle_id = entity_manager.create_entity()
     circle_to_draw_cmp = CircleToDrawComp(pygame.Surface((radius * 2, radius * 2), pygame.SRCALPHA))
     entity_manager.add_components(
@@ -89,7 +137,7 @@ def create_circle_particle(entity_manager, x, y, radius: int, color: pygame.Colo
         TransformComp(pygame.math.Vector2(x, y), radius, radius),
         ParticleComp(life_duration=life_duration, direction=angle_direction, speed=speed, time_to_change_opacity=time_to_change_opacity),
         circle_to_draw_cmp,
-        RenderableComp(color)
+        RenderableComp(color, affected_by_camera=affected_by_camera)
     )
 
     prep_circle_surf(circle_to_draw_cmp.surface, color, radius)

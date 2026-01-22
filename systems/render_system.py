@@ -3,12 +3,13 @@ from typing import override
 import pygame
 import core
 from ecs.components import RectToDrawComp, RenderableComp, TransformComp, AnimatedSpriteComp, PlayerComp, \
-    CircleToDrawComp, BossComp, AnimatedCharacterComp
+    CircleToDrawComp, BossComp, AnimatedCharacterComp, ClickableComp, LabelComp, TextureToDrawComp
 from ecs.entity_manger import EntityManager
 from ecs.system import System
+from events import EventListener, Event, UpdateTextEvent
 
 
-class RenderSystem(System):
+class RenderSystem(System, EventListener):
     def __init__(self, entity_manager: EntityManager, screen_surface: pygame.Surface):
         super().__init__(entity_manager)
         self.screen_surface: pygame.Surface = screen_surface
@@ -29,8 +30,12 @@ class RenderSystem(System):
                 continue
 
             # apply camera position
-            drawing_x = round(transform_cmp.position.x - core.camera.position.x)
-            drawing_y = round(transform_cmp.position.y - core.camera.position.y)
+            if renderable_cmp.affected_by_camera:
+                drawing_x = round(transform_cmp.position.x - core.camera.position.x)
+                drawing_y = round(transform_cmp.position.y - core.camera.position.y)
+            else:
+                drawing_x = round(transform_cmp.position.x)
+                drawing_y = round(transform_cmp.position.y)
 
             if self.entity_manager.has_components(entity_id, RectToDrawComp):
                 rect_to_draw_cmp: RectToDrawComp = self.entity_manager.get_component(entity_id, RectToDrawComp)
@@ -79,9 +84,22 @@ class RenderSystem(System):
                 circle_cmp: CircleToDrawComp | None = self.entity_manager.get_component(entity_id, CircleToDrawComp)
                 circle_cmp.surface.set_alpha(renderable_cmp.color.a)
                 self.world_surface.blit(circle_cmp.surface, (drawing_x, drawing_y))
+            if self.entity_manager.has_components(entity_id, LabelComp):
+                label_cmp: LabelComp | None = self.entity_manager.get_component(entity_id, LabelComp)
+                if label_cmp.center:
+                    drawing_x = transform_cmp.position.x + transform_cmp.width / 2 - label_cmp.text_surface.get_rect().width / 2
+                    drawing_y = transform_cmp.position.y + transform_cmp.height / 2 - label_cmp.text_surface.get_rect().height / 2
+
+                self.world_surface.blit(label_cmp.text_surface, (drawing_x, drawing_y))
+            if self.entity_manager.has_components(entity_id, TextureToDrawComp):
+                texture_cmp: TextureToDrawComp | None = self.entity_manager.get_component(entity_id, TextureToDrawComp)
+                self.world_surface.blit(texture_cmp.surface, (drawing_x, drawing_y))
 
         # Update display and render scaled world
         pygame.transform.scale(self.world_surface, (core.WINDOW_WIDTH, core.WINDOW_HEIGHT), self.scaled_surface)
         self.screen_surface.blit(self.scaled_surface, (0, 0))
         pygame.display.flip()
 
+    def on_notify(self, event: Event):
+        if isinstance(event, UpdateTextEvent):
+            event.label_cmp.text_surface = event.label_cmp.font.render(event.label_cmp.text, True, event.label_cmp.color)

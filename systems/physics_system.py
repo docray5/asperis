@@ -402,7 +402,7 @@ class PhysicsSystem(System, EventListener):
         """
         if player_cmp.invincibility or player_cmp.dashing:
             return
-        core.event_manager.notify(ShakeCameraEvent(2, 0.4))
+        core.event_manager.notify(ShakeCameraEvent(4, 0.4))
         core.event_manager.notify(HitEvent(player_id, enemy_cmp.damage))
         player_cmp.invincibility = True
         player_cmp.invincibility_counter = 0
@@ -419,9 +419,9 @@ class PhysicsSystem(System, EventListener):
 
     def create_player_blood_particles(self, entity_trans_cmp: TransformComp):
         core.event_manager.notify(
-            CreateParticlesEvent(50, entity_trans_cmp.position.x + entity_trans_cmp.width / 2,
+            CreateParticlesEvent(100, entity_trans_cmp.position.x + entity_trans_cmp.width / 2,
                                  entity_trans_cmp.position.y + entity_trans_cmp.height / 2,
-                                 int(entity_trans_cmp.width / 2), 3, 2, pygame.Color(10, 10, 10),
+                                 int(entity_trans_cmp.width / 2), 3, 2, pygame.Color(0, 0, 0),
                                  0, 360, 200, 10, 0.4, 0, 0.1))
     # === Utils: ===
 

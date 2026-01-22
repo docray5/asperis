@@ -15,7 +15,7 @@ class ParticleSystem(System, EventListener):
 
     def on_notify(self, event: Event):
         if isinstance(event, CreateParticlesEvent):
-            self.create_particles(event.particle_count, event.x, event.y, event.position_offset, event.radius, event.radius_offset, event.color, event.angle_from, event.angle_to, event.speed, event.speed_offset, event.life_duration, event.life_duration_offset, event.time_to_change_opacity)
+            self.create_particles(event.particle_count, event.x, event.y, event.position_offset, event.radius, event.radius_offset, event.color, event.angle_from, event.angle_to, event.speed, event.speed_offset, event.life_duration, event.life_duration_offset, event.time_to_change_opacity, event.affected_by_camera)
         if isinstance(event, SwitchAnimationForEntity):
             animated_particle_cmp: AnimatedCharacterComp | None = self.entity_manager.get_component(event.entity_id, AnimatedCharacterComp)
             if animated_particle_cmp is not None:
@@ -106,7 +106,7 @@ class ParticleSystem(System, EventListener):
 
     def create_particles(self, particle_count, x, y, position_offset, radius, radius_offset, color,
                          angle_from, angle_to, speed, speed_offset, life_duration, life_duration_offset,
-                         time_to_change_opacity):
+                         time_to_change_opacity, affected_by_camera=True):
         for i in range(particle_count):
             new_x = x + random.randint(-position_offset, position_offset)
             new_y = y + random.randint(-position_offset, position_offset)
@@ -120,4 +120,4 @@ class ParticleSystem(System, EventListener):
             new_life_duration = life_duration + random.randint(int(-life_duration_offset*100), int(life_duration_offset*100))/100
 
             factory.create_circle_particle(self.entity_manager, new_x, new_y, new_radius, color, direction, new_speed,
-                                           new_life_duration, time_to_change_opacity)
+                                           new_life_duration, time_to_change_opacity, affected_by_camera)

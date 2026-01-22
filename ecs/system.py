@@ -10,6 +10,7 @@ class System(ABC):
         :param entity_manager: used for later accessing entities.
         """
         self.entity_manager = entity_manager
+        self.paused = False
 
     @abstractmethod
     def update(self, dt: float) -> None:

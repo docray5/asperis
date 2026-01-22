@@ -24,7 +24,8 @@ class HitEvent(Event):
 class CreateParticlesEvent(Event):
     def __init__(self, particle_count: int, x: float, y: float, position_offset: int, radius: int, radius_offset: int,
                  color: pygame.Color, angle_from: int, angle_to: int, speed: float, speed_offset: int,
-                 life_duration: float, life_duration_offset: float, time_to_change_opacity: float):
+                 life_duration: float, life_duration_offset: float, time_to_change_opacity: float,
+                 affected_by_camera: bool=True):
         self.particle_count = particle_count
         self.x = x
         self.y = y
@@ -39,6 +40,7 @@ class CreateParticlesEvent(Event):
         self.life_duration = life_duration
         self.life_duration_offset = life_duration_offset
         self.time_to_change_opacity = time_to_change_opacity
+        self.affected_by_camera = affected_by_camera
 
 
 class PlayerAttackEvent(Event):
@@ -56,6 +58,12 @@ class SwitchAnimationForEntity(Event):
     def __init__(self, entity_id, new_animation_type):
         self.entity_id = entity_id
         self.new_animation_type = new_animation_type
+
+
+class UpdateTextEvent(Event):
+    def __init__(self, label_cmp, new_text):
+        self.label_cmp = label_cmp
+        self.new_text = new_text
 
 
 class EventListener:

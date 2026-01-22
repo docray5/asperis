@@ -3,20 +3,8 @@ from pathlib import Path
 import pygame
 import sys
 import ctypes
-import commands
 import core
-import factory
-from ecs.components import PlayerComp, PhysicsComp, EnemyType
-from ecs.entity_manger import EntityManager
-from ecs.system_manager import SystemManager
-from systems.camera_system import CameraSystem
-from systems.enemy_system import EnemySystem
-from systems.health_system import HealthSystem
-from systems.input_system import InputSystem
-from systems.particle_system import ParticleSystem
-from systems.physics_system import PhysicsSystem
-from systems.player_system import PlayerSystem
-from systems.render_system import RenderSystem
+from scenes import SceneManager, MenuScene
 
 
 class AssetManager:
@@ -79,56 +67,14 @@ def main():
 
     core.initialize()
 
-    # New Structure:
-    entity_manager = EntityManager()
-    system_manager = SystemManager()
-
-    player_id = factory.create_player(entity_manager, 0, 0, 32, 48)
-
-    factory.create_tile(entity_manager, 64, core.VIEWPORT_HEIGHT - 72, 128, 16)
-    factory.create_tile(entity_manager, core.VIEWPORT_WIDTH / 2, core.VIEWPORT_HEIGHT / 2 + 32, 128, 16)
-    factory.create_tile(entity_manager, -core.VIEWPORT_WIDTH*2, core.VIEWPORT_HEIGHT, core.VIEWPORT_WIDTH*4, 32)
-    # factory.create_tile(entity_manager, core.VIEWPORT_WIDTH, core.VIEWPORT_HEIGHT-32, 32, 32) for showcase of physics
-
-    factory.create_enemy(entity_manager, -100, 0, 32, 32)
-    factory.create_enemy(entity_manager, -200, 0, 32, 32)
-    factory.create_enemy(entity_manager, -300, 0, 32, 32)
-    factory.create_enemy(entity_manager, -400, 0, 32, 32)
-    factory.create_enemy(entity_manager, core.VIEWPORT_WIDTH / 2+64, core.VIEWPORT_HEIGHT / 2, 32, 32, 80, EnemyType.PATROLLING)
-
-    factory.create_boss(entity_manager, core.VIEWPORT_WIDTH*2 - core.BOSS_SIZE[0], 0)
-
-    player_system = PlayerSystem(entity_manager, entity_manager.get_component(player_id, PlayerComp),
-                                 entity_manager.get_component(player_id, PhysicsComp))
-    camera_system = CameraSystem(entity_manager)
-    health_system = HealthSystem(entity_manager)
-    physics_system = PhysicsSystem(entity_manager)
-    particle_system = ParticleSystem(entity_manager)
-
-    # Set up the engine's systems
-    system_manager.add_system(InputSystem(entity_manager))
-    system_manager.add_system(player_system)
-    system_manager.add_system(EnemySystem(entity_manager, player_id))
-    system_manager.add_system(physics_system)
-    system_manager.add_system(health_system)
-    system_manager.add_system(particle_system)
-    system_manager.add_system(camera_system)
-    system_manager.add_system(RenderSystem(entity_manager, screen))
-
-    commands.initialize(player_system)
-
-    core.event_manager.subscribe(camera_system)
-    core.event_manager.subscribe(health_system)
-    core.event_manager.subscribe(physics_system)
-    core.event_manager.subscribe(particle_system)
+    # Scenes:
+    scene_manager = SceneManager(MenuScene(), screen)
 
     while running:
         dt = clock.tick(core.FPS) / 1000.0
         min(dt, 0.2)
 
-        entity_manager.purge_dead_entities()
-
-        system_manager.update(dt)
+        scene_manager.update(dt)
 
     pygame.quit()
     sys.exit()

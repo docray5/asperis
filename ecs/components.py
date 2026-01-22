@@ -2,7 +2,10 @@ from abc import ABC
 from dataclasses import dataclass, field
 from enum import Enum
 import pygame
+from pygame.ftfont import Font
+
 import core
+from commands import Command
 
 
 class Component(ABC):
@@ -20,6 +23,26 @@ class TransformComp(Component):
 
 
 @dataclass
+class ClickableComp(Component):
+    # It will mostly use parameters from transform COMP
+    on_click_cmd: Command
+    on_hover_cmd: Command
+    off_hover_cmd: Command
+    clickable: bool = True
+
+
+@dataclass
+class LabelComp(Component):
+    """setup font right after creating!!!"""
+    text: str
+    color: pygame.Color
+    text_surface: pygame.Surface = None
+    font_size = 25
+    center: bool = True
+    font: Font = None
+
+
+@dataclass
 class TileComp(Component):
     pass
 
@@ -30,6 +53,12 @@ class RenderableComp(Component):
     render: bool = True
     flip_x: bool = True
     flip_y: bool = True
+    affected_by_camera: bool = True
+
+
+@dataclass
+class TextureToDrawComp(Component):
+    surface: pygame.Surface
 
 
 @dataclass

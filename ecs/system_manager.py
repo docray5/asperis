@@ -19,4 +19,5 @@ class SystemManager:
     def update(self, dt: float) -> None:
         """Update all the systems in the order with which they've been added in"""
         for system in self.systems:
-            system.update(dt)
+            if not system.paused:
+                system.update(dt)
