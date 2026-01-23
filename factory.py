@@ -4,7 +4,7 @@ import core
 from commands import ChangeColorToCmd
 from ecs.components import TransformComp, RenderableComp, TileComp, RectToDrawComp, PlayerComp, PhysicsComp, EnemyComp, \
     EnemyType, HealthComp, AnimatedSpriteComp, ParticleComp, CircleToDrawComp, BossComp, AnimatedCharacterComp, \
-    AnimationType, ClickableComp, LabelComp, TextureToDrawComp
+    AnimationType, ClickableComp, LabelComp, TextureToDrawComp, HitBoxToDrawComp
 
 
 def create_tile(entity_manager, x, y, width, height):
@@ -24,9 +24,88 @@ def create_tile(entity_manager, x, y, width, height):
 def create_player(entity_manager, x, y, width, height):
     player_entity_id = entity_manager.create_entity()
     player_comp = PlayerComp()
-    transform_cmp = TransformComp(pygame.math.Vector2(x, y), width, height)
+    transform_cmp = TransformComp(pygame.math.Vector2(x, y), width, height, scale=2)
     render_cmp = RenderableComp(pygame.color.Color(255, 255, 255))
     physics_cmp = PhysicsComp()
+
+    base_animation_size = (core.asset_manager.get("player_walk0.png").get_size()[0],
+                           core.asset_manager.get("player_walk0.png").get_size()[1])
+
+    idle_frames = [
+        core.asset_manager.get("player_idle0.png"),
+        core.asset_manager.get("player_idle1.png"),
+        core.asset_manager.get("player_idle2.png"),
+        core.asset_manager.get("player_idle3.png"),
+        core.asset_manager.get("player_idle4.png"),
+        core.asset_manager.get("player_idle5.png"),
+        core.asset_manager.get("player_idle6.png")
+    ]
+    idle_anim_frames_obj = AnimatedSpriteComp(idle_frames,
+                                              offset_x=abs(base_animation_size[0] - idle_frames[0].get_size()[0]) - 14,
+                                              offset_y=10)
+
+    moving_frames = [
+        core.asset_manager.get("player_walk0.png"),
+        core.asset_manager.get("player_walk1.png"),
+        core.asset_manager.get("player_walk2.png"),
+        core.asset_manager.get("player_walk3.png"),
+        core.asset_manager.get("player_walk4.png"),
+        core.asset_manager.get("player_walk5.png"),
+        core.asset_manager.get("player_walk6.png"),
+        core.asset_manager.get("player_walk7.png")
+    ]
+    moving_anim_frames_obj = AnimatedSpriteComp(moving_frames, offset_x=0, offset_y=10)
+
+    hit_frames = [
+        core.asset_manager.get("player_hit0.png"),
+        core.asset_manager.get("player_hit1.png"),
+        core.asset_manager.get("player_hit2.png"),
+        core.asset_manager.get("player_hit3.png")
+    ]
+    hit_anim_frames_obj = AnimatedSpriteComp(hit_frames, one_shot=True,
+                                             offset_x=abs(base_animation_size[0] - hit_frames[0].get_size()[0]) - 8,
+                                             offset_y=10)
+
+    death_frames = [
+        core.asset_manager.get("player_death0.png"),
+        core.asset_manager.get("player_death1.png"),
+        core.asset_manager.get("player_death2.png"),
+        core.asset_manager.get("player_death3.png"),
+        core.asset_manager.get("player_death4.png"),
+        core.asset_manager.get("player_death5.png"),
+        core.asset_manager.get("player_death6.png"),
+        core.asset_manager.get("player_death7.png"),
+        core.asset_manager.get("player_death8.png"),
+        core.asset_manager.get("player_death9.png"),
+        core.asset_manager.get("player_death10.png"),
+        core.asset_manager.get("player_death11.png")
+    ]
+    death_anim_frames_obj = AnimatedSpriteComp(death_frames, one_shot=True,
+                                               offset_x=abs(base_animation_size[0] - death_frames[0].get_size()[0]) - 4,
+                                               offset_y=10)
+
+    attack_frames = [
+        core.asset_manager.get("player_attack0.png"),
+        core.asset_manager.get("player_attack1.png"),
+        core.asset_manager.get("player_attack2.png"),
+        core.asset_manager.get("player_attack3.png"),
+        core.asset_manager.get("player_attack4.png"),
+        core.asset_manager.get("player_attack5.png")
+    ]
+
+    attack_anim_speed = 0.05
+    attack_anim_frames_obj = AnimatedSpriteComp(attack_frames, animation_speed=attack_anim_speed, one_shot=True,
+                                                offset_x=abs(
+                                                    base_animation_size[0] - attack_frames[0].get_size()[0]) - 8,
+                                                offset_y=10)
+
+    animated_character_cmp = AnimatedCharacterComp(
+        base_animation_width=base_animation_size[0], base_animation_height=base_animation_size[1],
+        idle_animated_sprite=idle_anim_frames_obj, hit_animated_sprite=hit_anim_frames_obj,
+        attack_animated_sprite=attack_anim_frames_obj, moving_animated_sprite=moving_anim_frames_obj,
+        current_animated_sprite=idle_anim_frames_obj, current_animation=AnimationType.IDLE,
+        death_animated_sprite=death_anim_frames_obj, total_offset_x=17)
+
     entity_manager.add_components(
         player_entity_id,
         player_comp,
@@ -34,18 +113,63 @@ def create_player(entity_manager, x, y, width, height):
         render_cmp,
         physics_cmp,
         HealthComp(),
-        RectToDrawComp())
+        HitBoxToDrawComp(),
+        animated_character_cmp
+    )
 
     return player_entity_id
 
 def create_enemy(entity_manager, x, y, width, height, max_speed=100, enemy_type=EnemyType.FOLLOWING):
     enemy_id = entity_manager.create_entity()
-    transform_cmp = TransformComp(pygame.math.Vector2(x, y), width, height)
+    transform_cmp = TransformComp(pygame.math.Vector2(x, y), width, height, scale=2)
     render_cmp = RenderableComp(pygame.color.Color(255, 30, 30))
     physics_cmp = PhysicsComp()
     enemy_cmp = EnemyComp(enemy_type=enemy_type, max_speed=max_speed)
+
+    base_animation_size = (core.asset_manager.get("enemy_follow_walk0.png").get_size()[0],
+                           core.asset_manager.get("enemy_follow_walk0.png").get_size()[1])
+
+    moving_frames = [
+        core.asset_manager.get("enemy_follow_walk0.png"),
+        core.asset_manager.get("enemy_follow_walk1.png"),
+        core.asset_manager.get("enemy_follow_walk2.png"),
+        core.asset_manager.get("enemy_follow_walk3.png"),
+        core.asset_manager.get("enemy_follow_walk4.png"),
+        core.asset_manager.get("enemy_follow_walk5.png"),
+        core.asset_manager.get("enemy_follow_walk6.png"),
+        core.asset_manager.get("enemy_follow_walk7.png")
+    ]
+    moving_anim_frames_obj = AnimatedSpriteComp(moving_frames, offset_x=abs(base_animation_size[0]-moving_frames[0].get_size()[0]), offset_y=0)
+
+    hit_frames = [
+        core.asset_manager.get("enemy_follow_hit0.png"),
+        core.asset_manager.get("enemy_follow_hit1.png"),
+        core.asset_manager.get("enemy_follow_hit2.png"),
+        core.asset_manager.get("enemy_follow_hit3.png")
+    ]
+    hit_anim_frames_obj = AnimatedSpriteComp(hit_frames, one_shot=True,
+                                             offset_x=abs(base_animation_size[0]-hit_frames[0].get_size()[0]),
+                                             offset_y=0)
+
+    death_frames = [
+        core.asset_manager.get("enemy_follow_death0.png"),
+        core.asset_manager.get("enemy_follow_death1.png"),
+        core.asset_manager.get("enemy_follow_death2.png"),
+        core.asset_manager.get("enemy_follow_death3.png")
+    ]
+    death_anim_frames_obj = AnimatedSpriteComp(death_frames, animation_speed=0.2, one_shot=True,
+                                               offset_x=abs(base_animation_size[0]-death_frames[0].get_size()[0]),
+                                               offset_y=abs(base_animation_size[1]-death_frames[0].get_size()[1]))
+
+    animated_character_cmp = AnimatedCharacterComp(
+        base_animation_width=base_animation_size[0], base_animation_height=base_animation_size[1],
+        idle_animated_sprite=moving_anim_frames_obj, hit_animated_sprite=hit_anim_frames_obj,
+        attack_animated_sprite=moving_anim_frames_obj, moving_animated_sprite=moving_anim_frames_obj,
+        current_animated_sprite=moving_anim_frames_obj, current_animation=AnimationType.MOVING,
+        death_animated_sprite=death_anim_frames_obj, total_offset_x=5)
+
     entity_manager.add_components(
-        enemy_id, transform_cmp, render_cmp, physics_cmp, enemy_cmp, HealthComp(), RectToDrawComp()
+        enemy_id, transform_cmp, render_cmp, physics_cmp, enemy_cmp, HealthComp(), HitBoxToDrawComp(), animated_character_cmp
     )
 
     return enemy_id
@@ -154,7 +278,6 @@ def create_boss(entity_manager, x, y):
     enemy_cmp = EnemyComp(enemy_type=EnemyType.BOSS, max_speed=110, damage=2)
 
     base_animation_size = (core.asset_manager.get("boss_walk0.png").get_size()[0], core.asset_manager.get("boss_walk0.png").get_size()[1])
-    print(base_animation_size)
 
     idle_frames = [
         core.asset_manager.get("boss_idle0.png"),
@@ -200,6 +323,27 @@ def create_boss(entity_manager, x, y):
     ]
     hit_anim_frames_obj = AnimatedSpriteComp(hit_frames, one_shot=True, offset_x=abs(base_animation_size[0]-hit_frames[0].get_size()[0])-4, offset_y=0)
 
+    death_frames = [
+        core.asset_manager.get("boss_death0.png"),
+        core.asset_manager.get("boss_death1.png"),
+        core.asset_manager.get("boss_death2.png"),
+        core.asset_manager.get("boss_death3.png"),
+        core.asset_manager.get("boss_death4.png"),
+        core.asset_manager.get("boss_death5.png"),
+        core.asset_manager.get("boss_death6.png"),
+        core.asset_manager.get("boss_death7.png"),
+        core.asset_manager.get("boss_death8.png"),
+        core.asset_manager.get("boss_death9.png"),
+        core.asset_manager.get("boss_death10.png"),
+        core.asset_manager.get("boss_death11.png"),
+        core.asset_manager.get("boss_death12.png"),
+        core.asset_manager.get("boss_death13.png"),
+        core.asset_manager.get("boss_death14.png"),
+    ]
+    death_anim_frames_obj = AnimatedSpriteComp(death_frames, one_shot=True,
+                                             offset_x=abs(base_animation_size[0] - death_frames[0].get_size()[0]) - 4,
+                                             offset_y=0)
+
     attack_frames = [
         core.asset_manager.get("boss_attack0.png"),
         core.asset_manager.get("boss_attack1.png"),
@@ -225,12 +369,38 @@ def create_boss(entity_manager, x, y):
     attack_anim_total_time = attack_anim_speed * len(attack_frames)
     attack_anim_frames_obj = AnimatedSpriteComp(attack_frames, animation_speed=attack_anim_speed, one_shot=True, offset_x=abs(base_animation_size[0]-attack_frames[0].get_size()[0])-3, offset_y=5)
 
-    animated_character_cmp = AnimatedCharacterComp(base_animation_width=base_animation_size[0], base_animation_height=base_animation_size[1], idle_animated_sprite=idle_anim_frames_obj, hit_animated_sprite=hit_anim_frames_obj, attack_animated_sprite=attack_anim_frames_obj, moving_animated_sprite=moving_anim_frames_obj, current_animated_sprite=idle_anim_frames_obj, current_animation=AnimationType.IDLE)
+    animated_character_cmp = AnimatedCharacterComp(
+        base_animation_width=base_animation_size[0], base_animation_height=base_animation_size[1],
+        idle_animated_sprite=idle_anim_frames_obj, hit_animated_sprite=hit_anim_frames_obj,
+        attack_animated_sprite=attack_anim_frames_obj, moving_animated_sprite=moving_anim_frames_obj,
+        current_animated_sprite=idle_anim_frames_obj, current_animation=AnimationType.IDLE,
+        death_animated_sprite=death_anim_frames_obj)
 
     entity_manager.add_components(
         enemy_id, transform_cmp, render_cmp, physics_cmp, enemy_cmp,
         BossComp(attack_delay=8*attack_anim_speed, attack_cool_down=attack_anim_total_time+1, start_moving_delay=attack_anim_total_time),
-        HealthComp(health=20), RectToDrawComp(), animated_character_cmp,
+        HealthComp(health=20), HitBoxToDrawComp(), animated_character_cmp,
     )
 
     return enemy_id
+
+def create_health_bar(entity_manager):
+    entity_id = entity_manager.create_entity()
+    transform_cmp = TransformComp(pygame.math.Vector2(8, 8), core.MAX_PLAYER_HEALTH * core.HEALTH_BAR_WIDTH, 8)
+    render_cmp = RenderableComp(pygame.color.Color(100, 100, 100), affected_by_camera=False)
+    entity_manager.add_components(
+        entity_id,
+        transform_cmp,
+        render_cmp,
+        RectToDrawComp())
+
+    health_bar = entity_manager.create_entity()
+    transform_cmp = TransformComp(pygame.math.Vector2(8, 8), core.MAX_PLAYER_HEALTH*core.HEALTH_BAR_WIDTH, 8)
+    render_cmp = RenderableComp(pygame.color.Color(255, 0, 0), affected_by_camera=False)
+    entity_manager.add_components(
+        health_bar,
+        transform_cmp,
+        render_cmp,
+        RectToDrawComp())
+
+    return health_bar

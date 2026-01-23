@@ -3,7 +3,7 @@ from typing import override
 import pygame
 import core
 from ecs.components import RectToDrawComp, RenderableComp, TransformComp, AnimatedSpriteComp, PlayerComp, \
-    CircleToDrawComp, BossComp, AnimatedCharacterComp, ClickableComp, LabelComp, TextureToDrawComp
+    CircleToDrawComp, BossComp, AnimatedCharacterComp, ClickableComp, LabelComp, TextureToDrawComp, HitBoxToDrawComp
 from ecs.entity_manger import EntityManager
 from ecs.system import System
 from events import EventListener, Event, UpdateTextEvent
@@ -38,9 +38,13 @@ class RenderSystem(System, EventListener):
                 drawing_y = round(transform_cmp.position.y)
 
             if self.entity_manager.has_components(entity_id, RectToDrawComp):
-                rect_to_draw_cmp: RectToDrawComp = self.entity_manager.get_component(entity_id, RectToDrawComp)
+                rect_to_draw_cmp: RectToDrawComp | None = self.entity_manager.get_component(entity_id, RectToDrawComp)
                 rect_to_draw_cmp.drawing_rect.update(drawing_x, drawing_y, transform_cmp.width, transform_cmp.height)
                 pygame.draw.rect(self.world_surface, renderable_cmp.color, rect_to_draw_cmp.drawing_rect)
+            if core.DRAW_HITBOXES and self.entity_manager.has_components(entity_id, HitBoxToDrawComp):
+                hit_box_to_draw_cmp: HitBoxToDrawComp | None = self.entity_manager.get_component(entity_id, HitBoxToDrawComp)
+                hit_box_to_draw_cmp.drawing_rect.update(drawing_x, drawing_y, transform_cmp.width, transform_cmp.height)
+                pygame.draw.rect(self.world_surface, renderable_cmp.color, hit_box_to_draw_cmp.drawing_rect)
             if self.entity_manager.has_components(entity_id, AnimatedSpriteComp):
                 anim_spr_cmp: AnimatedSpriteComp | None = self.entity_manager.get_component(entity_id, AnimatedSpriteComp)
                 new_size = (anim_spr_cmp.frames[anim_spr_cmp.current_frame].get_size()[0]*transform_cmp.scale, anim_spr_cmp.frames[anim_spr_cmp.current_frame].get_size()[1]*transform_cmp.scale)
@@ -61,7 +65,7 @@ class RenderSystem(System, EventListener):
                 if renderable_cmp.flip_x:
                     offset_x = -offset_x + (anim_spr_cmp.current_animated_sprite.frames[anim_spr_cmp.current_animated_sprite.current_frame].get_size()[0] - anim_spr_cmp.base_animation_width)
 
-                drawing_x = round(transform_cmp.position.x - core.camera.position.x - offset_x * transform_cmp.scale)
+                drawing_x = round(transform_cmp.position.x - core.camera.position.x - offset_x * transform_cmp.scale - anim_spr_cmp.total_offset_x)
                 drawing_y = round(transform_cmp.position.y - core.camera.position.y - anim_spr_cmp.current_animated_sprite.offset_y * transform_cmp.scale)
 
                 self.world_surface.blit(sprite_to_draw, (drawing_x, drawing_y))

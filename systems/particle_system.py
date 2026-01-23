@@ -19,7 +19,7 @@ class ParticleSystem(System, EventListener):
         if isinstance(event, SwitchAnimationForEntity):
             animated_particle_cmp: AnimatedCharacterComp | None = self.entity_manager.get_component(event.entity_id, AnimatedCharacterComp)
             if animated_particle_cmp is not None:
-                if not animated_particle_cmp.current_animation == AnimationType.ATTACK:
+                if event.new_animation_type == AnimationType.DEATH or not animated_particle_cmp.current_animation == AnimationType.ATTACK:
                     animated_particle_cmp.current_animation = event.new_animation_type
                     animated_particle_cmp.current_animated_sprite.current_frame = 0
                     animated_particle_cmp.current_animated_sprite.last_update = 0
@@ -33,7 +33,6 @@ class ParticleSystem(System, EventListener):
             if animated_particle_cmp.last_update >= animated_particle_cmp.animation_speed:
                 animated_particle_cmp.last_update = 0
                 animated_particle_cmp.current_frame += 1
-                print(animated_particle_cmp.current_frame)
                 if animated_particle_cmp.current_frame >= len(animated_particle_cmp.frames):
                     animated_particle_cmp.current_frame = 0
                     if animated_particle_cmp.one_shot:
@@ -74,6 +73,8 @@ class ParticleSystem(System, EventListener):
                 animated_particle_cmp.current_animated_sprite = animated_particle_cmp.moving_animated_sprite
             elif animated_particle_cmp.current_animation == AnimationType.HIT:
                 animated_particle_cmp.current_animated_sprite = animated_particle_cmp.hit_animated_sprite
+            elif animated_particle_cmp.current_animation == AnimationType.DEATH:
+                animated_particle_cmp.current_animated_sprite = animated_particle_cmp.death_animated_sprite
 
         # Handle Actual Particles:
         for entity_id in self.entity_manager.get_entities_with(ParticleComp):

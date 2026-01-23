@@ -62,6 +62,12 @@ class TextureToDrawComp(Component):
 
 
 @dataclass
+class HitBoxToDrawComp(Component):
+    # before each drawing is going to be set to Transform's comp data:
+    drawing_rect: pygame.Rect = field(default_factory=lambda: pygame.Rect(0, 0, 0, 0))
+
+
+@dataclass
 class RectToDrawComp(Component):
     # before each drawing is going to be set to Transform's comp data:
     drawing_rect: pygame.Rect = field(default_factory=lambda: pygame.Rect(0, 0, 0, 0))
@@ -109,6 +115,7 @@ class ParticleComp(Component):
 @dataclass
 class HealthComp(Component):
     health: int = 10
+    dead: bool = False
 
 
 class EnemyType(Enum):
@@ -144,6 +151,7 @@ class AnimationType(Enum):
     ATTACK = 2
     MOVING = 3
     HIT = 4
+    DEATH = 5
 
 
 @dataclass
@@ -152,12 +160,15 @@ class AnimatedCharacterComp(Component):
     idle_animated_sprite: AnimatedSpriteComp
     moving_animated_sprite: AnimatedSpriteComp
     hit_animated_sprite: AnimatedSpriteComp
+    death_animated_sprite: AnimatedSpriteComp
 
     current_animation: AnimationType
     current_animated_sprite: AnimatedSpriteComp
 
     base_animation_width: float = 0
     base_animation_height: float = 0
+
+    total_offset_x: float = 0
 
 
 @dataclass

@@ -289,7 +289,8 @@ class PhysicsSystem(System, EventListener):
 
     # Attack:
     def player_attack(self, player_id):
-        print("Attack!")
+        if core.DEBUG:
+            print("Attack!")
         # update the sword hit box to be on the correct side
         player_cmp: PlayerComp | None = self.entity_manager.get_component(player_id, PlayerComp)
         player_trans_cmp: TransformComp | None = self.entity_manager.get_component(player_id, TransformComp)
@@ -333,6 +334,7 @@ class PhysicsSystem(System, EventListener):
             return
 
         factory.create_animated_slash_particle(self.entity_manager,slash_drawing_x, slash_drawing_y, orientation_x, orientation_y, rotation)
+        core.event_manager.notify(SwitchAnimationForEntity(player_id, AnimationType.ATTACK))
 
         # go through all the enemies and check for collision
         for enemy_id in self.entity_manager.get_entities_with(EnemyComp):
@@ -341,9 +343,10 @@ class PhysicsSystem(System, EventListener):
             enemy_physics_cmp: PhysicsComp | None = self.entity_manager.get_component(enemy_id, PhysicsComp)
             enemy_render_cmp: RenderableComp | None = self.entity_manager.get_component(enemy_id, RenderableComp)
 
-            print(self.check_collision(player_cmp.sword_hit_box, enemy_trans_cmp))
-            print(player_cmp.sword_hit_box.position)
-            print(enemy_trans_cmp.position)
+            if core.DEBUG:
+                print(self.check_collision(player_cmp.sword_hit_box, enemy_trans_cmp))
+                print(player_cmp.sword_hit_box.position)
+                print(enemy_trans_cmp.position)
             if self.check_collision(player_cmp.sword_hit_box, enemy_trans_cmp):
                 core.event_manager.notify(HitEvent(enemy_id, player_cmp.damage))
                 core.event_manager.notify(SwitchAnimationForEntity(enemy_id, AnimationType.HIT))
@@ -366,7 +369,6 @@ class PhysicsSystem(System, EventListener):
                         self.create_blood_particles(enemy_trans_cmp, enemy_render_cmp.color, 0, 180)
 
     def boss_attack(self):
-        print("Boss attack")
         boss_id = self.boss_id
         player_id = self.player_id
 
@@ -388,9 +390,11 @@ class PhysicsSystem(System, EventListener):
         else:
             boss_cmp.sword_hit_box.position.x = boss_trans_cmp.position.x + boss_trans_cmp.width - boss_cmp.sword_hit_box.width
 
-        print(self.check_collision(boss_cmp.sword_hit_box, player_trans_cmp))
-        print(boss_cmp.sword_hit_box.position)
-        print(player_trans_cmp.position)
+        if core.DEBUG:
+            print("Boss attack")
+            print(self.check_collision(boss_cmp.sword_hit_box, player_trans_cmp))
+            print(boss_cmp.sword_hit_box.position)
+            print(player_trans_cmp.position)
 
         if self.check_collision(boss_cmp.sword_hit_box, player_trans_cmp):
             self.hit_the_player(player_id, player_cmp, player_trans_cmp, player_render_cmp, enemy_cmp, player_physics_cmp, boss_cmp.attack_dir_x, -1)
@@ -404,6 +408,7 @@ class PhysicsSystem(System, EventListener):
             return
         core.event_manager.notify(ShakeCameraEvent(4, 0.4))
         core.event_manager.notify(HitEvent(player_id, enemy_cmp.damage))
+        core.event_manager.notify(SwitchAnimationForEntity(player_id, AnimationType.HIT))
         player_cmp.invincibility = True
         player_cmp.invincibility_counter = 0
         self.create_player_blood_particles(player_trans_cmp)

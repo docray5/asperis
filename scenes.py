@@ -83,27 +83,18 @@ class GameScene(Scene):
     def initialize(self, scene_manager, screen):
         core.reinitialize()
 
-        player_id = factory.create_player(self.entity_manager, 0, 0, 32, 48)
+        player_id = None
 
-        factory.create_tile(self.entity_manager, 64, core.VIEWPORT_HEIGHT - 72, 128, 16)
-        factory.create_tile(self.entity_manager, core.VIEWPORT_WIDTH / 2, core.VIEWPORT_HEIGHT / 2 + 32, 128, 16)
-        factory.create_tile(self.entity_manager, -core.VIEWPORT_WIDTH * 2, core.VIEWPORT_HEIGHT, core.VIEWPORT_WIDTH * 4, 32)
-        # factory.create_tile(self.entity_manager, core.VIEWPORT_WIDTH, core.VIEWPORT_HEIGHT-32, 32, 32) for showcase of physics
-
-        factory.create_enemy(self.entity_manager, -100, 0, 32, 32)
-        # factory.create_enemy(self.entity_manager, -200, 0, 32, 32)
-        # factory.create_enemy(self.entity_manager, -300, 0, 32, 32)
-        # factory.create_enemy(self.entity_manager, -400, 0, 32, 32)
-        factory.create_enemy(self.entity_manager, core.VIEWPORT_WIDTH / 2 + 64, core.VIEWPORT_HEIGHT / 2, 32, 32, 80,
-                             EnemyType.PATROLLING)
-
-        factory.create_boss(self.entity_manager, core.VIEWPORT_WIDTH * 2 - core.BOSS_SIZE[0], 0)
+        if core.DEBUG:
+            player_id = self.create_debug_level()
+        else:
+            player_id = self.create_level()
 
         # Set up the engine's systems
         player_system = PlayerSystem(self.entity_manager, self.entity_manager.get_component(player_id, PlayerComp),
                                      self.entity_manager.get_component(player_id, PhysicsComp))
         camera_system = CameraSystem(self.entity_manager)
-        health_system = HealthSystem(self.entity_manager)
+        health_system = HealthSystem(self.entity_manager, factory.create_health_bar(self.entity_manager))
         physics_system = PhysicsSystem(self.entity_manager)
         particle_system = ParticleSystem(self.entity_manager)
         clickable_system = ClickableSystem(self.entity_manager)
@@ -144,7 +135,8 @@ class GameScene(Scene):
                 clickable_cmp.clickable = core.paused
 
     def pause(self):
-        print("Game paused")
+        if core.DEBUG:
+            print("Game paused")
         core.paused = not core.paused
         for system in self.system_manager.systems:
             if isinstance(system, RenderSystem) or isinstance(system, InputSystem) or isinstance(system, ClickableSystem):
@@ -163,6 +155,59 @@ class GameScene(Scene):
             if isinstance(system, RenderSystem) or isinstance(system, ClickableSystem) or isinstance(system, ParticleSystem):
                 continue
             system.paused = not system.paused
+
+    def create_debug_level(self):
+        factory.create_tile(self.entity_manager, 64, core.VIEWPORT_HEIGHT - 72, 128, 16)
+        factory.create_tile(self.entity_manager, core.VIEWPORT_WIDTH / 2, core.VIEWPORT_HEIGHT / 2 + 32, 128, 16)
+        factory.create_tile(self.entity_manager, -core.VIEWPORT_WIDTH * 2, core.VIEWPORT_HEIGHT, core.VIEWPORT_WIDTH * 4, 32)
+        # factory.create_tile(self.entity_manager, core.VIEWPORT_WIDTH, core.VIEWPORT_HEIGHT-32, 32, 32) for showcase of physics
+
+        factory.create_enemy(self.entity_manager, -100, 0, 32, 32)
+        # factory.create_enemy(self.entity_manager, -200, 0, 32, 32)
+        # factory.create_enemy(self.entity_manager, -300, 0, 32, 32)
+        # factory.create_enemy(self.entity_manager, -400, 0, 32, 32)
+        factory.create_enemy(self.entity_manager, core.VIEWPORT_WIDTH / 2 + 64, core.VIEWPORT_HEIGHT / 2, 32, 32, 80,
+                             EnemyType.PATROLLING)
+
+        factory.create_boss(self.entity_manager, core.VIEWPORT_WIDTH * 2 - core.BOSS_SIZE[0], 0)
+
+        return factory.create_player(self.entity_manager, 0, 0, 32, 48)
+
+    def create_level(self):
+        max_left = -core.VIEWPORT_WIDTH * 3
+
+        # main platform and borders:
+        factory.create_tile(self.entity_manager, max_left, core.VIEWPORT_HEIGHT,
+                            core.VIEWPORT_WIDTH * 6, 32)
+        factory.create_tile(self.entity_manager, max_left, core.VIEWPORT_HEIGHT-512, 32, 512)
+        factory.create_tile(self.entity_manager, core.VIEWPORT_WIDTH * 3-32, core.VIEWPORT_HEIGHT-512, 32, 512)
+
+        # smaller platforms
+        factory.create_tile(self.entity_manager, max_left + 512, core.VIEWPORT_HEIGHT - 80, 256, 16)
+        factory.create_tile(self.entity_manager, max_left + 384-96, core.VIEWPORT_HEIGHT - 80*2, 192, 16)
+        factory.create_enemy(self.entity_manager, max_left + 384, 0, core.ENEMY_SIZE[0], core.ENEMY_SIZE[1], 80,
+                             EnemyType.PATROLLING)
+
+        factory.create_tile(self.entity_manager, max_left + 1024, core.VIEWPORT_HEIGHT - 80, 512, 16)
+        factory.create_enemy(self.entity_manager, max_left + 1024+256, 0, core.ENEMY_SIZE[0], core.ENEMY_SIZE[1])
+        factory.create_enemy(self.entity_manager, max_left + 1024+384, 0, core.ENEMY_SIZE[0], core.ENEMY_SIZE[1])
+        # factory.create_tile(self.entity_manager, max_left + 384 - 96, core.VIEWPORT_HEIGHT - 80 * 2, 192, 16)
+
+        factory.create_enemy(self.entity_manager, -100, 0, core.ENEMY_SIZE[0], core.ENEMY_SIZE[1])
+        factory.create_tile(self.entity_manager, -max_left - 1024, core.VIEWPORT_HEIGHT - 80 * 2, 192, 16)
+        factory.create_enemy(self.entity_manager, -max_left - 1024 + 64, 0, core.ENEMY_SIZE[0], core.ENEMY_SIZE[1], 80,
+                             EnemyType.PATROLLING)
+        factory.create_tile(self.entity_manager, -max_left - 1512, core.VIEWPORT_HEIGHT - 80 * 2, 192, 16)
+        factory.create_enemy(self.entity_manager, -max_left - 1512 + 64, 0, core.ENEMY_SIZE[0], core.ENEMY_SIZE[1], 80,
+                             EnemyType.PATROLLING)
+        # factory.create_enemy(self.entity_manager, -200, 0, 32, 32)
+        # factory.create_enemy(self.entity_manager, -300, 0, 32, 32)
+        # factory.create_enemy(self.entity_manager, -400, 0, 32, 32)
+
+
+        factory.create_boss(self.entity_manager, -max_left - core.BOSS_SIZE[0] - 32, 0)
+
+        return factory.create_player(self.entity_manager, max_left+100, 0, 32, 48)
 
 
 class GameOverScene(Scene):

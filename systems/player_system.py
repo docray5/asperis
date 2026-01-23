@@ -34,6 +34,11 @@ class PlayerSystem(System):
         if self.player_comp.left_held and not self.player_comp.right_held:
             self.player_comp.input_x_dir = -1
 
+        if self.player_comp.input_x_dir > 0:
+            self.player_render_cmp.flip_x = True
+        elif self.player_comp.input_x_dir < 0:
+            self.player_render_cmp.flip_x = False
+
         if self.player_comp.jump_held:
             self.player_comp.jump_buffer_counter = self.player_comp.jump_buffer_time
             if self.player_comp.on_ground:

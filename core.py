@@ -37,6 +37,8 @@ DASH_SPEED = 1000  # pixels per frame
 SEPARATION_BUFFER = 1
 PLAYER_SWORD_HIT_BOX_WIDTH = 64
 PLAYER_SWORD_HIT_BOX_HEIGHT = 64
+MAX_PLAYER_HEALTH = 10
+HEALTH_BAR_WIDTH = 16
 
 # === Enemy config ===
 BOSS_SIZE = (88, 128)
@@ -44,6 +46,8 @@ BOSS_SWORD_HIT_BOX = (BOSS_SIZE[0]+90, BOSS_SIZE[1]+64)
 BOSS_DAMAGE = 2
 ATTACK_SIGHT_RANGE = BOSS_SWORD_HIT_BOX[0]/2 + 54
 SIGHT_RANGE = 768
+
+ENEMY_SIZE = (36, 32)
 
 # === Global variables ===
 camera = None  # it's global only because it has to be accessed by render and camera systems. So

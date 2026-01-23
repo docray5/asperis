@@ -1,5 +1,5 @@
 import core
-from ecs.components import EnemyComp, EnemyType, TransformComp, PhysicsComp, BossComp, RenderableComp
+from ecs.components import EnemyComp, EnemyType, TransformComp, PhysicsComp, BossComp, RenderableComp, HealthComp
 from ecs.entity_manger import EntityManager
 from ecs.system import System
 from events import BossAttackEvent
@@ -21,6 +21,15 @@ class EnemySystem(System):
             enemy_transform_cmp: TransformComp | None = self.entity_manager.get_component(enemy_id, TransformComp)
             enemy_physics_cmp: PhysicsComp | None = self.entity_manager.get_component(enemy_id, PhysicsComp)
             render_cmp: RenderableComp | None = self.entity_manager.get_component(enemy_id, RenderableComp)
+            health_cmp: HealthComp | None = self.entity_manager.get_component(enemy_id, HealthComp)
+
+            if health_cmp.dead:
+                enemy_physics_cmp.acceleration.x = 0
+                enemy_physics_cmp.acceleration.y = 0
+                enemy_physics_cmp.velocity.x = 0
+                enemy_physics_cmp.velocity.y = 0
+                continue
+
             if enemy_cmp.enemy_type == EnemyType.FOLLOWING:
                 dist_x = enemy_transform_cmp.position.x - self.player_transform_cmp.position.x
                 dist_y = enemy_transform_cmp.position.y - self.player_transform_cmp.position.y
@@ -50,9 +59,9 @@ class EnemySystem(System):
             elif enemy_cmp.enemy_type == EnemyType.PATROLLING:
                 enemy_physics_cmp.acceleration.x = enemy_cmp.accel_rate * enemy_cmp.patrol_direction
                 if enemy_cmp.patrol_direction > 0:
-                    render_cmp.flip_x = False
-                else:
                     render_cmp.flip_x = True
+                else:
+                    render_cmp.flip_x = False
             elif enemy_cmp.enemy_type == EnemyType.BOSS:
                 boss_cmp: BossComp | None = self.entity_manager.get_component(enemy_id, BossComp)
 
@@ -94,4 +103,3 @@ class EnemySystem(System):
         enemy_cmp.jumping = True
         enemy_cmp.on_ground = False
         enemy_cmp.last_jump_counter = 0
-        print("--- Enemy Jumped ---")
