@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Python: module model</title>
+</head><body>
+
+<table class="heading">
+<tr class="heading-text decor">
+<td class="title">&nbsp;<br><strong class="title">model</strong></td>
+<td class="extra"><a href=".">index</a><br><a href="file:c%3A%5Cusers%5Cjanek%5Cprogramming%5Cpythonprojects%5Ccannibals%5Cmodel.py">c:\users\janek\programming\pythonprojects\cannibals\model.py</a></td></tr></table>
+    <p></p>
+<p>
+<table class="section">
+<tr class="decor pkg-content-decor heading-text">
+<td class="section-title" colspan=3>&nbsp;<br><strong class="bigsection">Modules</strong></td></tr>
+    
+<tr><td class="decor pkg-content-decor"><span class="code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></td><td>&nbsp;</td>
+<td class="singlecolumn"><table><tr><td class="multicolumn"><a href="commands.html">commands</a><br>
+<a href="core.html">core</a><br>
+</td><td class="multicolumn"><a href="graph.html">graph</a><br>
+<a href="pygame.html">pygame</a><br>
+</td><td class="multicolumn"><a href="sys.html">sys</a><br>
+</td><td class="multicolumn"></td></tr></table></td></tr></table><p>
+<table class="section">
+<tr class="decor index-decor heading-text">
+<td class="section-title" colspan=3>&nbsp;<br><strong class="bigsection">Classes</strong></td></tr>
+    
+<tr><td class="decor index-decor"><span class="code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></td><td>&nbsp;</td>
+<td class="singlecolumn"><dl>
+<dt class="heading-text"><a href="builtins.html#object">builtins.object</a>
+</dt><dd>
+<dl>
+<dt class="heading-text"><a href="model.html#Animated">Animated</a>
+</dt><dt class="heading-text"><a href="model.html#Clickable">Clickable</a>
+</dt><dd>
+<dl>
+<dt class="heading-text"><a href="model.html#Actor">Actor</a>(<a href="model.html#Clickable">Clickable</a>, <a href="model.html#Animated">Animated</a>)
+</dt><dt class="heading-text"><a href="model.html#Boat">Boat</a>(<a href="model.html#Clickable">Clickable</a>, <a href="model.html#Animated">Animated</a>)
+</dt><dt class="heading-text"><a href="model.html#Button">Button</a>
+</dt></dl>
+</dd>
+<dt class="heading-text"><a href="model.html#GameLogic">GameLogic</a>
+</dt><dt class="heading-text"><a href="model.html#GameState">GameState</a>
+</dt><dd>
+<dl>
+<dt class="heading-text"><a href="model.html#ActualGameGameState">ActualGameGameState</a>
+</dt><dt class="heading-text"><a href="model.html#MenuGameState">MenuGameState</a>
+</dt><dt class="heading-text"><a href="model.html#WinGameState">WinGameState</a>
+</dt></dl>
+</dd>
+<dt class="heading-text"><a href="model.html#Label">Label</a>
+</dt><dt class="heading-text"><a href="model.html#Model">Model</a>
+</dt><dt class="heading-text"><a href="model.html#Timer">Timer</a>
+</dt></dl>
+</dd>
+<dt class="heading-text"><a href="enum.html#Enum">enum.Enum</a>(<a href="builtins.html#object">builtins.object</a>)
+</dt><dd>
+<dl>
+<dt class="heading-text"><a href="model.html#Action">Action</a>
+</dt><dt class="heading-text"><a href="model.html#ActorType">ActorType</a>
+</dt></dl>
+</dd>
+</dl>
+ <p>
+<table class="section">
+<tr class="decor title-decor heading-text">
+<td class="section-title" colspan=3>&nbsp;<br><a name="Action">class <strong>Action</strong></a>(<a href="enum.html#Enum">enum.Enum</a>)</td></tr>
+    
+<tr><td class="decor title-decor" rowspan=2><span class="code">&nbsp;&nbsp;&nbsp;</span></td>
+<td class="decor title-decor" colspan=2><span class="code"><a href="#Action">Action</a>(*values)<br>
+&nbsp;<br>
+<br>&nbsp;</span></td></tr>
+<tr><td>&nbsp;</td>
+<td class="singlecolumn"><dl><dt>Method resolution order:</dt>
+<dd><a href="model.html#Action">Action</a></dd>
+<dd><a href="enum.html#Enum">enum.Enum</a></dd>
+<dd><a href="builtins.html#object">builtins.object</a></dd>
+</dl>
+<hr>
+Data and other attributes defined here:<br>
+<dl><dt><strong>BOAT_TRAVELS</strong> = &lt;Action.BOAT_TRAVELS: 1&gt;</dl>
+
+<dl><dt><strong>LISTEN</strong> = &lt;Action.LISTEN: 2&gt;</dl>
+
+<hr>
+Data descriptors inherited from <a href="enum.html#Enum">enum.Enum</a>:<br>
+<dl><dt><strong>name</strong></dt>
+<dd><span class="code">The&nbsp;name&nbsp;of&nbsp;the&nbsp;Enum&nbsp;member.</span></dd>
+</dl>
+<dl><dt><strong>value</strong></dt>
+<dd><span class="code">The&nbsp;value&nbsp;of&nbsp;the&nbsp;Enum&nbsp;member.</span></dd>
+</dl>
+<hr>
+Static methods inherited from <a href="enum.html#EnumType">enum.EnumType</a>:<br>
+<dl><dt><a name="Action-__contains__"><strong>__contains__</strong></a>(value)</dt><dd><span class="code">Return&nbsp;True&nbsp;if&nbsp;`value`&nbsp;is&nbsp;in&nbsp;`cls`.<br>
+&nbsp;<br>
+`value`&nbsp;is&nbsp;in&nbsp;`cls`&nbsp;if:<br>
+1)&nbsp;`value`&nbsp;is&nbsp;a&nbsp;member&nbsp;of&nbsp;`cls`,&nbsp;or<br>
+2)&nbsp;`value`&nbsp;is&nbsp;the&nbsp;value&nbsp;of&nbsp;one&nbsp;of&nbsp;the&nbsp;`cls`'s&nbsp;members.<br>
+3)&nbsp;`value`&nbsp;is&nbsp;a&nbsp;pseudo-member&nbsp;(flags)</span></dd></dl>
+
+<dl><dt><a name="Action-__getitem__"><strong>__getitem__</strong></a>(name)</dt><dd><span class="code">Return&nbsp;the&nbsp;member&nbsp;matching&nbsp;`name`.</span></dd></dl>
+
+<dl><dt><a name="Action-__iter__"><strong>__iter__</strong></a>()</dt><dd><span class="code">Return&nbsp;members&nbsp;in&nbsp;definition&nbsp;order.</span></dd></dl>
+
+<dl><dt><a name="Action-__len__"><strong>__len__</strong></a>()</dt><dd><span class="code">Return&nbsp;the&nbsp;number&nbsp;of&nbsp;members&nbsp;(no&nbsp;aliases)</span></dd></dl>
+
+<hr>
+Readonly properties inherited from <a href="enum.html#EnumType">enum.EnumType</a>:<br>
+<dl><dt><strong>__members__</strong></dt>
+<dd><span class="code">Returns&nbsp;a&nbsp;mapping&nbsp;of&nbsp;member&nbsp;name-&gt;value.<br>
+&nbsp;<br>
+This&nbsp;mapping&nbsp;lists&nbsp;all&nbsp;enum&nbsp;members,&nbsp;including&nbsp;aliases.&nbsp;Note&nbsp;that&nbsp;this<br>
+is&nbsp;a&nbsp;read-only&nbsp;view&nbsp;of&nbsp;the&nbsp;internal&nbsp;mapping.</span></dd>
+</dl>
+</td></tr></table> <p>
+<table class="section">
+<tr class="decor title-decor heading-text">
+<td class="section-title" colspan=3>&nbsp;<br><a name="Actor">class <strong>Actor</strong></a>(<a href="model.html#Clickable">Clickable</a>, <a href="model.html#Animated">Animated</a>)</td></tr>
+    
+<tr><td class="decor title-decor" rowspan=2><span class="code">&nbsp;&nbsp;&nbsp;</span></td>
+<td class="decor title-decor" colspan=2><span class="code"><a href="#Actor">Actor</a>(x,&nbsp;y,&nbsp;width,&nbsp;height,&nbsp;color,&nbsp;actor_type,&nbsp;game_state,&nbsp;pos_right_land)<br>
+&nbsp;<br>
+<br>&nbsp;</span></td></tr>
+<tr><td>&nbsp;</td>
+<td class="singlecolumn"><dl><dt>Method resolution order:</dt>
+<dd><a href="model.html#Actor">Actor</a></dd>
+<dd><a href="model.html#Clickable">Clickable</a></dd>
+<dd><a href="model.html#Animated">Animated</a></dd>
+<dd><a href="builtins.html#object">builtins.object</a></dd>
+</dl>
+<hr>
+Methods defined here:<br>
+<dl><dt><a name="Actor-__init__"><strong>__init__</strong></a>(
+    self,
+    x,
+    y,
+    width,
+    height,
+    color,
+    actor_type,
+    game_state,
+    pos_right_land
+)</dt><dd><span class="code">Initialize&nbsp;self.&nbsp;&nbsp;See&nbsp;help(type(self))&nbsp;for&nbsp;accurate&nbsp;signature.</span></dd></dl>
+
+<dl><dt><a name="Actor-animate_to_land"><strong>animate_to_land</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="Actor-move"><strong>move</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="Actor-update"><strong>update</strong></a>(self, dt)</dt></dl>
+
+<hr>
+Methods inherited from <a href="model.html#Clickable">Clickable</a>:<br>
+<dl><dt><a name="Actor-off_hover"><strong>off_hover</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="Actor-on_click"><strong>on_click</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="Actor-on_hover"><strong>on_hover</strong></a>(self)</dt></dl>
+
+<hr>
+Data descriptors inherited from <a href="model.html#Clickable">Clickable</a>:<br>
+<dl><dt><strong>__dict__</strong></dt>
+<dd><span class="code">dictionary&nbsp;for&nbsp;instance&nbsp;variables</span></dd>
+</dl>
+<dl><dt><strong>__weakref__</strong></dt>
+<dd><span class="code">list&nbsp;of&nbsp;weak&nbsp;references&nbsp;to&nbsp;the&nbsp;object</span></dd>
+</dl>
+<hr>
+Methods inherited from <a href="model.html#Animated">Animated</a>:<br>
+<dl><dt><a name="Actor-animate"><strong>animate</strong></a>(self, x, y)</dt></dl>
+
+</td></tr></table> <p>
+<table class="section">
+<tr class="decor title-decor heading-text">
+<td class="section-title" colspan=3>&nbsp;<br><a name="ActorType">class <strong>ActorType</strong></a>(<a href="enum.html#Enum">enum.Enum</a>)</td></tr>
+    
+<tr><td class="decor title-decor" rowspan=2><span class="code">&nbsp;&nbsp;&nbsp;</span></td>
+<td class="decor title-decor" colspan=2><span class="code"><a href="#ActorType">ActorType</a>(*values)<br>
+&nbsp;<br>
+<br>&nbsp;</span></td></tr>
+<tr><td>&nbsp;</td>
+<td class="singlecolumn"><dl><dt>Method resolution order:</dt>
+<dd><a href="model.html#ActorType">ActorType</a></dd>
+<dd><a href="enum.html#Enum">enum.Enum</a></dd>
+<dd><a href="builtins.html#object">builtins.object</a></dd>
+</dl>
+<hr>
+Data and other attributes defined here:<br>
+<dl><dt><strong>CANNIBAL</strong> = &lt;ActorType.CANNIBAL: 2&gt;</dl>
+
+<dl><dt><strong>MISSIONARY</strong> = &lt;ActorType.MISSIONARY: 1&gt;</dl>
+
+<hr>
+Data descriptors inherited from <a href="enum.html#Enum">enum.Enum</a>:<br>
+<dl><dt><strong>name</strong></dt>
+<dd><span class="code">The&nbsp;name&nbsp;of&nbsp;the&nbsp;Enum&nbsp;member.</span></dd>
+</dl>
+<dl><dt><strong>value</strong></dt>
+<dd><span class="code">The&nbsp;value&nbsp;of&nbsp;the&nbsp;Enum&nbsp;member.</span></dd>
+</dl>
+<hr>
+Static methods inherited from <a href="enum.html#EnumType">enum.EnumType</a>:<br>
+<dl><dt><a name="ActorType-__contains__"><strong>__contains__</strong></a>(value)</dt><dd><span class="code">Return&nbsp;True&nbsp;if&nbsp;`value`&nbsp;is&nbsp;in&nbsp;`cls`.<br>
+&nbsp;<br>
+`value`&nbsp;is&nbsp;in&nbsp;`cls`&nbsp;if:<br>
+1)&nbsp;`value`&nbsp;is&nbsp;a&nbsp;member&nbsp;of&nbsp;`cls`,&nbsp;or<br>
+2)&nbsp;`value`&nbsp;is&nbsp;the&nbsp;value&nbsp;of&nbsp;one&nbsp;of&nbsp;the&nbsp;`cls`'s&nbsp;members.<br>
+3)&nbsp;`value`&nbsp;is&nbsp;a&nbsp;pseudo-member&nbsp;(flags)</span></dd></dl>
+
+<dl><dt><a name="ActorType-__getitem__"><strong>__getitem__</strong></a>(name)</dt><dd><span class="code">Return&nbsp;the&nbsp;member&nbsp;matching&nbsp;`name`.</span></dd></dl>
+
+<dl><dt><a name="ActorType-__iter__"><strong>__iter__</strong></a>()</dt><dd><span class="code">Return&nbsp;members&nbsp;in&nbsp;definition&nbsp;order.</span></dd></dl>
+
+<dl><dt><a name="ActorType-__len__"><strong>__len__</strong></a>()</dt><dd><span class="code">Return&nbsp;the&nbsp;number&nbsp;of&nbsp;members&nbsp;(no&nbsp;aliases)</span></dd></dl>
+
+<hr>
+Readonly properties inherited from <a href="enum.html#EnumType">enum.EnumType</a>:<br>
+<dl><dt><strong>__members__</strong></dt>
+<dd><span class="code">Returns&nbsp;a&nbsp;mapping&nbsp;of&nbsp;member&nbsp;name-&gt;value.<br>
+&nbsp;<br>
+This&nbsp;mapping&nbsp;lists&nbsp;all&nbsp;enum&nbsp;members,&nbsp;including&nbsp;aliases.&nbsp;Note&nbsp;that&nbsp;this<br>
+is&nbsp;a&nbsp;read-only&nbsp;view&nbsp;of&nbsp;the&nbsp;internal&nbsp;mapping.</span></dd>
+</dl>
+</td></tr></table> <p>
+<table class="section">
+<tr class="decor title-decor heading-text">
+<td class="section-title" colspan=3>&nbsp;<br><a name="ActualGameGameState">class <strong>ActualGameGameState</strong></a>(<a href="model.html#GameState">GameState</a>)</td></tr>
+    
+<tr><td class="decor title-decor"><span class="code">&nbsp;&nbsp;&nbsp;</span></td><td>&nbsp;</td>
+<td class="singlecolumn"><dl><dt>Method resolution order:</dt>
+<dd><a href="model.html#ActualGameGameState">ActualGameGameState</a></dd>
+<dd><a href="model.html#GameState">GameState</a></dd>
+<dd><a href="builtins.html#object">builtins.object</a></dd>
+</dl>
+<hr>
+Methods defined here:<br>
+<dl><dt><a name="ActualGameGameState-__init__"><strong>__init__</strong></a>(self)</dt><dd><span class="code">Initialize&nbsp;self.&nbsp;&nbsp;See&nbsp;help(type(self))&nbsp;for&nbsp;accurate&nbsp;signature.</span></dd></dl>
+
+<dl><dt><a name="ActualGameGameState-update"><strong>update</strong></a>(self, dt)</dt><dd><span class="code">Update&nbsp;Logic&nbsp;of&nbsp;the&nbsp;game&nbsp;state/scene</span></dd></dl>
+
+<hr>
+Data descriptors inherited from <a href="model.html#GameState">GameState</a>:<br>
+<dl><dt><strong>__dict__</strong></dt>
+<dd><span class="code">dictionary&nbsp;for&nbsp;instance&nbsp;variables</span></dd>
+</dl>
+<dl><dt><strong>__weakref__</strong></dt>
+<dd><span class="code">list&nbsp;of&nbsp;weak&nbsp;references&nbsp;to&nbsp;the&nbsp;object</span></dd>
+</dl>
+</td></tr></table> <p>
+<table class="section">
+<tr class="decor title-decor heading-text">
+<td class="section-title" colspan=3>&nbsp;<br><a name="Animated">class <strong>Animated</strong></a>(<a href="builtins.html#object">builtins.object</a>)</td></tr>
+    
+<tr><td class="decor title-decor"><span class="code">&nbsp;&nbsp;&nbsp;</span></td><td>&nbsp;</td>
+<td class="singlecolumn">Methods defined here:<br>
+<dl><dt><a name="Animated-__init__"><strong>__init__</strong></a>(self)</dt><dd><span class="code">Initialize&nbsp;self.&nbsp;&nbsp;See&nbsp;help(type(self))&nbsp;for&nbsp;accurate&nbsp;signature.</span></dd></dl>
+
+<dl><dt><a name="Animated-animate"><strong>animate</strong></a>(self, x, y)</dt></dl>
+
+<dl><dt><a name="Animated-update"><strong>update</strong></a>(self, dt)</dt></dl>
+
+<hr>
+Data descriptors defined here:<br>
+<dl><dt><strong>__dict__</strong></dt>
+<dd><span class="code">dictionary&nbsp;for&nbsp;instance&nbsp;variables</span></dd>
+</dl>
+<dl><dt><strong>__weakref__</strong></dt>
+<dd><span class="code">list&nbsp;of&nbsp;weak&nbsp;references&nbsp;to&nbsp;the&nbsp;object</span></dd>
+</dl>
+</td></tr></table> <p>
+<table class="section">
+<tr class="decor title-decor heading-text">
+<td class="section-title" colspan=3>&nbsp;<br><a name="Boat">class <strong>Boat</strong></a>(<a href="model.html#Clickable">Clickable</a>, <a href="model.html#Animated">Animated</a>)</td></tr>
+    
+<tr><td class="decor title-decor" rowspan=2><span class="code">&nbsp;&nbsp;&nbsp;</span></td>
+<td class="decor title-decor" colspan=2><span class="code"><a href="#Boat">Boat</a>(x,&nbsp;y,&nbsp;width,&nbsp;height,&nbsp;game_state,&nbsp;pos_right_land)<br>
+&nbsp;<br>
+<br>&nbsp;</span></td></tr>
+<tr><td>&nbsp;</td>
+<td class="singlecolumn"><dl><dt>Method resolution order:</dt>
+<dd><a href="model.html#Boat">Boat</a></dd>
+<dd><a href="model.html#Clickable">Clickable</a></dd>
+<dd><a href="model.html#Animated">Animated</a></dd>
+<dd><a href="builtins.html#object">builtins.object</a></dd>
+</dl>
+<hr>
+Methods defined here:<br>
+<dl><dt><a name="Boat-__init__"><strong>__init__</strong></a>(self, x, y, width, height, game_state, pos_right_land)</dt><dd><span class="code">Initialize&nbsp;self.&nbsp;&nbsp;See&nbsp;help(type(self))&nbsp;for&nbsp;accurate&nbsp;signature.</span></dd></dl>
+
+<dl><dt><a name="Boat-get_relative_first_actor_spot_pos"><strong>get_relative_first_actor_spot_pos</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="Boat-get_relative_second_actor_spot_pos"><strong>get_relative_second_actor_spot_pos</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="Boat-move"><strong>move</strong></a>(self)</dt><dd><span class="code">Move&nbsp;the&nbsp;boat&nbsp;only&nbsp;if&nbsp;actors&nbsp;are&nbsp;inside&nbsp;the&nbsp;boat</span></dd></dl>
+
+<dl><dt><a name="Boat-progress_with_game"><strong>progress_with_game</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="Boat-update"><strong>update</strong></a>(self, dt)</dt></dl>
+
+<hr>
+Methods inherited from <a href="model.html#Clickable">Clickable</a>:<br>
+<dl><dt><a name="Boat-off_hover"><strong>off_hover</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="Boat-on_click"><strong>on_click</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="Boat-on_hover"><strong>on_hover</strong></a>(self)</dt></dl>
+
+<hr>
+Data descriptors inherited from <a href="model.html#Clickable">Clickable</a>:<br>
+<dl><dt><strong>__dict__</strong></dt>
+<dd><span class="code">dictionary&nbsp;for&nbsp;instance&nbsp;variables</span></dd>
+</dl>
+<dl><dt><strong>__weakref__</strong></dt>
+<dd><span class="code">list&nbsp;of&nbsp;weak&nbsp;references&nbsp;to&nbsp;the&nbsp;object</span></dd>
+</dl>
+<hr>
+Methods inherited from <a href="model.html#Animated">Animated</a>:<br>
+<dl><dt><a name="Boat-animate"><strong>animate</strong></a>(self, x, y)</dt></dl>
+
+</td></tr></table> <p>
+<table class="section">
+<tr class="decor title-decor heading-text">
+<td class="section-title" colspan=3>&nbsp;<br><a name="Button">class <strong>Button</strong></a>(<a href="model.html#Clickable">Clickable</a>)</td></tr>
+    
+<tr><td class="decor title-decor" rowspan=2><span class="code">&nbsp;&nbsp;&nbsp;</span></td>
+<td class="decor title-decor" colspan=2><span class="code"><a href="#Button">Button</a>(x,&nbsp;y,&nbsp;width,&nbsp;height,&nbsp;font_size,&nbsp;text,&nbsp;on_click_cmd)<br>
+&nbsp;<br>
+<br>&nbsp;</span></td></tr>
+<tr><td>&nbsp;</td>
+<td class="singlecolumn"><dl><dt>Method resolution order:</dt>
+<dd><a href="model.html#Button">Button</a></dd>
+<dd><a href="model.html#Clickable">Clickable</a></dd>
+<dd><a href="builtins.html#object">builtins.object</a></dd>
+</dl>
+<hr>
+Methods defined here:<br>
+<dl><dt><a name="Button-__init__"><strong>__init__</strong></a>(self, x, y, width, height, font_size, text, on_click_cmd)</dt><dd><span class="code">Initialize&nbsp;self.&nbsp;&nbsp;See&nbsp;help(type(self))&nbsp;for&nbsp;accurate&nbsp;signature.</span></dd></dl>
+
+<dl><dt><a name="Button-off_hover"><strong>off_hover</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="Button-on_hover"><strong>on_hover</strong></a>(self)</dt></dl>
+
+<hr>
+Methods inherited from <a href="model.html#Clickable">Clickable</a>:<br>
+<dl><dt><a name="Button-on_click"><strong>on_click</strong></a>(self)</dt></dl>
+
+<hr>
+Data descriptors inherited from <a href="model.html#Clickable">Clickable</a>:<br>
+<dl><dt><strong>__dict__</strong></dt>
+<dd><span class="code">dictionary&nbsp;for&nbsp;instance&nbsp;variables</span></dd>
+</dl>
+<dl><dt><strong>__weakref__</strong></dt>
+<dd><span class="code">list&nbsp;of&nbsp;weak&nbsp;references&nbsp;to&nbsp;the&nbsp;object</span></dd>
+</dl>
+</td></tr></table> <p>
+<table class="section">
+<tr class="decor title-decor heading-text">
+<td class="section-title" colspan=3>&nbsp;<br><a name="Clickable">class <strong>Clickable</strong></a>(<a href="builtins.html#object">builtins.object</a>)</td></tr>
+    
+<tr><td class="decor title-decor" rowspan=2><span class="code">&nbsp;&nbsp;&nbsp;</span></td>
+<td class="decor title-decor" colspan=2><span class="code"><a href="#Clickable">Clickable</a>(x,&nbsp;y,&nbsp;width,&nbsp;height,&nbsp;on_click_cmd)<br>
+&nbsp;<br>
+UI&nbsp;element.<br>
+Thanks&nbsp;to&nbsp;command&nbsp;pattern&nbsp;it&nbsp;can&nbsp;run<br>
+basically&nbsp;anything&nbsp;on&nbsp;click&nbsp;without&nbsp;inheritance&nbsp;mess.<br>&nbsp;</span></td></tr>
+<tr><td>&nbsp;</td>
+<td class="singlecolumn">Methods defined here:<br>
+<dl><dt><a name="Clickable-__init__"><strong>__init__</strong></a>(self, x, y, width, height, on_click_cmd)</dt><dd><span class="code">Initialize&nbsp;self.&nbsp;&nbsp;See&nbsp;help(type(self))&nbsp;for&nbsp;accurate&nbsp;signature.</span></dd></dl>
+
+<dl><dt><a name="Clickable-off_hover"><strong>off_hover</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="Clickable-on_click"><strong>on_click</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="Clickable-on_hover"><strong>on_hover</strong></a>(self)</dt></dl>
+
+<hr>
+Data descriptors defined here:<br>
+<dl><dt><strong>__dict__</strong></dt>
+<dd><span class="code">dictionary&nbsp;for&nbsp;instance&nbsp;variables</span></dd>
+</dl>
+<dl><dt><strong>__weakref__</strong></dt>
+<dd><span class="code">list&nbsp;of&nbsp;weak&nbsp;references&nbsp;to&nbsp;the&nbsp;object</span></dd>
+</dl>
+</td></tr></table> <p>
+<table class="section">
+<tr class="decor title-decor heading-text">
+<td class="section-title" colspan=3>&nbsp;<br><a name="GameLogic">class <strong>GameLogic</strong></a>(<a href="builtins.html#object">builtins.object</a>)</td></tr>
+    
+<tr><td class="decor title-decor"><span class="code">&nbsp;&nbsp;&nbsp;</span></td><td>&nbsp;</td>
+<td class="singlecolumn">Methods defined here:<br>
+<dl><dt><a name="GameLogic-__init__"><strong>__init__</strong></a>(self)</dt><dd><span class="code">Initialize&nbsp;self.&nbsp;&nbsp;See&nbsp;help(type(self))&nbsp;for&nbsp;accurate&nbsp;signature.</span></dd></dl>
+
+<dl><dt><a name="GameLogic-update_logic"><strong>update_logic</strong></a>(self, missionary_change, cannibal_change, boat_left)</dt><dd><span class="code">Updates&nbsp;the&nbsp;game's&nbsp;logic<br>
+:param&nbsp;missionary_change:&nbsp;values&nbsp;only&nbsp;+-1,&nbsp;+-2&nbsp;or&nbsp;0<br>
+:param&nbsp;cannibal_change:&nbsp;values&nbsp;only&nbsp;+-1,&nbsp;+-2&nbsp;or&nbsp;0<br>
+:param&nbsp;boat_left:&nbsp;value:&nbsp;0&nbsp;or&nbsp;1&nbsp;(0&nbsp;=&nbsp;left,&nbsp;1&nbsp;=&nbsp;right</span></dd></dl>
+
+<hr>
+Data descriptors defined here:<br>
+<dl><dt><strong>__dict__</strong></dt>
+<dd><span class="code">dictionary&nbsp;for&nbsp;instance&nbsp;variables</span></dd>
+</dl>
+<dl><dt><strong>__weakref__</strong></dt>
+<dd><span class="code">list&nbsp;of&nbsp;weak&nbsp;references&nbsp;to&nbsp;the&nbsp;object</span></dd>
+</dl>
+</td></tr></table> <p>
+<table class="section">
+<tr class="decor title-decor heading-text">
+<td class="section-title" colspan=3>&nbsp;<br><a name="GameState">class <strong>GameState</strong></a>(<a href="builtins.html#object">builtins.object</a>)</td></tr>
+    
+<tr><td class="decor title-decor" rowspan=2><span class="code">&nbsp;&nbsp;&nbsp;</span></td>
+<td class="decor title-decor" colspan=2><span class="code">Abstract&nbsp;class&nbsp;using&nbsp;the&nbsp;State&nbsp;pattern&nbsp;for&nbsp;clean&nbsp;code.<br>&nbsp;</span></td></tr>
+<tr><td>&nbsp;</td>
+<td class="singlecolumn">Methods defined here:<br>
+<dl><dt><a name="GameState-update"><strong>update</strong></a>(self, dt)</dt><dd><span class="code">Update&nbsp;Logic&nbsp;of&nbsp;the&nbsp;game&nbsp;state/scene</span></dd></dl>
+
+<hr>
+Data descriptors defined here:<br>
+<dl><dt><strong>__dict__</strong></dt>
+<dd><span class="code">dictionary&nbsp;for&nbsp;instance&nbsp;variables</span></dd>
+</dl>
+<dl><dt><strong>__weakref__</strong></dt>
+<dd><span class="code">list&nbsp;of&nbsp;weak&nbsp;references&nbsp;to&nbsp;the&nbsp;object</span></dd>
+</dl>
+</td></tr></table> <p>
+<table class="section">
+<tr class="decor title-decor heading-text">
+<td class="section-title" colspan=3>&nbsp;<br><a name="Label">class <strong>Label</strong></a>(<a href="builtins.html#object">builtins.object</a>)</td></tr>
+    
+<tr><td class="decor title-decor" rowspan=2><span class="code">&nbsp;&nbsp;&nbsp;</span></td>
+<td class="decor title-decor" colspan=2><span class="code"><a href="#Label">Label</a>(x,&nbsp;y,&nbsp;color,&nbsp;font_size,&nbsp;text)<br>
+&nbsp;<br>
+UI&nbsp;element&nbsp;for&nbsp;passing&nbsp;font&nbsp;<a href="builtins.html#object">object</a>&nbsp;to&nbsp;view<br>
+It&nbsp;renders&nbsp;to&nbsp;the&nbsp;surface&nbsp;in&nbsp;the&nbsp;constructor&nbsp;due&nbsp;to&nbsp;performance&nbsp;concerns<br>
+thanks&nbsp;to&nbsp;that&nbsp;also&nbsp;the&nbsp;view&nbsp;receives&nbsp;prepared&nbsp;text&nbsp;only&nbsp;for&nbsp;drawing<br>&nbsp;</span></td></tr>
+<tr><td>&nbsp;</td>
+<td class="singlecolumn">Methods defined here:<br>
+<dl><dt><a name="Label-__init__"><strong>__init__</strong></a>(self, x, y, color, font_size, text)</dt><dd><span class="code">Initialize&nbsp;self.&nbsp;&nbsp;See&nbsp;help(type(self))&nbsp;for&nbsp;accurate&nbsp;signature.</span></dd></dl>
+
+<hr>
+Data descriptors defined here:<br>
+<dl><dt><strong>__dict__</strong></dt>
+<dd><span class="code">dictionary&nbsp;for&nbsp;instance&nbsp;variables</span></dd>
+</dl>
+<dl><dt><strong>__weakref__</strong></dt>
+<dd><span class="code">list&nbsp;of&nbsp;weak&nbsp;references&nbsp;to&nbsp;the&nbsp;object</span></dd>
+</dl>
+</td></tr></table> <p>
+<table class="section">
+<tr class="decor title-decor heading-text">
+<td class="section-title" colspan=3>&nbsp;<br><a name="MenuGameState">class <strong>MenuGameState</strong></a>(<a href="model.html#GameState">GameState</a>)</td></tr>
+    
+<tr><td class="decor title-decor"><span class="code">&nbsp;&nbsp;&nbsp;</span></td><td>&nbsp;</td>
+<td class="singlecolumn"><dl><dt>Method resolution order:</dt>
+<dd><a href="model.html#MenuGameState">MenuGameState</a></dd>
+<dd><a href="model.html#GameState">GameState</a></dd>
+<dd><a href="builtins.html#object">builtins.object</a></dd>
+</dl>
+<hr>
+Methods defined here:<br>
+<dl><dt><a name="MenuGameState-__init__"><strong>__init__</strong></a>(self)</dt><dd><span class="code">Initialize&nbsp;self.&nbsp;&nbsp;See&nbsp;help(type(self))&nbsp;for&nbsp;accurate&nbsp;signature.</span></dd></dl>
+
+<hr>
+Methods inherited from <a href="model.html#GameState">GameState</a>:<br>
+<dl><dt><a name="MenuGameState-update"><strong>update</strong></a>(self, dt)</dt><dd><span class="code">Update&nbsp;Logic&nbsp;of&nbsp;the&nbsp;game&nbsp;state/scene</span></dd></dl>
+
+<hr>
+Data descriptors inherited from <a href="model.html#GameState">GameState</a>:<br>
+<dl><dt><strong>__dict__</strong></dt>
+<dd><span class="code">dictionary&nbsp;for&nbsp;instance&nbsp;variables</span></dd>
+</dl>
+<dl><dt><strong>__weakref__</strong></dt>
+<dd><span class="code">list&nbsp;of&nbsp;weak&nbsp;references&nbsp;to&nbsp;the&nbsp;object</span></dd>
+</dl>
+</td></tr></table> <p>
+<table class="section">
+<tr class="decor title-decor heading-text">
+<td class="section-title" colspan=3>&nbsp;<br><a name="Model">class <strong>Model</strong></a>(<a href="builtins.html#object">builtins.object</a>)</td></tr>
+    
+<tr><td class="decor title-decor" rowspan=2><span class="code">&nbsp;&nbsp;&nbsp;</span></td>
+<td class="decor title-decor" colspan=2><span class="code">MVC&nbsp;class&nbsp;that&nbsp;is&nbsp;responsible&nbsp;only&nbsp;for&nbsp;logic.<br>
+Controls&nbsp;the&nbsp;scene&nbsp;management&nbsp;and&nbsp;updates&nbsp;current&nbsp;scene<br>&nbsp;</span></td></tr>
+<tr><td>&nbsp;</td>
+<td class="singlecolumn">Methods defined here:<br>
+<dl><dt><a name="Model-__init__"><strong>__init__</strong></a>(self)</dt><dd><span class="code">Initialize&nbsp;self.&nbsp;&nbsp;See&nbsp;help(type(self))&nbsp;for&nbsp;accurate&nbsp;signature.</span></dd></dl>
+
+<dl><dt><a name="Model-load"><strong>load</strong></a>(self)</dt><dd><span class="code">Setup&nbsp;First&nbsp;screen</span></dd></dl>
+
+<dl><dt><a name="Model-quit"><strong>quit</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="Model-switch_to_game"><strong>switch_to_game</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="Model-switch_to_menu"><strong>switch_to_menu</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="Model-switch_to_win"><strong>switch_to_win</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="Model-update"><strong>update</strong></a>(self, dt)</dt><dd><span class="code">Update&nbsp;logic&nbsp;of&nbsp;current&nbsp;state</span></dd></dl>
+
+<hr>
+Data descriptors defined here:<br>
+<dl><dt><strong>__dict__</strong></dt>
+<dd><span class="code">dictionary&nbsp;for&nbsp;instance&nbsp;variables</span></dd>
+</dl>
+<dl><dt><strong>__weakref__</strong></dt>
+<dd><span class="code">list&nbsp;of&nbsp;weak&nbsp;references&nbsp;to&nbsp;the&nbsp;object</span></dd>
+</dl>
+</td></tr></table> <p>
+<table class="section">
+<tr class="decor title-decor heading-text">
+<td class="section-title" colspan=3>&nbsp;<br><a name="Timer">class <strong>Timer</strong></a>(<a href="builtins.html#object">builtins.object</a>)</td></tr>
+    
+<tr><td class="decor title-decor" rowspan=2><span class="code">&nbsp;&nbsp;&nbsp;</span></td>
+<td class="decor title-decor" colspan=2><span class="code"><a href="#Timer">Timer</a>(x,&nbsp;y,&nbsp;font_size)<br>
+&nbsp;<br>
+Object&nbsp;used&nbsp;for&nbsp;tracking&nbsp;score<br>&nbsp;</span></td></tr>
+<tr><td>&nbsp;</td>
+<td class="singlecolumn">Methods defined here:<br>
+<dl><dt><a name="Timer-__init__"><strong>__init__</strong></a>(self, x, y, font_size)</dt><dd><span class="code">Initialize&nbsp;self.&nbsp;&nbsp;See&nbsp;help(type(self))&nbsp;for&nbsp;accurate&nbsp;signature.</span></dd></dl>
+
+<dl><dt><a name="Timer-update"><strong>update</strong></a>(self, dt)</dt></dl>
+
+<hr>
+Data descriptors defined here:<br>
+<dl><dt><strong>__dict__</strong></dt>
+<dd><span class="code">dictionary&nbsp;for&nbsp;instance&nbsp;variables</span></dd>
+</dl>
+<dl><dt><strong>__weakref__</strong></dt>
+<dd><span class="code">list&nbsp;of&nbsp;weak&nbsp;references&nbsp;to&nbsp;the&nbsp;object</span></dd>
+</dl>
+</td></tr></table> <p>
+<table class="section">
+<tr class="decor title-decor heading-text">
+<td class="section-title" colspan=3>&nbsp;<br><a name="WinGameState">class <strong>WinGameState</strong></a>(<a href="model.html#GameState">GameState</a>)</td></tr>
+    
+<tr><td class="decor title-decor" rowspan=2><span class="code">&nbsp;&nbsp;&nbsp;</span></td>
+<td class="decor title-decor" colspan=2><span class="code"><a href="#WinGameState">WinGameState</a>(time,&nbsp;msg)<br>
+&nbsp;<br>
+<br>&nbsp;</span></td></tr>
+<tr><td>&nbsp;</td>
+<td class="singlecolumn"><dl><dt>Method resolution order:</dt>
+<dd><a href="model.html#WinGameState">WinGameState</a></dd>
+<dd><a href="model.html#GameState">GameState</a></dd>
+<dd><a href="builtins.html#object">builtins.object</a></dd>
+</dl>
+<hr>
+Methods defined here:<br>
+<dl><dt><a name="WinGameState-__init__"><strong>__init__</strong></a>(self, time, msg)</dt><dd><span class="code">Create&nbsp;new&nbsp;Win&nbsp;scene</span></dd></dl>
+
+<hr>
+Methods inherited from <a href="model.html#GameState">GameState</a>:<br>
+<dl><dt><a name="WinGameState-update"><strong>update</strong></a>(self, dt)</dt><dd><span class="code">Update&nbsp;Logic&nbsp;of&nbsp;the&nbsp;game&nbsp;state/scene</span></dd></dl>
+
+<hr>
+Data descriptors inherited from <a href="model.html#GameState">GameState</a>:<br>
+<dl><dt><strong>__dict__</strong></dt>
+<dd><span class="code">dictionary&nbsp;for&nbsp;instance&nbsp;variables</span></dd>
+</dl>
+<dl><dt><strong>__weakref__</strong></dt>
+<dd><span class="code">list&nbsp;of&nbsp;weak&nbsp;references&nbsp;to&nbsp;the&nbsp;object</span></dd>
+</dl>
+</td></tr></table></td></tr></table>
+</body></html>

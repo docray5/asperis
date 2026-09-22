@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Python: module view</title>
+</head><body>
+
+<table class="heading">
+<tr class="heading-text decor">
+<td class="title">&nbsp;<br><strong class="title">view</strong></td>
+<td class="extra"><a href=".">index</a><br><a href="file:c%3A%5Cusers%5Cjanek%5Cprogramming%5Cpythonprojects%5Ccannibals%5Cview.py">c:\users\janek\programming\pythonprojects\cannibals\view.py</a></td></tr></table>
+    <p></p>
+<p>
+<table class="section">
+<tr class="decor pkg-content-decor heading-text">
+<td class="section-title" colspan=3>&nbsp;<br><strong class="bigsection">Modules</strong></td></tr>
+    
+<tr><td class="decor pkg-content-decor"><span class="code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></td><td>&nbsp;</td>
+<td class="singlecolumn"><table><tr><td class="multicolumn"><a href="core.html">core</a><br>
+</td><td class="multicolumn"><a href="pygame.html">pygame</a><br>
+</td><td class="multicolumn"></td><td class="multicolumn"></td></tr></table></td></tr></table><p>
+<table class="section">
+<tr class="decor index-decor heading-text">
+<td class="section-title" colspan=3>&nbsp;<br><strong class="bigsection">Classes</strong></td></tr>
+    
+<tr><td class="decor index-decor"><span class="code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></td><td>&nbsp;</td>
+<td class="singlecolumn"><dl>
+<dt class="heading-text"><a href="builtins.html#object">builtins.object</a>
+</dt><dd>
+<dl>
+<dt class="heading-text"><a href="view.html#View">View</a>
+</dt></dl>
+</dd>
+</dl>
+ <p>
+<table class="section">
+<tr class="decor title-decor heading-text">
+<td class="section-title" colspan=3>&nbsp;<br><a name="View">class <strong>View</strong></a>(<a href="builtins.html#object">builtins.object</a>)</td></tr>
+    
+<tr><td class="decor title-decor" rowspan=2><span class="code">&nbsp;&nbsp;&nbsp;</span></td>
+<td class="decor title-decor" colspan=2><span class="code"><a href="#View">View</a>(model)<br>
+&nbsp;<br>
+<a href="#View">View</a>&nbsp;class&nbsp;from&nbsp;the&nbsp;MVC&nbsp;pattern.<br>
+Responsible&nbsp;only&nbsp;for&nbsp;drawing&nbsp;objects.<br>
+It&nbsp;does&nbsp;have&nbsp;a&nbsp;reference&nbsp;to&nbsp;the&nbsp;model&nbsp;<a href="builtins.html#object">object</a>,&nbsp;but&nbsp;It&nbsp;does&nbsp;not<br>
+modify&nbsp;the&nbsp;model&nbsp;in&nbsp;any&nbsp;way.<br>
+I&nbsp;am&nbsp;aware&nbsp;that&nbsp;an&nbsp;Observer&nbsp;pattern&nbsp;would&nbsp;be&nbsp;better&nbsp;to<br>
+implement&nbsp;here,&nbsp;in&nbsp;order&nbsp;to&nbsp;decouple.<br>
+I&nbsp;did&nbsp;try&nbsp;to&nbsp;implement&nbsp;one,&nbsp;but&nbsp;in&nbsp;the&nbsp;middle&nbsp;I&nbsp;noticed&nbsp;it's<br>
+just&nbsp;not&nbsp;worth&nbsp;for&nbsp;such&nbsp;simple&nbsp;project.<br>
+It&nbsp;also&nbsp;gets&nbsp;the&nbsp;currently&nbsp;selected&nbsp;scene&nbsp;from&nbsp;the&nbsp;model<br>
+and&nbsp;renders&nbsp;appropriately.<br>&nbsp;</span></td></tr>
+<tr><td>&nbsp;</td>
+<td class="singlecolumn">Methods defined here:<br>
+<dl><dt><a name="View-__init__"><strong>__init__</strong></a>(self, model)</dt><dd><span class="code">Initialize&nbsp;self.&nbsp;&nbsp;See&nbsp;help(type(self))&nbsp;for&nbsp;accurate&nbsp;signature.</span></dd></dl>
+
+<dl><dt><a name="View-render"><strong>render</strong></a>(self)</dt><dd><span class="code">Render&nbsp;Current&nbsp;Game&nbsp;state</span></dd></dl>
+
+<dl><dt><a name="View-render_actor_imgs"><strong>render_actor_imgs</strong></a>(self, actors)</dt></dl>
+
+<dl><dt><a name="View-render_actor_rects"><strong>render_actor_rects</strong></a>(self, actors)</dt></dl>
+
+<dl><dt><a name="View-render_buttons"><strong>render_buttons</strong></a>(self, buttons)</dt></dl>
+
+<dl><dt><a name="View-render_game"><strong>render_game</strong></a>(self, game_state: model.ActualGameGameState)</dt></dl>
+
+<dl><dt><a name="View-render_menu"><strong>render_menu</strong></a>(self, game_state: model.MenuGameState)</dt></dl>
+
+<dl><dt><a name="View-render_win"><strong>render_win</strong></a>(self, game_state: model.WinGameState)</dt></dl>
+
+<hr>
+Data descriptors defined here:<br>
+<dl><dt><strong>__dict__</strong></dt>
+<dd><span class="code">dictionary&nbsp;for&nbsp;instance&nbsp;variables</span></dd>
+</dl>
+<dl><dt><strong>__weakref__</strong></dt>
+<dd><span class="code">list&nbsp;of&nbsp;weak&nbsp;references&nbsp;to&nbsp;the&nbsp;object</span></dd>
+</dl>
+</td></tr></table></td></tr></table>
+</body></html>

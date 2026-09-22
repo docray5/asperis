@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Python: module commands</title>
+</head><body>
+
+<table class="heading">
+<tr class="heading-text decor">
+<td class="title">&nbsp;<br><strong class="title">commands</strong></td>
+<td class="extra"><a href=".">index</a><br><a href="file:c%3A%5Cusers%5Cjanek%5Cprogramming%5Cpythonprojects%5Ccannibals%5Ccommands.py">c:\users\janek\programming\pythonprojects\cannibals\commands.py</a></td></tr></table>
+    <p></p>
+<p>
+<table class="section">
+<tr class="decor pkg-content-decor heading-text">
+<td class="section-title" colspan=3>&nbsp;<br><strong class="bigsection">Modules</strong></td></tr>
+    
+<tr><td class="decor pkg-content-decor"><span class="code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></td><td>&nbsp;</td>
+<td class="singlecolumn"><table><tr><td class="multicolumn"><a href="model.html">model</a><br>
+</td><td class="multicolumn"></td><td class="multicolumn"></td><td class="multicolumn"></td></tr></table></td></tr></table><p>
+<table class="section">
+<tr class="decor index-decor heading-text">
+<td class="section-title" colspan=3>&nbsp;<br><strong class="bigsection">Classes</strong></td></tr>
+    
+<tr><td class="decor index-decor"><span class="code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></td><td>&nbsp;</td>
+<td class="singlecolumn"><dl>
+<dt class="heading-text"><a href="builtins.html#object">builtins.object</a>
+</dt><dd>
+<dl>
+<dt class="heading-text"><a href="commands.html#Command">Command</a>
+</dt><dd>
+<dl>
+<dt class="heading-text"><a href="commands.html#MoveActorCmd">MoveActorCmd</a>
+</dt><dt class="heading-text"><a href="commands.html#MoveBoatCmd">MoveBoatCmd</a>
+</dt><dt class="heading-text"><a href="commands.html#QuitGameCmd">QuitGameCmd</a>
+</dt><dt class="heading-text"><a href="commands.html#SwitchToGame">SwitchToGame</a>
+</dt><dt class="heading-text"><a href="commands.html#SwitchToLeaderBoardCmd">SwitchToLeaderBoardCmd</a>
+</dt><dt class="heading-text"><a href="commands.html#SwitchToMenuCmd">SwitchToMenuCmd</a>
+</dt><dt class="heading-text"><a href="commands.html#SwitchToWinCmd">SwitchToWinCmd</a>
+</dt></dl>
+</dd>
+</dl>
+</dd>
+</dl>
+ <p>
+<table class="section">
+<tr class="decor title-decor heading-text">
+<td class="section-title" colspan=3>&nbsp;<br><a name="Command">class <strong>Command</strong></a>(<a href="builtins.html#object">builtins.object</a>)</td></tr>
+    
+<tr><td class="decor title-decor" rowspan=2><span class="code">&nbsp;&nbsp;&nbsp;</span></td>
+<td class="decor title-decor" colspan=2><span class="code">Abstract&nbsp;class&nbsp;for&nbsp;the&nbsp;<a href="#Command">Command</a>&nbsp;Pattern<br>
+This&nbsp;allows&nbsp;me&nbsp;to&nbsp;decouple&nbsp;the&nbsp;Button&nbsp;class&nbsp;and&nbsp;basically<br>
+assign&nbsp;anything&nbsp;to&nbsp;it's&nbsp;action<br>&nbsp;</span></td></tr>
+<tr><td>&nbsp;</td>
+<td class="singlecolumn">Methods defined here:<br>
+<dl><dt><a name="Command-execute"><strong>execute</strong></a>(self)</dt></dl>
+
+<hr>
+Data descriptors defined here:<br>
+<dl><dt><strong>__dict__</strong></dt>
+<dd><span class="code">dictionary&nbsp;for&nbsp;instance&nbsp;variables</span></dd>
+</dl>
+<dl><dt><strong>__weakref__</strong></dt>
+<dd><span class="code">list&nbsp;of&nbsp;weak&nbsp;references&nbsp;to&nbsp;the&nbsp;object</span></dd>
+</dl>
+</td></tr></table> <p>
+<table class="section">
+<tr class="decor title-decor heading-text">
+<td class="section-title" colspan=3>&nbsp;<br><a name="MoveActorCmd">class <strong>MoveActorCmd</strong></a>(<a href="commands.html#Command">Command</a>)</td></tr>
+    
+<tr><td class="decor title-decor" rowspan=2><span class="code">&nbsp;&nbsp;&nbsp;</span></td>
+<td class="decor title-decor" colspan=2><span class="code"><a href="#MoveActorCmd">MoveActorCmd</a>(actor:&nbsp;model.Actor)<br>
+&nbsp;<br>
+<a href="#Command">Command</a>&nbsp;for&nbsp;moving&nbsp;actors<br>&nbsp;</span></td></tr>
+<tr><td>&nbsp;</td>
+<td class="singlecolumn"><dl><dt>Method resolution order:</dt>
+<dd><a href="commands.html#MoveActorCmd">MoveActorCmd</a></dd>
+<dd><a href="commands.html#Command">Command</a></dd>
+<dd><a href="builtins.html#object">builtins.object</a></dd>
+</dl>
+<hr>
+Methods defined here:<br>
+<dl><dt><a name="MoveActorCmd-__init__"><strong>__init__</strong></a>(self, actor: model.Actor)</dt><dd><span class="code">Initialize&nbsp;self.&nbsp;&nbsp;See&nbsp;help(type(self))&nbsp;for&nbsp;accurate&nbsp;signature.</span></dd></dl>
+
+<dl><dt><a name="MoveActorCmd-execute"><strong>execute</strong></a>(self)</dt></dl>
+
+<hr>
+Data descriptors inherited from <a href="commands.html#Command">Command</a>:<br>
+<dl><dt><strong>__dict__</strong></dt>
+<dd><span class="code">dictionary&nbsp;for&nbsp;instance&nbsp;variables</span></dd>
+</dl>
+<dl><dt><strong>__weakref__</strong></dt>
+<dd><span class="code">list&nbsp;of&nbsp;weak&nbsp;references&nbsp;to&nbsp;the&nbsp;object</span></dd>
+</dl>
+</td></tr></table> <p>
+<table class="section">
+<tr class="decor title-decor heading-text">
+<td class="section-title" colspan=3>&nbsp;<br><a name="MoveBoatCmd">class <strong>MoveBoatCmd</strong></a>(<a href="commands.html#Command">Command</a>)</td></tr>
+    
+<tr><td class="decor title-decor" rowspan=2><span class="code">&nbsp;&nbsp;&nbsp;</span></td>
+<td class="decor title-decor" colspan=2><span class="code"><a href="#MoveBoatCmd">MoveBoatCmd</a>(boat:&nbsp;model.Boat)<br>
+&nbsp;<br>
+<a href="#Command">Command</a>&nbsp;for&nbsp;moving&nbsp;the&nbsp;boat<br>&nbsp;</span></td></tr>
+<tr><td>&nbsp;</td>
+<td class="singlecolumn"><dl><dt>Method resolution order:</dt>
+<dd><a href="commands.html#MoveBoatCmd">MoveBoatCmd</a></dd>
+<dd><a href="commands.html#Command">Command</a></dd>
+<dd><a href="builtins.html#object">builtins.object</a></dd>
+</dl>
+<hr>
+Methods defined here:<br>
+<dl><dt><a name="MoveBoatCmd-__init__"><strong>__init__</strong></a>(self, boat: model.Boat)</dt><dd><span class="code">Initialize&nbsp;self.&nbsp;&nbsp;See&nbsp;help(type(self))&nbsp;for&nbsp;accurate&nbsp;signature.</span></dd></dl>
+
+<dl><dt><a name="MoveBoatCmd-execute"><strong>execute</strong></a>(self)</dt></dl>
+
+<hr>
+Data descriptors inherited from <a href="commands.html#Command">Command</a>:<br>
+<dl><dt><strong>__dict__</strong></dt>
+<dd><span class="code">dictionary&nbsp;for&nbsp;instance&nbsp;variables</span></dd>
+</dl>
+<dl><dt><strong>__weakref__</strong></dt>
+<dd><span class="code">list&nbsp;of&nbsp;weak&nbsp;references&nbsp;to&nbsp;the&nbsp;object</span></dd>
+</dl>
+</td></tr></table> <p>
+<table class="section">
+<tr class="decor title-decor heading-text">
+<td class="section-title" colspan=3>&nbsp;<br><a name="QuitGameCmd">class <strong>QuitGameCmd</strong></a>(<a href="commands.html#Command">Command</a>)</td></tr>
+    
+<tr><td class="decor title-decor" rowspan=2><span class="code">&nbsp;&nbsp;&nbsp;</span></td>
+<td class="decor title-decor" colspan=2><span class="code"><a href="#QuitGameCmd">QuitGameCmd</a>(model)<br>
+&nbsp;<br>
+Quiting&nbsp;the&nbsp;game<br>&nbsp;</span></td></tr>
+<tr><td>&nbsp;</td>
+<td class="singlecolumn"><dl><dt>Method resolution order:</dt>
+<dd><a href="commands.html#QuitGameCmd">QuitGameCmd</a></dd>
+<dd><a href="commands.html#Command">Command</a></dd>
+<dd><a href="builtins.html#object">builtins.object</a></dd>
+</dl>
+<hr>
+Methods defined here:<br>
+<dl><dt><a name="QuitGameCmd-__init__"><strong>__init__</strong></a>(self, model)</dt><dd><span class="code">Initialize&nbsp;self.&nbsp;&nbsp;See&nbsp;help(type(self))&nbsp;for&nbsp;accurate&nbsp;signature.</span></dd></dl>
+
+<dl><dt><a name="QuitGameCmd-execute"><strong>execute</strong></a>(self)</dt></dl>
+
+<hr>
+Data descriptors inherited from <a href="commands.html#Command">Command</a>:<br>
+<dl><dt><strong>__dict__</strong></dt>
+<dd><span class="code">dictionary&nbsp;for&nbsp;instance&nbsp;variables</span></dd>
+</dl>
+<dl><dt><strong>__weakref__</strong></dt>
+<dd><span class="code">list&nbsp;of&nbsp;weak&nbsp;references&nbsp;to&nbsp;the&nbsp;object</span></dd>
+</dl>
+</td></tr></table> <p>
+<table class="section">
+<tr class="decor title-decor heading-text">
+<td class="section-title" colspan=3>&nbsp;<br><a name="SwitchToGame">class <strong>SwitchToGame</strong></a>(<a href="commands.html#Command">Command</a>)</td></tr>
+    
+<tr><td class="decor title-decor" rowspan=2><span class="code">&nbsp;&nbsp;&nbsp;</span></td>
+<td class="decor title-decor" colspan=2><span class="code"><a href="#SwitchToGame">SwitchToGame</a>(model)<br>
+&nbsp;<br>
+<a href="#Command">Command</a>&nbsp;for&nbsp;switching&nbsp;views<br>&nbsp;</span></td></tr>
+<tr><td>&nbsp;</td>
+<td class="singlecolumn"><dl><dt>Method resolution order:</dt>
+<dd><a href="commands.html#SwitchToGame">SwitchToGame</a></dd>
+<dd><a href="commands.html#Command">Command</a></dd>
+<dd><a href="builtins.html#object">builtins.object</a></dd>
+</dl>
+<hr>
+Methods defined here:<br>
+<dl><dt><a name="SwitchToGame-__init__"><strong>__init__</strong></a>(self, model)</dt><dd><span class="code">Initialize&nbsp;self.&nbsp;&nbsp;See&nbsp;help(type(self))&nbsp;for&nbsp;accurate&nbsp;signature.</span></dd></dl>
+
+<dl><dt><a name="SwitchToGame-execute"><strong>execute</strong></a>(self)</dt></dl>
+
+<hr>
+Data descriptors inherited from <a href="commands.html#Command">Command</a>:<br>
+<dl><dt><strong>__dict__</strong></dt>
+<dd><span class="code">dictionary&nbsp;for&nbsp;instance&nbsp;variables</span></dd>
+</dl>
+<dl><dt><strong>__weakref__</strong></dt>
+<dd><span class="code">list&nbsp;of&nbsp;weak&nbsp;references&nbsp;to&nbsp;the&nbsp;object</span></dd>
+</dl>
+</td></tr></table> <p>
+<table class="section">
+<tr class="decor title-decor heading-text">
+<td class="section-title" colspan=3>&nbsp;<br><a name="SwitchToLeaderBoardCmd">class <strong>SwitchToLeaderBoardCmd</strong></a>(<a href="commands.html#Command">Command</a>)</td></tr>
+    
+<tr><td class="decor title-decor" rowspan=2><span class="code">&nbsp;&nbsp;&nbsp;</span></td>
+<td class="decor title-decor" colspan=2><span class="code"><a href="#SwitchToLeaderBoardCmd">SwitchToLeaderBoardCmd</a>(model)<br>
+&nbsp;<br>
+<a href="#Command">Command</a>&nbsp;for&nbsp;switching&nbsp;views<br>&nbsp;</span></td></tr>
+<tr><td>&nbsp;</td>
+<td class="singlecolumn"><dl><dt>Method resolution order:</dt>
+<dd><a href="commands.html#SwitchToLeaderBoardCmd">SwitchToLeaderBoardCmd</a></dd>
+<dd><a href="commands.html#Command">Command</a></dd>
+<dd><a href="builtins.html#object">builtins.object</a></dd>
+</dl>
+<hr>
+Methods defined here:<br>
+<dl><dt><a name="SwitchToLeaderBoardCmd-__init__"><strong>__init__</strong></a>(self, model)</dt><dd><span class="code">Initialize&nbsp;self.&nbsp;&nbsp;See&nbsp;help(type(self))&nbsp;for&nbsp;accurate&nbsp;signature.</span></dd></dl>
+
+<dl><dt><a name="SwitchToLeaderBoardCmd-execute"><strong>execute</strong></a>(self)</dt></dl>
+
+<hr>
+Data descriptors inherited from <a href="commands.html#Command">Command</a>:<br>
+<dl><dt><strong>__dict__</strong></dt>
+<dd><span class="code">dictionary&nbsp;for&nbsp;instance&nbsp;variables</span></dd>
+</dl>
+<dl><dt><strong>__weakref__</strong></dt>
+<dd><span class="code">list&nbsp;of&nbsp;weak&nbsp;references&nbsp;to&nbsp;the&nbsp;object</span></dd>
+</dl>
+</td></tr></table> <p>
+<table class="section">
+<tr class="decor title-decor heading-text">
+<td class="section-title" colspan=3>&nbsp;<br><a name="SwitchToMenuCmd">class <strong>SwitchToMenuCmd</strong></a>(<a href="commands.html#Command">Command</a>)</td></tr>
+    
+<tr><td class="decor title-decor" rowspan=2><span class="code">&nbsp;&nbsp;&nbsp;</span></td>
+<td class="decor title-decor" colspan=2><span class="code"><a href="#SwitchToMenuCmd">SwitchToMenuCmd</a>(model)<br>
+&nbsp;<br>
+<a href="#Command">Command</a>&nbsp;for&nbsp;switching&nbsp;views<br>&nbsp;</span></td></tr>
+<tr><td>&nbsp;</td>
+<td class="singlecolumn"><dl><dt>Method resolution order:</dt>
+<dd><a href="commands.html#SwitchToMenuCmd">SwitchToMenuCmd</a></dd>
+<dd><a href="commands.html#Command">Command</a></dd>
+<dd><a href="builtins.html#object">builtins.object</a></dd>
+</dl>
+<hr>
+Methods defined here:<br>
+<dl><dt><a name="SwitchToMenuCmd-__init__"><strong>__init__</strong></a>(self, model)</dt><dd><span class="code">Initialize&nbsp;self.&nbsp;&nbsp;See&nbsp;help(type(self))&nbsp;for&nbsp;accurate&nbsp;signature.</span></dd></dl>
+
+<dl><dt><a name="SwitchToMenuCmd-execute"><strong>execute</strong></a>(self)</dt></dl>
+
+<hr>
+Data descriptors inherited from <a href="commands.html#Command">Command</a>:<br>
+<dl><dt><strong>__dict__</strong></dt>
+<dd><span class="code">dictionary&nbsp;for&nbsp;instance&nbsp;variables</span></dd>
+</dl>
+<dl><dt><strong>__weakref__</strong></dt>
+<dd><span class="code">list&nbsp;of&nbsp;weak&nbsp;references&nbsp;to&nbsp;the&nbsp;object</span></dd>
+</dl>
+</td></tr></table> <p>
+<table class="section">
+<tr class="decor title-decor heading-text">
+<td class="section-title" colspan=3>&nbsp;<br><a name="SwitchToWinCmd">class <strong>SwitchToWinCmd</strong></a>(<a href="commands.html#Command">Command</a>)</td></tr>
+    
+<tr><td class="decor title-decor" rowspan=2><span class="code">&nbsp;&nbsp;&nbsp;</span></td>
+<td class="decor title-decor" colspan=2><span class="code"><a href="#SwitchToWinCmd">SwitchToWinCmd</a>(model)<br>
+&nbsp;<br>
+<a href="#Command">Command</a>&nbsp;for&nbsp;switching&nbsp;views<br>&nbsp;</span></td></tr>
+<tr><td>&nbsp;</td>
+<td class="singlecolumn"><dl><dt>Method resolution order:</dt>
+<dd><a href="commands.html#SwitchToWinCmd">SwitchToWinCmd</a></dd>
+<dd><a href="commands.html#Command">Command</a></dd>
+<dd><a href="builtins.html#object">builtins.object</a></dd>
+</dl>
+<hr>
+Methods defined here:<br>
+<dl><dt><a name="SwitchToWinCmd-__init__"><strong>__init__</strong></a>(self, model)</dt><dd><span class="code">Initialize&nbsp;self.&nbsp;&nbsp;See&nbsp;help(type(self))&nbsp;for&nbsp;accurate&nbsp;signature.</span></dd></dl>
+
+<dl><dt><a name="SwitchToWinCmd-execute"><strong>execute</strong></a>(self)</dt></dl>
+
+<hr>
+Data descriptors inherited from <a href="commands.html#Command">Command</a>:<br>
+<dl><dt><strong>__dict__</strong></dt>
+<dd><span class="code">dictionary&nbsp;for&nbsp;instance&nbsp;variables</span></dd>
+</dl>
+<dl><dt><strong>__weakref__</strong></dt>
+<dd><span class="code">list&nbsp;of&nbsp;weak&nbsp;references&nbsp;to&nbsp;the&nbsp;object</span></dd>
+</dl>
+</td></tr></table></td></tr></table><p>
+<table class="section">
+<tr class="decor functions-decor heading-text">
+<td class="section-title" colspan=3>&nbsp;<br><strong class="bigsection">Functions</strong></td></tr>
+    
+<tr><td class="decor functions-decor"><span class="code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></td><td>&nbsp;</td>
+<td class="singlecolumn"><dl><dt><a name="-initialize"><strong>initialize</strong></a>(model)</dt><dd><span class="code">Initializes&nbsp;all&nbsp;the&nbsp;command&nbsp;objects</span></dd></dl>
+</td></tr></table><p>
+<table class="section">
+<tr class="decor data-decor heading-text">
+<td class="section-title" colspan=3>&nbsp;<br><strong class="bigsection">Data</strong></td></tr>
+    
+<tr><td class="decor data-decor"><span class="code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></td><td>&nbsp;</td>
+<td class="singlecolumn"><strong>quit_game_cmd</strong> = None<br>
+<strong>switch_to_game_cmd</strong> = None<br>
+<strong>switch_to_menu_cmd</strong> = None<br>
+<strong>switch_to_win_cmd</strong> = None</td></tr></table>
+</body></html>

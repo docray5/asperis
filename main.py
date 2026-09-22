@@ -51,7 +51,8 @@ class AssetManager:
 def main():
     # Additional line because windows scaling is broken and affects my game
     # thanks to this the window displays independently to scaling
-    ctypes.windll.user32.SetProcessDPIAware()
+    # fix this on mac os:
+    # ctypes.windll.user32.SetProcessDPIAware()
 
     # init
     pygame.init()
@@ -78,6 +79,7 @@ def main():
 
     pygame.quit()
     sys.exit()
+
 
 if __name__ == '__main__':
     main()
